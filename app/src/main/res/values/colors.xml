@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors ui/theme/Color.kt for the resources the framework needs. -->
+    <color name="brand_saffron">#FFD96D00</color>
+    <color name="ink_900">#FF1A1410</color>
+    <color name="cloud">#FFFFFAF0</color>
+</resources>

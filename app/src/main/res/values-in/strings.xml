@@ -1,0 +1,461 @@
+<resources>
+    <string name="app_name">Ngantriin</string>
+    <string name="app_tagline">Good Food • Less Wait • Happier You</string>
+
+    <!-- Bottom navigation (section 4) -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_search">Cari</string>
+    <string name="nav_queue">Antrean Saya</string>
+    <string name="nav_history">Riwayat</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Queue status labels (section 14) -->
+    <string name="status_waiting">Menunggu</string>
+    <string name="status_almost_there">Segera tiba giliran</string>
+    <string name="status_called">Giliranmu!</string>
+    <string name="status_checked_in">Sudah check-in</string>
+    <string name="status_completed">Selesai</string>
+    <string name="status_cancelled">Dibatalkan</string>
+
+    <!-- Notification channels (section 15) -->
+    <string name="channel_queue_updates_name">Update antrean</string>
+    <string name="channel_queue_updates_description">Perubahan posisi selama kamu menunggu.</string>
+    <string name="channel_queue_called_name">Giliranmu</string>
+    <string name="channel_queue_called_description">Dikirim begitu restoran memanggil nomormu.</string>
+
+    <!-- Push notification copy (section 15) -->
+    <string name="push_almost_there_title">Giliranmu sebentar lagi</string>
+    <plurals name="push_almost_there_body">
+        <item quantity="other">Tinggal %1$d grup lagi di depanmu. Estimasi tunggu: %2$s.</item>
+    </plurals>
+    <string name="push_return_now_title">Bersiap-siap</string>
+    <string name="push_return_now_body">Giliranmu hampir tiba. Segera kembali ke restoran.</string>
+    <string name="push_called_title">Giliranmu tiba!</string>
+    <string name="push_called_body">Antrean %1$s sedang dipanggil. Segera check-in di restoran.</string>
+    <string name="push_checked_in_title">Check-in berhasil</string>
+    <string name="push_checked_in_body">Kamu sudah check-in. Selamat menikmati!</string>
+    <string name="push_completed_title">Terima kasih sudah berkunjung</string>
+    <string name="push_completed_body">Ketuk untuk menilai pengalamanmu.</string>
+    <string name="push_cancelled_title">Antrean dibatalkan</string>
+    <string name="push_cancelled_body">Tiketmu sudah tidak aktif.</string>
+    <string name="push_queue_update_title">Update antrean</string>
+
+    <!-- Errors (section 28) -->
+    <string name="error_network">Tidak ada koneksi internet. Periksa jaringanmu dan coba lagi.</string>
+    <string name="error_server">Ada masalah di sistem kami. Silakan coba lagi.</string>
+    <string name="error_session_expired">Sesimu telah berakhir. Silakan masuk kembali.</string>
+    <string name="error_invalid_credentials">Email atau kata sandi salah.</string>
+    <string name="error_signup_rejected">Gagal membuat akun: %1$s</string>
+    <string name="error_restaurant_closed">Restoran ini sedang tutup.</string>
+    <string name="error_queue_full">Antrean ini sudah penuh. Coba lagi sebentar lagi.</string>
+    <string name="error_seats_available">Restoran ini masih ada kursi kosong — tidak perlu antre, langsung datang saja.</string>
+
+    <!-- Section 44: "kursi kosong" walk-in availability -->
+    <plurals name="seats_available_title">
+        <item quantity="other">%1$d kursi kosong tersedia</item>
+    </plurals>
+    <string name="seats_available_subtitle">Tidak perlu antre — langsung datang dan duduk saja.</string>
+    <string name="seats_available_badge">Kursi kosong</string>
+    <string name="seats_available_count">%1$d kosong</string>
+
+    <!-- Localized equivalents of core/Formatters.kt (section 43) -->
+    <string name="distance_unknown">—</string>
+    <string name="distance_meters">%1$d m</string>
+    <string name="distance_km">%1$.1f km</string>
+    <string name="wait_time_none">Tidak perlu menunggu</string>
+    <string name="wait_time_minutes">~%1$d mnt</string>
+    <string name="wait_time_hours">~%1$d jam</string>
+    <string name="wait_time_hours_minutes">~%1$d jam %2$d mnt</string>
+    <string name="wait_time_minutes_short">%1$d mnt</string>
+    <string name="wait_time_hours_minutes_short">%1$dj %2$dm</string>
+    <plurals name="groups_count">
+        <item quantity="other">%1$d grup</item>
+    </plurals>
+    <string name="relative_just_now">baru saja</string>
+    <plurals name="relative_minutes_ago">
+        <item quantity="other">%1$d mnt lalu</item>
+    </plurals>
+    <plurals name="relative_hours_ago">
+        <item quantity="other">%1$d jam lalu</item>
+    </plurals>
+    <plurals name="relative_days_ago">
+        <item quantity="other">%1$d hr lalu</item>
+    </plurals>
+    <string name="greeting_morning">Selamat pagi</string>
+    <string name="greeting_afternoon">Selamat siang</string>
+    <string name="greeting_evening">Selamat sore</string>
+    <string name="greeting_night">Selamat malam</string>
+
+    <!-- Home screen -->
+    <string name="home_offline">Kamu sedang offline. Info antrean mungkin sudah tidak terbaru.</string>
+    <string name="home_empty_title">Tidak ada restoran di dekatmu</string>
+    <string name="home_empty_offline">Tidak bisa terhubung ke server. Sambungkan internet dan coba lagi.</string>
+    <string name="home_empty_no_results">Kami belum menemukan restoran di sekitarmu.</string>
+    <string name="home_refresh">Muat ulang</string>
+    <string name="home_near_you">Di Dekatmu</string>
+    <string name="home_near_you_subtitle_located">Diurutkan berdasarkan jarak dari lokasimu</string>
+    <string name="home_near_you_subtitle_default">Aktifkan lokasi untuk mengurutkan berdasarkan jarak</string>
+    <string name="home_all_restaurants">Semua restoran</string>
+    <string name="home_all_restaurants_subtitle">Panjang antrean langsung, diperbarui otomatis</string>
+    <string name="home_see_all">Lihat semua</string>
+    <string name="home_location_known">Lokasimu: area Gading Serpong</string>
+    <string name="home_location_finding">Mencari lokasimu…</string>
+    <string name="home_location_off">Aktifkan lokasi</string>
+    <string name="home_search_placeholder">Cari restoran…</string>
+    <string name="badge_overflow">9+</string>
+
+    <!-- Active queue banner (Home / bottom tabs) -->
+    <string name="queue_banner_ready_to_check_in">Mejamu sudah siap — ketuk untuk check-in</string>
+    <string name="queue_banner_checked_in">Sudah check-in — selamat menikmati</string>
+    <string name="queue_banner_youre_next">Giliranmu berikutnya</string>
+    <string name="queue_banner_ahead_and_wait">%1$s lagi • %2$s</string>
+
+    <!-- Restaurant card -->
+    <string name="restaurant_card_waiting">menunggu</string>
+    <string name="restaurant_card_est_wait">estimasi tunggu</string>
+    <string name="restaurant_open">BUKA</string>
+    <string name="restaurant_closed">TUTUP</string>
+
+    <!-- Restaurant detail screen -->
+    <string name="restaurant_about">Tentang</string>
+    <string name="restaurant_description_fallback">Restoran %1$s di %2$s.</string>
+    <string name="restaurant_cuisine">Jenis masakan</string>
+    <string name="restaurant_opening_hours">Jam buka</string>
+    <string name="restaurant_avg_service_time">Rata-rata waktu layanan</string>
+    <string name="restaurant_avg_service_value">%1$d mnt per grup</string>
+    <string name="restaurant_address">Alamat</string>
+    <string name="restaurant_distance">Jarak</string>
+    <string name="restaurant_reviews">Ulasan</string>
+    <string name="restaurant_reviews_subtitle">%1$s dari %2$d kunjungan</string>
+    <string name="restaurant_no_reviews">Belum ada ulasan</string>
+    <string name="restaurant_current_queue">ANTREAN SAAT INI</string>
+    <string name="restaurant_groups_waiting">grup menunggu</string>
+    <string name="restaurant_estimated_wait">estimasi tunggu</string>
+    <string name="restaurant_now_serving">Sedang melayani %1$s</string>
+    <string name="restaurant_nobody_served">Belum ada yang dilayani</string>
+    <string name="restaurant_capacity">kapasitas %1$d</string>
+    <string name="restaurant_already_in_queue_as">Kamu sudah ada di antrean ini sebagai %1$s.</string>
+    <string name="restaurant_leave_before_joining"> Keluar dulu sebelum bergabung ke restoran lain.</string>
+    <string name="restaurant_closed_button">Sedang tutup</string>
+    <string name="restaurant_queue_full_button">Antrean penuh</string>
+    <string name="restaurant_join_queue">Ambil Antrean</string>
+    <string name="restaurant_party_size">Jumlah orang</string>
+    <string name="cd_fewer_people">Kurangi orang</string>
+    <string name="cd_more_people">Tambah orang</string>
+    <string name="restaurant_not_found">Kami tidak bisa memuat restoran ini.</string>
+    <string name="action_go_back">Kembali</string>
+    <string name="action_view_my_queue">Lihat antrean saya</string>
+    <string name="action_try_again">Coba lagi</string>
+
+    <!-- Password field visibility toggle -->
+    <string name="cd_show_password">Tampilkan kata sandi</string>
+    <string name="cd_hide_password">Sembunyikan kata sandi</string>
+
+    <!-- Generic error / empty states -->
+    <string name="error_state_offline_title">Kamu sedang offline</string>
+    <string name="error_state_generic_title">Terjadi kesalahan</string>
+
+    <!-- Location permission rationale dialog -->
+    <string name="location_rationale_title">Izinkan Ngantriin menggunakan lokasimu</string>
+    <string name="location_rationale_message">Lokasimu membantu kami menemukan restoran terdekat dan mengurutkannya berdasarkan jarak.</string>
+    <string name="location_rationale_confirm">Izinkan lokasi</string>
+    <string name="location_rationale_dismiss">Nanti saja</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Lewati</string>
+    <string name="onboarding_next">Lanjut</string>
+    <string name="onboarding_get_started">Mulai</string>
+    <string name="onboarding_stop_waiting_title">Berhenti Mengantre</string>
+    <string name="onboarding_stop_waiting_description">Ambil antrean restoranmu secara digital dan habiskan waktu tunggu untuk hal lain.</string>
+    <string name="onboarding_track_queue_title">Pantau Antreanmu</string>
+    <string name="onboarding_track_queue_description">Lihat posisi antrean dan estimasi waktu tunggu secara real-time.</string>
+    <string name="onboarding_come_back_title">Kembali Saat Giliranmu Tiba</string>
+    <string name="onboarding_come_back_description">Dapatkan notifikasi saat giliranmu dekat dan check-in saat kamu kembali.</string>
+    <string name="onboarding_illustration_your_turn">Giliranmu!</string>
+    <string name="onboarding_illustration_being_called">%1$s sedang dipanggil</string>
+
+    <!-- Form validation (core/Validators.kt) -->
+    <string name="validation_email_required">Email wajib diisi</string>
+    <string name="validation_email_invalid">Masukkan alamat email yang valid</string>
+    <string name="validation_password_required">Kata sandi wajib diisi</string>
+    <string name="validation_password_too_short">Gunakan minimal %1$d karakter</string>
+    <string name="validation_name_required">Nama wajib diisi</string>
+    <string name="validation_name_invalid">Masukkan nama lengkapmu</string>
+    <string name="validation_confirm_password_required">Konfirmasi kata sandimu</string>
+    <string name="validation_passwords_dont_match">Kata sandi tidak cocok</string>
+
+    <!-- Auth: shared -->
+    <string name="auth_email_label">Email</string>
+    <string name="auth_email_placeholder">kamu@contoh.com</string>
+    <string name="auth_password_label">Kata Sandi</string>
+    <string name="auth_demo_mode_title">Mode demo</string>
+    <string name="auth_demo_mode_body">Kredensial Supabase belum diatur, jadi tidak ada yang diverifikasi — email apa pun bisa masuk memakai data contoh bawaan. Gunakan email berawalan \"staff\" untuk membuka dashboard restoran.</string>
+
+    <!-- Login screen -->
+    <string name="login_title">Selamat datang kembali</string>
+    <string name="login_subtitle">Masuk untuk ambil tempatmu di antrean tanpa perlu berdiri menunggu.</string>
+    <string name="login_forgot_password">Lupa kata sandi?</string>
+    <string name="login_button">Masuk</string>
+    <string name="login_new_to_app">Baru di Ngantriin?</string>
+    <string name="login_create_account">Buat akun</string>
+    <string name="login_reset_email_sent">Tautan reset kata sandi sudah dikirim ke %1$s</string>
+
+    <!-- Register screen -->
+    <string name="register_title">Buat akunmu</string>
+    <string name="register_subtitle">Satu akun, untuk semua antrean di Gading Serpong.</string>
+    <string name="register_full_name_label">Nama lengkap</string>
+    <string name="register_confirm_password_label">Konfirmasi kata sandi</string>
+    <string name="register_button">Buat akun</string>
+    <string name="register_confirmation_required">Akun berhasil dibuat. Cek inbox emailmu untuk konfirmasi, lalu kembali dan masuk.</string>
+    <string name="register_already_have_account">Sudah punya akun?</string>
+    <string name="register_log_in">Masuk</string>
+
+    <!-- Sort options (Search screen) -->
+    <string name="sort_nearest">Terdekat</string>
+    <string name="sort_shortest_wait">Tunggu tersingkat</string>
+    <string name="sort_highest_rated">Rating tertinggi</string>
+    <string name="sort_most_popular">Paling populer</string>
+
+    <!-- Search screen -->
+    <string name="search_offline">Kamu sedang offline. Menampilkan data terakhir yang tersimpan.</string>
+    <string name="cd_clear_search">Hapus pencarian</string>
+    <string name="cd_filters">Filter</string>
+    <string name="search_searching">Mencari…</string>
+    <plurals name="search_results_count">
+        <item quantity="other">%1$d restoran</item>
+    </plurals>
+    <string name="search_location_off">Lokasi mati</string>
+    <string name="search_empty_title">Restoran tidak ditemukan</string>
+    <string name="search_empty_with_filters">Tidak ada yang cocok dengan filter ini. Coba perluas filternya.</string>
+    <string name="search_empty_no_filters">Coba nama, kategori, atau area yang berbeda.</string>
+    <string name="search_clear_filters">Hapus filter</string>
+
+    <!-- Filter sheet -->
+    <string name="filter_title">Filter</string>
+    <string name="filter_clear_all">Hapus semua</string>
+    <string name="filter_category">Kategori</string>
+    <string name="filter_distance">Jarak</string>
+    <string name="filter_queue_length">Panjang antrean</string>
+    <string name="filter_estimated_wait">Estimasi tunggu</string>
+    <string name="filter_rating">Rating</string>
+    <string name="filter_availability">Ketersediaan</string>
+    <string name="filter_open_now">Buka sekarang</string>
+    <string name="filter_show_results">Tampilkan hasil</string>
+    <string name="filter_distance_500m">Dalam 500 m</string>
+    <string name="filter_distance_1km">Dalam 1 km</string>
+    <string name="filter_distance_3km">Dalam 3 km</string>
+    <string name="filter_distance_10km">Dalam 10 km</string>
+    <string name="filter_queue_none">Tanpa antrean</string>
+    <string name="filter_queue_up_to_5">Sampai 5 grup</string>
+    <string name="filter_queue_up_to_10">Sampai 10 grup</string>
+    <string name="filter_queue_up_to_20">Sampai 20 grup</string>
+    <string name="filter_wait_under_10">Di bawah 10 mnt</string>
+    <string name="filter_wait_under_20">Di bawah 20 mnt</string>
+    <string name="filter_wait_under_30">Di bawah 30 mnt</string>
+    <string name="filter_wait_under_60">Di bawah 60 mnt</string>
+
+    <!-- Active queue screen -->
+    <string name="active_queue_leave_title">Keluar dari antrean ini?</string>
+    <string name="active_queue_leave_message">Yakin ingin keluar dari antrean saat ini? Kamu akan kehilangan posisimu dan nomor ini tidak bisa didapat lagi.</string>
+    <string name="active_queue_leave_confirm">Keluar antrean</string>
+    <string name="active_queue_offline">Koneksi terputus. Info antrean mungkin sudah tidak terbaru.</string>
+    <string name="active_queue_empty_title">Tidak ada antrean aktif</string>
+    <string name="active_queue_empty_message">Saat kamu bergabung ke antrean restoran, nomor dan waktu tunggumu akan muncul di sini.</string>
+    <string name="active_queue_find_restaurant">Cari restoran</string>
+    <string name="active_queue_your_queue">ANTREANMU</string>
+    <string name="active_queue_progress">PROGRES ANTREAN</string>
+    <string name="active_queue_check_in_now">Check-in sekarang</string>
+    <string name="active_queue_view_restaurant">Lihat restoran</string>
+    <string name="active_queue_rate_experience">Beri nilai pengalamanmu</string>
+    <string name="active_queue_check_restaurant_location">Lihat lokasi restoran</string>
+    <string name="active_queue_leaving">Keluar…</string>
+    <plurals name="queue_group_ahead_label">
+        <item quantity="other">grup lagi</item>
+    </plurals>
+    <string name="active_queue_estimated_wait_label">estimasi tunggu</string>
+    <string name="active_queue_position_party">Posisi #%1$d • %2$d orang</string>
+    <string name="guidance_called">Mejamu sudah siap. Segera ke %1$s dan check-in.</string>
+    <string name="guidance_checked_in">Kamu sudah check-in. Silakan menuju area tunggu.</string>
+    <string name="guidance_almost_there">Kamu hampir di depan. Mulai kembali ke restoran sekarang.</string>
+    <string name="guidance_default">Kamu tidak perlu menunggu di sini. Kami akan kabari saat giliranmu dekat.</string>
+
+    <!-- Check-in screen -->
+    <string name="checkin_title">Check-in</string>
+    <string name="checkin_table_ready">Mejamu sudah siap.</string>
+    <string name="checkin_not_called">Belum dipanggil</string>
+    <string name="cd_checkin_photo">Foto check-in kamu</string>
+    <string name="checkin_uploading">Mengunggah fotomu…</string>
+    <string name="checkin_looks_good">Terlihat bagus — kirim untuk check-in.</string>
+    <string name="checkin_instruction">Ambil foto dirimu di restoran untuk check-in.</string>
+    <string name="checkin_take_photo">Ambil foto</string>
+    <string name="checkin_submit">Kirim dan check-in</string>
+    <string name="checkin_retake_photo">Ambil ulang foto</string>
+    <string name="checkin_back_to_queue">Kembali ke antreanku</string>
+    <string name="checkin_success_title">Kamu sudah check-in!</string>
+    <string name="checkin_success_body">%1$s di %2$s. Silakan menuju area tunggu.</string>
+    <string name="action_done">Selesai</string>
+
+    <!-- Join queue confirmation screen -->
+    <string name="confirm_joined_title">Kamu bergabung ke antrean!</string>
+    <string name="confirm_queue_number_label">NOMOR ANTREAN</string>
+    <string name="confirm_body">Kamu bisa tinggalkan lokasi dan lanjutkan harimu. Kami akan kabari saat giliranmu dekat.</string>
+    <string name="action_back_to_home">Kembali ke beranda</string>
+
+    <!-- Queue completed screen -->
+    <string name="completed_title">Terima kasih sudah menggunakan Ngantriin</string>
+    <string name="completed_body">Kunjunganmu sudah selesai. Ceritakan pengalamanmu agar orang lain tahu yang bisa diharapkan.</string>
+    <string name="completed_view_history">Lihat riwayat antrean</string>
+
+    <!-- Queue progress track -->
+    <string name="progress_now_serving">SEDANG DILAYANI</string>
+    <string name="progress_you">KAMU</string>
+    <string name="progress_youre_next">Kamu berikutnya</string>
+    <string name="progress_to_go">%1$d lagi</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profil</string>
+    <string name="profile_guest">Tamu</string>
+    <string name="cd_edit_profile">Edit profil</string>
+    <string name="action_cancel">Batal</string>
+    <string name="action_save">Simpan</string>
+    <string name="profile_stat_visits">Kunjungan Selesai</string>
+    <string name="profile_stat_queues">Antrean Diikuti</string>
+    <string name="profile_stat_minutes_saved">Menit Tak Terbuang Mengantre</string>
+    <string name="profile_notifications">Notifikasi</string>
+    <string name="profile_notifications_new">%1$d baru</string>
+    <string name="profile_restaurant_dashboard">Dashboard restoran</string>
+    <string name="profile_sign_out">Keluar</string>
+    <string name="profile_sign_out_title">Keluar akun?</string>
+    <string name="profile_sign_out_message">Kamu perlu masuk lagi untuk melihat antrean dan riwayatmu.</string>
+    <string name="profile_footer_demo">Ngantriin • mode demo (backend belum diatur)</string>
+    <string name="profile_footer">Ngantriin</string>
+
+    <!-- History screen -->
+    <string name="history_offline">Kamu sedang offline. Menampilkan riwayat tersimpan.</string>
+    <string name="history_title">Riwayat Antrean</string>
+    <string name="history_empty_title">Belum ada riwayat antrean</string>
+    <string name="history_empty_message">Setelah kamu pernah mengantre, riwayatnya akan muncul di sini lengkap dengan lama waktu tunggu sebenarnya.</string>
+    <string name="history_number_and_date">%1$s • %2$s</string>
+    <string name="history_waited_minutes">Menunggu %1$d mnt</string>
+    <string name="history_wait_not_recorded">Waktu tunggu tidak tercatat</string>
+    <string name="history_rate_visit">Beri nilai</string>
+    <string name="history_reviewed">Sudah dinilai</string>
+
+    <!-- Notifications screen -->
+    <string name="notifications_title">Notifikasi</string>
+    <string name="notifications_mark_all_read">Tandai semua terbaca</string>
+    <string name="notifications_empty_title">Belum ada apa-apa di sini</string>
+    <string name="notifications_empty_message">Kami akan kabari saat giliranmu hampir tiba.</string>
+
+    <!-- Review screen -->
+    <string name="review_title">Beri nilai kunjunganmu</string>
+    <string name="review_your_visit_fallback">Kunjunganmu</string>
+    <string name="review_how_was_it">Bagaimana pengalamanmu?</string>
+    <string name="review_comment_placeholder">Ceritakan pengalamanmu…</string>
+    <string name="review_already_reviewed">Kamu sudah menilai kunjungan ini. Mengirim ulang akan memperbarui nilainya.</string>
+    <string name="review_submit">Kirim ulasan</string>
+    <string name="rating_caption_1">Kurang baik</string>
+    <string name="rating_caption_2">Bisa lebih baik</string>
+    <string name="rating_caption_3">Lumayan</string>
+    <string name="rating_caption_4">Bagus sekali</string>
+    <string name="rating_caption_5">Sangat suka</string>
+    <string name="rating_caption_none">Ketuk bintang untuk menilai</string>
+
+    <!-- Staff dashboard screen -->
+    <string name="staff_sign_out_title">Keluar akun?</string>
+    <string name="staff_sign_out_message">Kamu perlu masuk lagi untuk mengelola antrean ini.</string>
+    <string name="staff_dashboard_title">Dashboard restoran</string>
+    <string name="staff_no_restaurants_title">Belum ada restoran yang ditugaskan</string>
+    <string name="staff_no_restaurants_message">Akun ini belum terdaftar sebagai staf untuk restoran mana pun. Tambahkan baris ke restaurant_staff untuk mengelolanya.</string>
+    <string name="staff_waiting">menunggu</string>
+    <string name="staff_called">dipanggil</string>
+    <string name="staff_seated">duduk</string>
+    <string name="staff_estimated_wait_new_group">Estimasi tunggu untuk grup baru: %1$s</string>
+    <string name="staff_call_next_button">Panggil berikutnya • %1$s</string>
+    <string name="staff_nobody_waiting">Belum ada yang menunggu</string>
+    <string name="staff_manage_queue">Kelola antrean (%1$d)</string>
+    <string name="staff_now_serving">SEDANG DILAYANI</string>
+    <string name="staff_next_up">BERIKUTNYA</string>
+
+    <!-- Staff queue screen -->
+    <string name="staff_queue_title_fallback">Antrean</string>
+    <string name="staff_call_next_action">Panggil berikutnya</string>
+    <string name="staff_empty_title">Belum ada yang mengantre</string>
+    <string name="staff_empty_message">Tiket akan muncul di sini begitu pelanggan bergabung.</string>
+    <string name="staff_section_called">Dipanggil</string>
+    <string name="staff_section_called_subtitle">Menunggu pelanggan check-in</string>
+    <string name="staff_section_seated">Duduk</string>
+    <string name="staff_section_seated_subtitle">Sudah check-in dan sedang dilayani</string>
+    <string name="staff_section_waiting">Menunggu</string>
+    <string name="staff_section_waiting_subtitle">Dalam antrean, sesuai urutan tiket</string>
+    <string name="staff_section_title_count">%1$s (%2$d)</string>
+    <string name="staff_party_joined">%1$d orang • bergabung %2$s</string>
+    <string name="staff_action_call">Panggil</string>
+    <string name="staff_action_remove">Hapus</string>
+    <string name="staff_action_seat">Dudukkan</string>
+    <string name="staff_action_complete">Selesai</string>
+    <string name="staff_action_no_show">Tidak hadir</string>
+
+    <!-- Staff customer detail screen -->
+    <string name="staff_customer_detail_title">Detail antrean</string>
+    <string name="staff_ticket_gone">Tiket ini sudah tidak ada di antrean aktif.</string>
+    <string name="action_back">Kembali</string>
+    <string name="staff_joined">Bergabung</string>
+    <string name="staff_called_label">Dipanggil</string>
+    <string name="staff_checked_in_label">Check-in</string>
+    <string name="staff_view_checkin_photo">Lihat foto check-in</string>
+    <string name="staff_completed_label">Selesai</string>
+    <string name="staff_waited_label">Menunggu</string>
+    <string name="staff_waited_value">%1$d mnt</string>
+    <string name="staff_note">Catatan: %1$s</string>
+    <string name="staff_call_this_customer">Panggil pelanggan ini</string>
+    <string name="staff_remove_from_queue">Hapus dari antrean</string>
+    <string name="staff_mark_seated">Tandai sudah duduk</string>
+    <string name="staff_mark_completed">Tandai selesai</string>
+    <string name="staff_ticket_finished">Tiket ini sudah selesai. Tidak ada tindakan lain.</string>
+    <string name="cd_checkin_photo_view">Foto check-in</string>
+    <string name="error_already_in_queue">Kamu sudah punya antrean aktif.</string>
+    <string name="error_join_cooldown">Tunggu sebentar sebelum bergabung lagi ke antrean ini.</string>
+    <string name="error_queue_not_found">Kami tidak menemukan antrean itu.</string>
+    <string name="error_queue_not_called">Kamu bisa check-in setelah restoran memanggil nomormu.</string>
+    <string name="error_queue_not_cancellable">Antrean ini sudah tidak bisa dibatalkan.</string>
+    <string name="error_queue_empty">Belum ada yang menunggu saat ini.</string>
+    <string name="error_location_permission">Izin lokasi diperlukan untuk menemukan restoran terdekat.</string>
+    <string name="error_location_unavailable">Kami tidak bisa mendapatkan lokasimu. Pastikan GPS aktif.</string>
+    <string name="error_photo_required">Silakan ambil foto untuk check-in.</string>
+    <string name="error_not_staff">Kamu tidak mengelola restoran ini.</string>
+    <string name="error_review_not_allowed">Kamu hanya bisa menilai antrean yang sudah selesai.</string>
+    <string name="error_offline_action_queued">Kamu sedang offline. Kami akan selesaikan begitu kamu online lagi.</string>
+    <string name="error_unknown">Terjadi kesalahan tak terduga. Silakan coba lagi.</string>
+
+    <!-- Content descriptions (section 42) -->
+    <string name="cd_notifications">Notifikasi</string>
+    <string name="cd_back">Kembali</string>
+    <string name="cd_restaurant_photo">Foto %1$s</string>
+    <string name="cd_rating">Dinilai %1$s dari 5</string>
+    <plurals name="cd_rate_stars">
+        <item quantity="other">Beri nilai %1$d bintang dari 5</item>
+    </plurals>
+    <string name="cd_queue_number">Nomor antreanmu adalah %1$s</string>
+    <plurals name="cd_people_ahead">
+        <item quantity="other">%1$d grup di depanmu</item>
+    </plurals>
+    <plurals name="cd_estimated_wait">
+        <item quantity="other">Estimasi tunggu %1$d menit</item>
+    </plurals>
+    <string name="cd_offline">Kamu sedang offline</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="settings_queue_notifications">Notifikasi antrean</string>
+    <string name="settings_queue_notifications_subtitle">Dapatkan kabar saat giliranmu dekat.</string>
+    <string name="settings_location_access">Akses lokasi</string>
+    <string name="settings_location_subtitle_granted">Dipakai untuk restoran terdekat dan check-in.</string>
+    <string name="settings_location_subtitle_blocked">Diblokir untuk Ngantriin. Akan membuka pengaturan sistem.</string>
+    <string name="settings_location_subtitle_default">Aktifkan untuk mengurutkan berdasarkan jarak dan check-in.</string>
+    <string name="settings_backend">Backend</string>
+    <string name="settings_backend_demo">Mode demo — data contoh di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
+    <string name="settings_backend_connected">Tersambung ke Supabase.</string>
+    <string name="settings_version">Ngantriin • versi 1.0</string>
+</resources>

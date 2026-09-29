@@ -1,0 +1,475 @@
+<resources>
+    <string name="app_name">Ngantriin</string>
+    <string name="app_tagline">Good Food • Less Wait • Happier You</string>
+
+    <!-- Bottom navigation (section 4) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_queue">My Queue</string>
+    <string name="nav_history">History</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Queue status labels (section 14) -->
+    <string name="status_waiting">Waiting</string>
+    <string name="status_almost_there">Almost there</string>
+    <string name="status_called">It\'s your turn</string>
+    <string name="status_checked_in">Checked in</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+
+    <!-- Notification channels (section 15) -->
+    <string name="channel_queue_updates_name">Queue updates</string>
+    <string name="channel_queue_updates_description">Position changes while you wait.</string>
+    <string name="channel_queue_called_name">Your turn</string>
+    <string name="channel_queue_called_description">Sent the moment a restaurant calls your number.</string>
+
+    <!-- Push notification copy (section 15) -->
+    <string name="push_almost_there_title">Your turn is coming</string>
+    <plurals name="push_almost_there_body">
+        <item quantity="one">Only %1$d group ahead of you. Estimated wait: %2$s.</item>
+        <item quantity="other">Only %1$d groups ahead of you. Estimated wait: %2$s.</item>
+    </plurals>
+    <string name="push_return_now_title">Get ready</string>
+    <string name="push_return_now_body">Your turn is almost here. Please return to the restaurant.</string>
+    <string name="push_called_title">It\'s your turn!</string>
+    <string name="push_called_body">Queue %1$s is now being called. Please check in at the restaurant.</string>
+    <string name="push_checked_in_title">Check-in successful</string>
+    <string name="push_checked_in_body">You\'re checked in. Enjoy!</string>
+    <string name="push_completed_title">Thanks for visiting</string>
+    <string name="push_completed_body">Tap to rate your experience.</string>
+    <string name="push_cancelled_title">Queue cancelled</string>
+    <string name="push_cancelled_body">Your ticket is no longer active.</string>
+    <string name="push_queue_update_title">Queue update</string>
+
+    <!-- Errors (section 28) -->
+    <string name="error_network">No internet connection. Check your network and try again.</string>
+    <string name="error_server">Something went wrong on our side. Please try again.</string>
+    <string name="error_session_expired">Your session expired. Please sign in again.</string>
+    <string name="error_invalid_credentials">Wrong email or password.</string>
+    <string name="error_signup_rejected">Could not create your account: %1$s</string>
+    <string name="error_restaurant_closed">This restaurant is closed right now.</string>
+    <string name="error_queue_full">This queue is full. Try again a little later.</string>
+    <string name="error_seats_available">This restaurant has open seats right now — no need to queue, just walk in.</string>
+
+    <!-- Section 44: "kursi kosong" walk-in availability -->
+    <plurals name="seats_available_title">
+        <item quantity="one">%1$d seat open right now</item>
+        <item quantity="other">%1$d seats open right now</item>
+    </plurals>
+    <string name="seats_available_subtitle">No need to queue — just walk in and take a seat.</string>
+    <string name="seats_available_badge">Seats open</string>
+    <string name="seats_available_count">%1$d open</string>
+
+    <!-- Localized equivalents of core/Formatters.kt (section 43): Formatters
+         itself stays English-only and untouched, FormattersTest.kt asserts
+         its exact output and is a plain JVM test with no Android resources
+         available. These resource-backed versions are what the UI shows. -->
+    <string name="distance_unknown">—</string>
+    <string name="distance_meters">%1$d m</string>
+    <string name="distance_km">%1$.1f km</string>
+    <string name="wait_time_none">No wait</string>
+    <string name="wait_time_minutes">~%1$d min</string>
+    <string name="wait_time_hours">~%1$d hr</string>
+    <string name="wait_time_hours_minutes">~%1$d hr %2$d min</string>
+    <string name="wait_time_minutes_short">%1$d min</string>
+    <string name="wait_time_hours_minutes_short">%1$dh %2$dm</string>
+    <plurals name="groups_count">
+        <item quantity="one">%1$d group</item>
+        <item quantity="other">%1$d groups</item>
+    </plurals>
+    <string name="relative_just_now">just now</string>
+    <plurals name="relative_minutes_ago">
+        <item quantity="one">%1$d min ago</item>
+        <item quantity="other">%1$d min ago</item>
+    </plurals>
+    <plurals name="relative_hours_ago">
+        <item quantity="one">%1$d hr ago</item>
+        <item quantity="other">%1$d hr ago</item>
+    </plurals>
+    <plurals name="relative_days_ago">
+        <item quantity="one">%1$d d ago</item>
+        <item quantity="other">%1$d d ago</item>
+    </plurals>
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="greeting_night">Good night</string>
+
+    <!-- Home screen -->
+    <string name="home_offline">You\'re offline. Queue information may be outdated.</string>
+    <string name="home_empty_title">No restaurants nearby</string>
+    <string name="home_empty_offline">We can\'t reach the server right now. Connect and try again.</string>
+    <string name="home_empty_no_results">We couldn\'t find any restaurants around you yet.</string>
+    <string name="home_refresh">Refresh</string>
+    <string name="home_near_you">Near You</string>
+    <string name="home_near_you_subtitle_located">Sorted by distance from where you are</string>
+    <string name="home_near_you_subtitle_default">Turn on location to sort by distance</string>
+    <string name="home_all_restaurants">All restaurants</string>
+    <string name="home_all_restaurants_subtitle">Live queue lengths, updated as they change</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_location_known">Your location: Gading Serpong area</string>
+    <string name="home_location_finding">Finding your location…</string>
+    <string name="home_location_off">Turn on location</string>
+    <string name="home_search_placeholder">Search restaurants…</string>
+    <string name="badge_overflow">9+</string>
+
+    <!-- Active queue banner (Home / bottom tabs) -->
+    <string name="queue_banner_ready_to_check_in">Your table is ready — tap to check in</string>
+    <string name="queue_banner_checked_in">Checked in — enjoy your meal</string>
+    <string name="queue_banner_youre_next">You\'re next</string>
+    <string name="queue_banner_ahead_and_wait">%1$s ahead • %2$s</string>
+
+    <!-- Restaurant card -->
+    <string name="restaurant_card_waiting">waiting</string>
+    <string name="restaurant_card_est_wait">est. wait</string>
+    <string name="restaurant_open">OPEN</string>
+    <string name="restaurant_closed">CLOSED</string>
+
+    <!-- Restaurant detail screen -->
+    <string name="restaurant_about">About</string>
+    <string name="restaurant_description_fallback">%1$s restaurant in %2$s.</string>
+    <string name="restaurant_cuisine">Cuisine</string>
+    <string name="restaurant_opening_hours">Opening hours</string>
+    <string name="restaurant_avg_service_time">Average service time</string>
+    <string name="restaurant_avg_service_value">%1$d min per group</string>
+    <string name="restaurant_address">Address</string>
+    <string name="restaurant_distance">Distance</string>
+    <string name="restaurant_reviews">Reviews</string>
+    <string name="restaurant_reviews_subtitle">%1$s from %2$d visits</string>
+    <string name="restaurant_no_reviews">No reviews yet</string>
+    <string name="restaurant_current_queue">CURRENT QUEUE</string>
+    <string name="restaurant_groups_waiting">groups waiting</string>
+    <string name="restaurant_estimated_wait">estimated wait</string>
+    <string name="restaurant_now_serving">Now serving %1$s</string>
+    <string name="restaurant_nobody_served">Nobody being served yet</string>
+    <string name="restaurant_capacity">capacity %1$d</string>
+    <string name="restaurant_already_in_queue_as">You\'re already in this queue as %1$s.</string>
+    <string name="restaurant_leave_before_joining"> Leave it before joining another restaurant.</string>
+    <string name="restaurant_closed_button">Closed right now</string>
+    <string name="restaurant_queue_full_button">Queue is full</string>
+    <string name="restaurant_join_queue">Join Queue</string>
+    <string name="restaurant_party_size">Party size</string>
+    <string name="cd_fewer_people">Fewer people</string>
+    <string name="cd_more_people">More people</string>
+    <string name="restaurant_not_found">We couldn\'t load this restaurant.</string>
+    <string name="action_go_back">Go back</string>
+    <string name="action_view_my_queue">View my queue</string>
+    <string name="action_try_again">Try again</string>
+
+    <!-- Password field visibility toggle -->
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+
+    <!-- Generic error / empty states -->
+    <string name="error_state_offline_title">You\'re offline</string>
+    <string name="error_state_generic_title">Something went wrong</string>
+
+    <!-- Location permission rationale dialog -->
+    <string name="location_rationale_title">Allow Ngantriin to use your location</string>
+    <string name="location_rationale_message">Your location helps us find nearby restaurants and sort them by distance.</string>
+    <string name="location_rationale_confirm">Allow location</string>
+    <string name="location_rationale_dismiss">Not now</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_stop_waiting_title">Stop Waiting in Line</string>
+    <string name="onboarding_stop_waiting_description">Take your restaurant queue digitally and spend your waiting time doing something else.</string>
+    <string name="onboarding_track_queue_title">Track Your Queue</string>
+    <string name="onboarding_track_queue_description">See your queue position and estimated waiting time in real-time.</string>
+    <string name="onboarding_come_back_title">Come Back When It\'s Your Turn</string>
+    <string name="onboarding_come_back_description">Get notified when your turn is near and check in when you return.</string>
+    <string name="onboarding_illustration_your_turn">It\'s your turn!</string>
+    <string name="onboarding_illustration_being_called">%1$s is being called</string>
+
+    <!-- Form validation (core/Validators.kt) -->
+    <string name="validation_email_required">Email is required</string>
+    <string name="validation_email_invalid">Enter a valid email address</string>
+    <string name="validation_password_required">Password is required</string>
+    <string name="validation_password_too_short">Use at least %1$d characters</string>
+    <string name="validation_name_required">Name is required</string>
+    <string name="validation_name_invalid">Enter your full name</string>
+    <string name="validation_confirm_password_required">Confirm your password</string>
+    <string name="validation_passwords_dont_match">Passwords don\'t match</string>
+
+    <!-- Auth: shared -->
+    <string name="auth_email_label">Email</string>
+    <string name="auth_email_placeholder">you@example.com</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_demo_mode_title">Demo mode</string>
+    <string name="auth_demo_mode_body">No Supabase credentials configured, so nothing is verified — any email signs you in against the bundled sample data. Use an email starting with \"staff\" to open the restaurant dashboard.</string>
+
+    <!-- Login screen -->
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to take your place in line without standing in it.</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_button">Log in</string>
+    <string name="login_new_to_app">New to Ngantriin?</string>
+    <string name="login_create_account">Create account</string>
+    <string name="login_reset_email_sent">Password reset link sent to %1$s</string>
+
+    <!-- Register screen -->
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">One account, every queue in Gading Serpong.</string>
+    <string name="register_full_name_label">Full name</string>
+    <string name="register_confirm_password_label">Confirm password</string>
+    <string name="register_button">Create account</string>
+    <string name="register_confirmation_required">Account created. Check your inbox to confirm your email, then come back and sign in.</string>
+    <string name="register_already_have_account">Already have an account?</string>
+    <string name="register_log_in">Log in</string>
+
+    <!-- Sort options (Search screen) -->
+    <string name="sort_nearest">Nearest</string>
+    <string name="sort_shortest_wait">Shortest wait</string>
+    <string name="sort_highest_rated">Highest rated</string>
+    <string name="sort_most_popular">Most popular</string>
+
+    <!-- Search screen -->
+    <string name="search_offline">You\'re offline. Showing the last data we saved.</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_filters">Filters</string>
+    <string name="search_searching">Searching…</string>
+    <plurals name="search_results_count">
+        <item quantity="one">%1$d restaurant</item>
+        <item quantity="other">%1$d restaurants</item>
+    </plurals>
+    <string name="search_location_off">Location off</string>
+    <string name="search_empty_title">No restaurants found</string>
+    <string name="search_empty_with_filters">Nothing matches these filters. Try widening them.</string>
+    <string name="search_empty_no_filters">Try a different name, category or area.</string>
+    <string name="search_clear_filters">Clear filters</string>
+
+    <!-- Filter sheet -->
+    <string name="filter_title">Filters</string>
+    <string name="filter_clear_all">Clear all</string>
+    <string name="filter_category">Category</string>
+    <string name="filter_distance">Distance</string>
+    <string name="filter_queue_length">Queue length</string>
+    <string name="filter_estimated_wait">Estimated wait</string>
+    <string name="filter_rating">Rating</string>
+    <string name="filter_availability">Availability</string>
+    <string name="filter_open_now">Open now</string>
+    <string name="filter_show_results">Show results</string>
+    <string name="filter_distance_500m">Within 500 m</string>
+    <string name="filter_distance_1km">Within 1 km</string>
+    <string name="filter_distance_3km">Within 3 km</string>
+    <string name="filter_distance_10km">Within 10 km</string>
+    <string name="filter_queue_none">No queue</string>
+    <string name="filter_queue_up_to_5">Up to 5 groups</string>
+    <string name="filter_queue_up_to_10">Up to 10 groups</string>
+    <string name="filter_queue_up_to_20">Up to 20 groups</string>
+    <string name="filter_wait_under_10">Under 10 min</string>
+    <string name="filter_wait_under_20">Under 20 min</string>
+    <string name="filter_wait_under_30">Under 30 min</string>
+    <string name="filter_wait_under_60">Under 60 min</string>
+
+    <!-- Active queue screen -->
+    <string name="active_queue_leave_title">Leave this queue?</string>
+    <string name="active_queue_leave_message">Are you sure you want to leave your current queue? You\'ll lose your place and can\'t get this number back.</string>
+    <string name="active_queue_leave_confirm">Leave queue</string>
+    <string name="active_queue_offline">Connection lost. Queue information may be outdated.</string>
+    <string name="active_queue_empty_title">No active queue</string>
+    <string name="active_queue_empty_message">When you join a restaurant queue, your number and waiting time show up here.</string>
+    <string name="active_queue_find_restaurant">Find a restaurant</string>
+    <string name="active_queue_your_queue">YOUR QUEUE</string>
+    <string name="active_queue_progress">QUEUE PROGRESS</string>
+    <string name="active_queue_check_in_now">Check in now</string>
+    <string name="active_queue_view_restaurant">View restaurant</string>
+    <string name="active_queue_rate_experience">Rate your experience</string>
+    <string name="active_queue_check_restaurant_location">Check restaurant location</string>
+    <string name="active_queue_leaving">Leaving…</string>
+    <plurals name="queue_group_ahead_label">
+        <item quantity="one">group ahead</item>
+        <item quantity="other">groups ahead</item>
+    </plurals>
+    <string name="active_queue_estimated_wait_label">estimated wait</string>
+    <string name="active_queue_position_party">Position #%1$d • party of %2$d</string>
+    <string name="guidance_called">Your table is ready. Head to %1$s and check in.</string>
+    <string name="guidance_checked_in">You\'re checked in. Please proceed to the waiting area.</string>
+    <string name="guidance_almost_there">You\'re near the front. Start heading back to the restaurant now.</string>
+    <string name="guidance_default">You don\'t have to wait here. We\'ll notify you when your turn is near.</string>
+
+    <!-- Check-in screen -->
+    <string name="checkin_title">Check in</string>
+    <string name="checkin_table_ready">Your table is ready.</string>
+    <string name="checkin_not_called">Not called yet</string>
+    <string name="cd_checkin_photo">Your check-in photo</string>
+    <string name="checkin_uploading">Uploading your photo…</string>
+    <string name="checkin_looks_good">Looks good — submit to check in.</string>
+    <string name="checkin_instruction">Take a photo of yourself at the restaurant to check in.</string>
+    <string name="checkin_take_photo">Take photo</string>
+    <string name="checkin_submit">Submit and check in</string>
+    <string name="checkin_retake_photo">Retake photo</string>
+    <string name="checkin_back_to_queue">Back to my queue</string>
+    <string name="checkin_success_title">You\'re checked in!</string>
+    <string name="checkin_success_body">%1$s at %2$s. Please proceed to the waiting area.</string>
+    <string name="action_done">Done</string>
+
+    <!-- Join queue confirmation screen -->
+    <string name="confirm_joined_title">You joined the queue!</string>
+    <string name="confirm_queue_number_label">QUEUE NUMBER</string>
+    <string name="confirm_body">You can leave the area and carry on with your day. We\'ll notify you when your turn is near.</string>
+    <string name="action_back_to_home">Back to home</string>
+
+    <!-- Queue completed screen -->
+    <string name="completed_title">Thanks for using Ngantriin</string>
+    <string name="completed_body">Your visit is complete. Tell us how it went so other people know what to expect.</string>
+    <string name="completed_view_history">View queue history</string>
+
+    <!-- Queue progress track -->
+    <string name="progress_now_serving">NOW SERVING</string>
+    <string name="progress_you">YOU</string>
+    <string name="progress_youre_next">You\'re next in line</string>
+    <string name="progress_to_go">%1$d to go</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_guest">Guest</string>
+    <string name="cd_edit_profile">Edit profile</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="profile_stat_visits">Visits Completed</string>
+    <string name="profile_stat_queues">Queues Joined</string>
+    <string name="profile_stat_minutes_saved">Min Not Spent in Line</string>
+    <string name="profile_notifications">Notifications</string>
+    <string name="profile_notifications_new">%1$d new</string>
+    <string name="profile_restaurant_dashboard">Restaurant dashboard</string>
+    <string name="profile_sign_out">Sign out</string>
+    <string name="profile_sign_out_title">Sign out?</string>
+    <string name="profile_sign_out_message">You\'ll need to sign in again to see your queue and history.</string>
+    <string name="profile_footer_demo">Ngantriin • demo mode (no backend configured)</string>
+    <string name="profile_footer">Ngantriin</string>
+
+    <!-- History screen -->
+    <string name="history_offline">You\'re offline. Showing your saved history.</string>
+    <string name="history_title">Queue History</string>
+    <string name="history_empty_title">No queue history yet</string>
+    <string name="history_empty_message">Once you\'ve been through a queue, it shows up here with how long you actually waited.</string>
+    <string name="history_number_and_date">%1$s • %2$s</string>
+    <string name="history_waited_minutes">Waited %1$d min</string>
+    <string name="history_wait_not_recorded">Wait time not recorded</string>
+    <string name="history_rate_visit">Rate visit</string>
+    <string name="history_reviewed">Reviewed</string>
+
+    <!-- Notifications screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notifications_empty_title">Nothing here yet</string>
+    <string name="notifications_empty_message">We\'ll let you know when your turn is getting close.</string>
+
+    <!-- Review screen -->
+    <string name="review_title">Rate your visit</string>
+    <string name="review_your_visit_fallback">Your visit</string>
+    <string name="review_how_was_it">How was your experience?</string>
+    <string name="review_comment_placeholder">Tell us about your experience…</string>
+    <string name="review_already_reviewed">You already reviewed this visit. Submitting will update it.</string>
+    <string name="review_submit">Submit review</string>
+    <string name="rating_caption_1">Not great</string>
+    <string name="rating_caption_2">Could be better</string>
+    <string name="rating_caption_3">It was fine</string>
+    <string name="rating_caption_4">Really good</string>
+    <string name="rating_caption_5">Loved it</string>
+    <string name="rating_caption_none">Tap a star to rate</string>
+
+    <!-- Staff dashboard screen -->
+    <string name="staff_sign_out_title">Sign out?</string>
+    <string name="staff_sign_out_message">You\'ll need to sign in again to manage this queue.</string>
+    <string name="staff_dashboard_title">Restaurant dashboard</string>
+    <string name="staff_no_restaurants_title">No restaurants assigned</string>
+    <string name="staff_no_restaurants_message">This account isn\'t listed as staff for any venue yet. Add a row to restaurant_staff to manage one.</string>
+    <string name="staff_waiting">waiting</string>
+    <string name="staff_called">called</string>
+    <string name="staff_seated">seated</string>
+    <string name="staff_estimated_wait_new_group">Estimated wait for a new group: %1$s</string>
+    <string name="staff_call_next_button">Call next • %1$s</string>
+    <string name="staff_nobody_waiting">Nobody waiting</string>
+    <string name="staff_manage_queue">Manage queue (%1$d)</string>
+    <string name="staff_now_serving">NOW SERVING</string>
+    <string name="staff_next_up">NEXT UP</string>
+
+    <!-- Staff queue screen -->
+    <string name="staff_queue_title_fallback">Queue</string>
+    <string name="staff_call_next_action">Call next</string>
+    <string name="staff_empty_title">Nobody in the queue</string>
+    <string name="staff_empty_message">Tickets appear here the moment a customer joins.</string>
+    <string name="staff_section_called">Called</string>
+    <string name="staff_section_called_subtitle">Waiting for the customer to check in</string>
+    <string name="staff_section_seated">Seated</string>
+    <string name="staff_section_seated_subtitle">Checked in and being served</string>
+    <string name="staff_section_waiting">Waiting</string>
+    <string name="staff_section_waiting_subtitle">In line, in ticket order</string>
+    <string name="staff_section_title_count">%1$s (%2$d)</string>
+    <string name="staff_party_joined">Party of %1$d • joined %2$s</string>
+    <string name="staff_action_call">Call</string>
+    <string name="staff_action_remove">Remove</string>
+    <string name="staff_action_seat">Seat</string>
+    <string name="staff_action_complete">Complete</string>
+    <string name="staff_action_no_show">No-show</string>
+
+    <!-- Staff customer detail screen -->
+    <string name="staff_customer_detail_title">Queue detail</string>
+    <string name="staff_ticket_gone">This ticket is no longer in the live queue.</string>
+    <string name="action_back">Back</string>
+    <string name="staff_joined">Joined</string>
+    <string name="staff_called_label">Called</string>
+    <string name="staff_checked_in_label">Checked in</string>
+    <string name="staff_view_checkin_photo">View check-in photo</string>
+    <string name="staff_completed_label">Completed</string>
+    <string name="staff_waited_label">Waited</string>
+    <string name="staff_waited_value">%1$d min</string>
+    <string name="staff_note">Note: %1$s</string>
+    <string name="staff_call_this_customer">Call this customer</string>
+    <string name="staff_remove_from_queue">Remove from queue</string>
+    <string name="staff_mark_seated">Mark as seated</string>
+    <string name="staff_mark_completed">Mark as completed</string>
+    <string name="staff_ticket_finished">This ticket is finished. No further actions.</string>
+    <string name="cd_checkin_photo_view">Check-in photo</string>
+    <string name="error_already_in_queue">You already have an active queue.</string>
+    <string name="error_join_cooldown">Please wait a moment before rejoining this queue.</string>
+    <string name="error_queue_not_found">We couldn\'t find that queue.</string>
+    <string name="error_queue_not_called">You can check in once the restaurant calls your number.</string>
+    <string name="error_queue_not_cancellable">This queue can no longer be cancelled.</string>
+    <string name="error_queue_empty">Nobody is waiting right now.</string>
+    <string name="error_location_permission">Location permission is needed to find nearby restaurants.</string>
+    <string name="error_location_unavailable">We couldn\'t get your location. Make sure GPS is on.</string>
+    <string name="error_photo_required">Please take a photo to check in.</string>
+    <string name="error_not_staff">You don\'t manage this restaurant.</string>
+    <string name="error_review_not_allowed">You can only review a queue you\'ve completed.</string>
+    <string name="error_offline_action_queued">You\'re offline. We\'ll finish this as soon as you\'re back online.</string>
+    <string name="error_unknown">Something unexpected happened. Please try again.</string>
+
+    <!-- Content descriptions (section 42) -->
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_restaurant_photo">Photo of %1$s</string>
+    <string name="cd_rating">Rated %1$s out of 5</string>
+    <plurals name="cd_rate_stars">
+        <item quantity="one">Rate %1$d star out of 5</item>
+        <item quantity="other">Rate %1$d stars out of 5</item>
+    </plurals>
+    <string name="cd_queue_number">Your queue number is %1$s</string>
+    <plurals name="cd_people_ahead">
+        <item quantity="one">%1$d group ahead of you</item>
+        <item quantity="other">%1$d groups ahead of you</item>
+    </plurals>
+    <plurals name="cd_estimated_wait">
+        <item quantity="one">Estimated wait %1$d minute</item>
+        <item quantity="other">Estimated wait %1$d minutes</item>
+    </plurals>
+    <string name="cd_offline">You are offline</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_queue_notifications">Queue notifications</string>
+    <string name="settings_queue_notifications_subtitle">Get told when your turn is close.</string>
+    <string name="settings_location_access">Location access</string>
+    <string name="settings_location_subtitle_granted">Used for nearby restaurants and check-in.</string>
+    <string name="settings_location_subtitle_blocked">Blocked for Ngantriin. Opens system settings.</string>
+    <string name="settings_location_subtitle_default">Turn on to sort by distance and check in.</string>
+    <string name="settings_backend">Backend</string>
+    <string name="settings_backend_demo">Demo mode — sample data on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
+    <string name="settings_backend_connected">Connected to Supabase.</string>
+    <string name="settings_version">Ngantriin • version 1.0</string>
+</resources>

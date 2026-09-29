@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Applied while the process starts. installSplashScreen() swaps in
+      postSplashScreenTheme as soon as the first frame is ready, and the
+      Compose SplashScreen then covers session restore.
+    -->
+    <style name="Theme.Ngantriin.Starting" parent="Theme.SplashScreen">
+        <!-- Cream, matching the Compose SplashScreen's background exactly so
+             there's no colour flash when postSplashScreenTheme takes over. -->
+        <item name="windowSplashScreenBackground">@color/cloud</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.Ngantriin</item>
+    </style>
+
+    <style name="Theme.Ngantriin" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Matches the Compose background so there is no flash on rotation. -->
+        <item name="android:windowBackground">@color/cloud</item>
+    </style>
+</resources>
