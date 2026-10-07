@@ -1,6 +1,7 @@
 package org.umn.ngantriin.ui.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,8 +50,8 @@ fun AuthScaffold(
     ) {
         Spacer(Modifier.height(Spacing.lg))
 
-        Box(modifier = Modifier.fillMaxWidth().height(Spacing.touchTarget)) {
-            if (onBack != null) {
+        if (onBack != null) {
+            Box(modifier = Modifier.fillMaxWidth().height(Spacing.touchTarget)) {
                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -64,24 +65,24 @@ fun AuthScaffold(
 
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
-            NgantriinLogo(modifier = Modifier.size(200.dp))
+            NgantriinLogo(modifier = Modifier.width(164.dp).height(132.dp))
 
             Spacer(Modifier.height(Spacing.lg))
 
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Start
             )
             Spacer(Modifier.height(Spacing.xs))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
         }
 

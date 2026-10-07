@@ -22,10 +22,25 @@ Run `swift scripts/prepare-branding.swift` from the repository root on macOS to
 recreate cropped and density-specific PNG resources from the transparent master.
 This step only crops, scales and pads; it does not regenerate the artwork.
 
+## Interface palette
+
+The interface uses orange accents, cream surfaces, and warm brown text. Shared
+colors, typography, and corners live in `ui/theme/`. The home feature panel uses
+`#FFAB4D`; primary actions use `#BB5008` with white labels. Dark mode has its own
+surface and text colors. Queue status colors retain their separate meanings.
+
+`app/src/main/res/drawable/dining_bowl.xml` is the local vector illustration used
+on the home screen and behind restaurant photos while loading or when unavailable.
+It scales without extra image files or a network request.
+
 ## Verification
 
-- `./gradlew :app:assembleDebug :app:lintDebug --offline` completed successfully.
-- Installed the debug APK on the running Android emulator without clearing app data.
-- Visually checked the Compose splash (`splash-preview.png`) and confirmed that
-  the existing signed-in session continued to the home screen.
-- Checked resource XML and launcher/splash assets at all five densities.
+- `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --offline`
+  completed with JDK 17: 41 unit tests passed; lint reported 0 errors and 16 warnings.
+- Checked discovery, search, restaurant details, joining a queue, the active ticket,
+  profile, notifications, onboarding, sign-in, and staff screens in a separate
+  emulator installation using the local demo backend.
+- Checked Indonesian and English copy, light and dark themes, and 130% font sizing
+  on the home and search screens.
+- Updated the screenshots in `docs/screenshots/`. The existing system splash
+  reference is [splash-preview.png](splash-preview.png).

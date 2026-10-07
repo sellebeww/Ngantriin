@@ -1,5 +1,6 @@
 package org.umn.ngantriin.ui.search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,6 +76,16 @@ fun SearchScreen(
             OfflineBanner(message = stringResource(R.string.search_offline))
         }
 
+        Column(Modifier.padding(start = Spacing.screenGutter, end = Spacing.screenGutter, top = Spacing.xxl)) {
+            Text(stringResource(R.string.search_title), style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(Spacing.xs))
+            Text(
+                stringResource(R.string.search_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,12 +110,21 @@ fun SearchScreen(
                     }
                 },
                 singleLine = true,
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier.weight(1f)
             )
 
-            IconButton(onClick = { filterSheetVisible = true }) {
+            IconButton(
+                onClick = { filterSheetVisible = true },
+                modifier = Modifier.padding(start = Spacing.sm)
+                    .background(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
+            ) {
                 BadgedBox(
                     badge = {
                         if (state.activeFilterCount > 0) {

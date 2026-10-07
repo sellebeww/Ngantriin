@@ -1,7 +1,6 @@
 package org.umn.ngantriin.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,16 +17,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * The app's three button weights. Height is fixed at 54dp so primary actions
+ * The app's three button weights. Minimum height is 56dp so primary actions
  * clear the 48dp touch target with room to spare (section 42).
  */
 
@@ -42,39 +38,19 @@ fun PrimaryButton(
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
-    val shape = MaterialTheme.shapes.large
+    val shape = MaterialTheme.shapes.medium
     val isActive = enabled && !loading
-    // A subtle top-to-bottom lighten reads as the brand's gradient without
-    // hardcoding a second brand colour here — it self-derives from whatever
-    // containerColor the caller passes, so it still works in dark theme.
-    val surfaceModifier = if (isActive) {
-        Modifier
-            .shadow(
-                elevation = 10.dp,
-                shape = shape,
-                ambientColor = containerColor.copy(alpha = 0.35f),
-                spotColor = containerColor.copy(alpha = 0.45f)
-            )
-            .background(
-                Brush.verticalGradient(
-                    listOf(lerp(containerColor, Color.White, 0.16f), containerColor)
-                ),
-                shape
-            )
-    } else {
-        Modifier.background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), shape)
-    }
 
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().heightIn(min = 54.dp).then(surfaceModifier),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp),
         enabled = isActive,
         shape = shape,
         elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
+            containerColor = containerColor,
             contentColor = contentColor,
-            disabledContainerColor = Color.Transparent,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         )
     ) {
@@ -82,7 +58,7 @@ fun PrimaryButton(
             CircularProgressIndicator(
                 modifier = Modifier.size(20.dp),
                 strokeWidth = 2.dp,
-                color = contentColor
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
             Row(
@@ -115,8 +91,8 @@ fun SecondaryButton(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().heightIn(min = 54.dp),
         enabled = enabled,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.5.dp, borderColor),
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, borderColor),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.primary
         )

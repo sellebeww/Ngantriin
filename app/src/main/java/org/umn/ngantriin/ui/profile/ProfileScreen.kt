@@ -1,5 +1,6 @@
 package org.umn.ngantriin.ui.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -110,6 +111,7 @@ fun ProfileScreen(
         Surface(
             shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(Spacing.xl)) {
@@ -118,15 +120,15 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(64.dp)
                             .background(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                RoundedCornerShape(50)
+                                MaterialTheme.colorScheme.secondaryContainer,
+                                MaterialTheme.shapes.large
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = state.user?.initials ?: "N",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
 
@@ -211,6 +213,7 @@ fun ProfileScreen(
         Surface(
             shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column {
@@ -259,7 +262,7 @@ fun ProfileScreen(
                 stringResource(R.string.profile_footer)
             },
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -273,7 +276,7 @@ private fun StatTile(value: String, label: String, modifier: Modifier = Modifier
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.secondaryContainer
     ) {
         Column(
             modifier = Modifier.padding(vertical = Spacing.lg, horizontal = Spacing.md),
@@ -282,7 +285,7 @@ private fun StatTile(value: String, label: String, modifier: Modifier = Modifier
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(Modifier.height(Spacing.xxs))
             Text(
@@ -312,8 +315,10 @@ private fun ProfileRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.small)
+                .padding(Spacing.sm).size(20.dp)
         )
         Spacer(Modifier.width(Spacing.md))
         Text(
@@ -326,7 +331,7 @@ private fun ProfileRow(
             Text(
                 text = trailing,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(Modifier.width(Spacing.sm))
         }

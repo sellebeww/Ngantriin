@@ -1,14 +1,13 @@
 package org.umn.ngantriin.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,10 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EventSeat
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -31,11 +28,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -45,11 +44,7 @@ import org.umn.ngantriin.domain.model.RestaurantListing
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/**
- * Section 8. The card answers the two questions that decide where someone
- * eats — how long is the line, and how far is it — before the name has
- * finished being read.
- */
+/** A scannable restaurant row with queue information kept below the photo. */
 @Composable
 fun RestaurantCard(
     listing: RestaurantListing,
@@ -57,58 +52,58 @@ fun RestaurantCard(
     modifier: Modifier = Modifier
 ) {
     val restaurant = listing.restaurant
-    val open = restaurant.isAcceptingQueue()
-
     Card(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column {
-            Box {
+        Column(Modifier.padding(Spacing.md)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+            ) {
                 RestaurantImage(
                     imageUrl = restaurant.imageUrl,
                     contentDescription = stringResource(R.string.cd_restaurant_photo, restaurant.name),
-                    modifier = Modifier.fillMaxWidth().height(148.dp)
+                    modifier = Modifier.size(88.dp).clip(MaterialTheme.shapes.medium)
                 )
-                OpenClosedBadge(
-                    open = open,
-                    modifier = Modifier.align(Alignment.TopStart).padding(Spacing.md)
-                )
-                if (listing.distanceMeters != null) {
-                    DistanceBadge(
-                        distance = listing.distanceMeters,
-                        modifier = Modifier.align(Alignment.TopEnd).padding(Spacing.md)
-                    )
-                }
-            }
-
-            Column(Modifier.padding(Spacing.lg)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
                     Text(
                         text = restaurant.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(Modifier.width(Spacing.sm))
-                    RatingLabel(restaurant.rating)
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        text = restaurant.category,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(Spacing.sm))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                    ) {
+                        RatingLabel(restaurant.rating)
+                        if (listing.distanceMeters != null) {
+                            Text(
+                                text = "· " + distanceText(listing.distanceMeters),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        OpenClosedBadge(restaurant.isAcceptingQueue())
+                    }
                 }
-
-                Spacer(Modifier.height(Spacing.xs))
-                Text(
-                    text = restaurant.category,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(Modifier.height(Spacing.md))
-                QueueSummaryRow(listing)
             }
+            Spacer(Modifier.height(Spacing.md))
+            QueueSummaryRow(listing, compact = true)
         }
     }
 }
@@ -123,25 +118,26 @@ fun RestaurantCardCompact(
     val restaurant = listing.restaurant
 
     Card(
-        modifier = modifier.width(244.dp).clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.width(252.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             Box {
                 RestaurantImage(
                     imageUrl = restaurant.imageUrl,
                     contentDescription = stringResource(R.string.cd_restaurant_photo, restaurant.name),
-                    modifier = Modifier.fillMaxWidth().height(120.dp)
+                    modifier = Modifier.fillMaxWidth().height(148.dp)
                 )
                 OpenClosedBadge(
                     open = restaurant.isAcceptingQueue(),
-                    modifier = Modifier.align(Alignment.TopStart).padding(Spacing.sm)
+                    modifier = Modifier.align(Alignment.TopStart).padding(Spacing.md)
                 )
             }
-            Column(Modifier.padding(Spacing.md)) {
+            Column(Modifier.padding(Spacing.lg)) {
                 Text(
                     text = restaurant.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -161,9 +157,12 @@ fun RestaurantCardCompact(
                         color = MaterialTheme.colorScheme.outline
                     )
                     Text(
-                        text = distanceText(listing.distanceMeters),
+                        text = listing.distanceMeters?.let { distanceText(it) } ?: restaurant.category,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.height(Spacing.sm))
@@ -228,12 +227,12 @@ private fun QueueFact(
     highlight: Boolean = false
 ) {
     val container = if (highlight) {
-        MaterialTheme.colorScheme.primaryContainer
+        MaterialTheme.colorScheme.secondaryContainer
     } else {
         MaterialTheme.colorScheme.surfaceVariant
     }
     val content = if (highlight) {
-        MaterialTheme.colorScheme.onPrimaryContainer
+        MaterialTheme.colorScheme.onSecondaryContainer
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
@@ -241,7 +240,7 @@ private fun QueueFact(
     Row(
         modifier = modifier
             .background(container, MaterialTheme.shapes.small)
-            .padding(horizontal = Spacing.sm, vertical = if (compact) Spacing.xs else Spacing.sm),
+            .padding(horizontal = Spacing.sm, vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
@@ -296,29 +295,6 @@ fun OpenClosedBadge(open: Boolean, modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-private fun DistanceBadge(distance: Double, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(50))
-            .padding(horizontal = Spacing.sm, vertical = Spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xxs)
-    ) {
-        Icon(
-            Icons.Filled.NearMe,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.size(13.dp)
-        )
-        Text(
-            text = distanceText(distance),
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.White
-        )
-    }
-}
-
 /**
  * Remote photo with a branded placeholder. A missing image never leaves a
  * blank rectangle, which matters most in the loading and offline cases.
@@ -329,40 +305,27 @@ fun RestaurantImage(
     contentDescription: String?,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant)) {
-        if (imageUrl.isNullOrBlank()) {
-            ImageFallback(Modifier.fillMaxSize())
-        } else {
+    Box(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .semantics { if (contentDescription != null) this.contentDescription = contentDescription }
+    ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(R.drawable.dining_bowl),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().padding(Spacing.md),
+                contentScale = ContentScale.Fit
+            )
+        }
+        if (!imageUrl.isNullOrBlank()) {
             AsyncImage(
                 model = imageUrl,
-                contentDescription = contentDescription,
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
         }
-        // Keeps white badge text legible over a bright photo.
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        0f to Color.Black.copy(alpha = 0.22f),
-                        0.45f to Color.Transparent
-                    )
-                )
-        )
-    }
-}
-
-@Composable
-private fun ImageFallback(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Icon(
-            imageVector = Icons.Outlined.Restaurant,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.size(32.dp)
-        )
     }
 }
 
@@ -374,22 +337,23 @@ fun RestaurantCardSkeleton(modifier: Modifier = Modifier) {
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column {
-            SkeletonBox(
-                modifier = Modifier.fillMaxWidth().aspectRatio(2.3f),
-                shape = RoundedCornerShape(0.dp)
-            )
-            Column(Modifier.padding(Spacing.lg)) {
-                SkeletonLine(width = 170.dp, height = 18.dp)
-                Spacer(Modifier.height(Spacing.sm))
-                SkeletonLine(width = 110.dp, height = 12.dp)
-                Spacer(Modifier.height(Spacing.md))
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    SkeletonBox(Modifier.weight(1f).height(40.dp))
-                    SkeletonBox(Modifier.weight(1f).height(40.dp))
+        Column(Modifier.padding(Spacing.md)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                SkeletonBox(Modifier.size(88.dp), shape = MaterialTheme.shapes.medium)
+                Column(Modifier.weight(1f).padding(top = Spacing.sm)) {
+                    SkeletonBox(Modifier.fillMaxWidth(0.85f).height(18.dp))
+                    Spacer(Modifier.height(Spacing.sm))
+                    SkeletonBox(Modifier.fillMaxWidth(0.55f).height(12.dp))
+                    Spacer(Modifier.height(Spacing.md))
+                    SkeletonBox(Modifier.fillMaxWidth(0.7f).height(14.dp))
                 }
+            }
+            Spacer(Modifier.height(Spacing.md))
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                SkeletonBox(Modifier.weight(1f).height(34.dp))
+                SkeletonBox(Modifier.weight(1f).height(34.dp))
             }
         }
     }

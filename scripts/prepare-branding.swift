@@ -47,7 +47,6 @@ func canvas(_ image: CGImage, size: Int, contentHeight: Double, white: Bool = fa
 let logo = master.cropping(to: CGRect(x: 140, y: 125, width: 974, height: 984))!
 let mark = master.cropping(to: CGRect(x: 398, y: 128, width: 456, height: 670))!
 save(logo, "app/src/main/res/drawable-nodpi/ngantriin_logo.png")
-save(mark, "docs/branding/ngantriin-mark.png")
 for (density, size) in [("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)] {
     let scale = Double(size) / 48
     // Adaptive foreground: 108dp canvas, artwork inside the central 66dp circle.

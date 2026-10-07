@@ -93,12 +93,12 @@
     <string name="home_empty_no_results">Kami belum menemukan restoran di sekitarmu.</string>
     <string name="home_refresh">Muat ulang</string>
     <string name="home_near_you">Di Dekatmu</string>
-    <string name="home_near_you_subtitle_located">Diurutkan berdasarkan jarak dari lokasimu</string>
+    <string name="home_near_you_subtitle_located">Pilihan terdekat untuk waktu makanmu</string>
     <string name="home_near_you_subtitle_default">Aktifkan lokasi untuk mengurutkan berdasarkan jarak</string>
     <string name="home_all_restaurants">Semua restoran</string>
-    <string name="home_all_restaurants_subtitle">Panjang antrean langsung, diperbarui otomatis</string>
+    <string name="home_all_restaurants_subtitle">Cek waktu tunggu sebelum berangkat</string>
     <string name="home_see_all">Lihat semua</string>
-    <string name="home_location_known">Lokasimu: area Gading Serpong</string>
+    <string name="home_location_known">Restoran di sekitar lokasimu</string>
     <string name="home_location_finding">Mencari lokasimu…</string>
     <string name="home_location_off">Aktifkan lokasi</string>
     <string name="home_search_placeholder">Cari restoran…</string>
@@ -145,15 +145,12 @@
     <string name="restaurant_not_found">Kami tidak bisa memuat restoran ini.</string>
     <string name="action_go_back">Kembali</string>
     <string name="action_view_my_queue">Lihat antrean saya</string>
-    <string name="action_try_again">Coba lagi</string>
 
     <!-- Password field visibility toggle -->
     <string name="cd_show_password">Tampilkan kata sandi</string>
     <string name="cd_hide_password">Sembunyikan kata sandi</string>
 
     <!-- Generic error / empty states -->
-    <string name="error_state_offline_title">Kamu sedang offline</string>
-    <string name="error_state_generic_title">Terjadi kesalahan</string>
 
     <!-- Location permission rationale dialog -->
     <string name="location_rationale_title">Izinkan Ngantriin menggunakan lokasimu</string>
@@ -189,7 +186,7 @@
     <string name="auth_email_placeholder">kamu@contoh.com</string>
     <string name="auth_password_label">Kata Sandi</string>
     <string name="auth_demo_mode_title">Mode demo</string>
-    <string name="auth_demo_mode_body">Kredensial Supabase belum diatur, jadi tidak ada yang diverifikasi — email apa pun bisa masuk memakai data contoh bawaan. Gunakan email berawalan \"staff\" untuk membuka dashboard restoran.</string>
+    <string name="auth_demo_mode_body">Jelajahi aplikasi dengan data contoh. Email apa pun bisa digunakan; kata sandi tidak diverifikasi di mode demo.</string>
 
     <!-- Login screen -->
     <string name="login_title">Selamat datang kembali</string>
@@ -443,7 +440,6 @@
     <plurals name="cd_estimated_wait">
         <item quantity="other">Estimasi tunggu %1$d menit</item>
     </plurals>
-    <string name="cd_offline">Kamu sedang offline</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Pengaturan</string>
@@ -458,4 +454,11 @@
     <string name="settings_backend_demo">Mode demo — data contoh di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
     <string name="settings_backend_connected">Tersambung ke Supabase.</string>
     <string name="settings_version">Ngantriin • versi 1.0</string>
+
+    <!-- Discovery -->
+    <string name="home_hero_eyebrow">WAKTUNYA MAKAN ENAK</string>
+    <string name="home_hero_title">Makan enak.\nAntre santai.</string>
+    <string name="home_hero_action">Temukan tempatmu</string>
+    <string name="search_title">Mau makan apa?</string>
+    <string name="search_subtitle">Temukan tempat enak untuk hari ini.</string>
 </resources>

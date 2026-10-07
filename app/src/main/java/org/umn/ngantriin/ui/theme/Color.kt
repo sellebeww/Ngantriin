@@ -2,42 +2,29 @@ package org.umn.ngantriin.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// -----------------------------------------------------------------------------
-// Ngantriin palette
-//
-// One warm brand hue on a near-neutral ink scale. Queue state has its own ramp
-// so a status never has to borrow the brand colour and lose its meaning.
-//
-// The brand hue is tuned from the product's Figma reference (#FF8C00 /
-// #FFAA30): the raw Figma orange only clears ~2.3:1 against white, so
-// Saffron50 is deepened just enough to hit >=3:1 for icons/outlines, and
-// button text uses a dark ink (onPrimary) rather than white on top of it —
-// white-on-vivid-orange is the mockup's own contrast bug, not something
-// worth reproducing.
-// -----------------------------------------------------------------------------
+// Orange dining palette with cream surfaces and warm brown text.
 
 // Brand
-val Saffron90 = Color(0xFFFFEBD3)
-val Saffron60 = Color(0xFFFFAA30)
-val Saffron50 = Color(0xFFD96D00)
-val Saffron40 = Color(0xFFB85300)
-val Saffron20 = Color(0xFF7A3B0B)
+val Saffron90 = Color(0xFFFFEBD6)
+val Saffron60 = Color(0xFFFFB464)
+val Saffron50 = Color(0xFFBB5008)
+val Saffron40 = Color(0xFF923B05)
+val Saffron20 = Color(0xFF71330A)
 
-// Ink / neutrals — warm-neutral so text and dividers sit comfortably on the
-// cream background instead of reading cool/purple against it.
-val Ink900 = Color(0xFF1A1410)
-val Ink800 = Color(0xFF2B241E)
-val Ink700 = Color(0xFF463D34)
-val Ink500 = Color(0xFF665F57)
-val Ink300 = Color(0xFFA39A8E)
-val Ink200 = Color(0xFFDDD6C9)
-val Ink100 = Color(0xFFF2ECE0)
-val Cloud = Color(0xFFFFFAF0)
+// Warm neutral surfaces and readable text.
+val Ink900 = Color(0xFF2D241E)
+val Ink800 = Color(0xFF382B22)
+val Ink700 = Color(0xFF514238)
+val Ink500 = Color(0xFF75675C)
+val Ink300 = Color(0xFFBEAA99)
+val Ink200 = Color(0xFFE6DACE)
+val Ink100 = Color(0xFFF5EDE3)
+val Cloud = Color(0xFFFFFAF4)
 val SurfaceWhite = Color(0xFFFFFFFF)
 
 // Supporting accent, used for informational surfaces only
-val Teal50 = Color(0xFF117A65)
-val Teal90 = Color(0xFFD3F0E9)
+val OrangeAccent = Color(0xFFA74608)
+val OrangeAccentContainer = Color(0xFFFFEDD9)
 
 // Queue status ramp — section 14. Each of these is always paired with an icon
 // and a text label so colour is never the only signal (section 42).

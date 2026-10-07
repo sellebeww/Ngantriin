@@ -2,7 +2,6 @@ package org.umn.ngantriin.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -99,34 +98,4 @@ private fun summaryFor(queue: ActiveQueue): String = when {
         groupsText(queue.peopleAhead),
         waitTimeText(queue.estimatedWaitMinutes)
     )
-}
-
-/** Used in tight spots where the full banner would dominate. */
-@Composable
-fun ActiveQueueBannerRow(
-    queue: ActiveQueue,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
-            .clickable(onClick = onClick)
-            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-    ) {
-        Text(
-            text = queue.queueNumber,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-        Text(
-            text = summaryFor(queue),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.weight(1f)
-        )
-    }
 }

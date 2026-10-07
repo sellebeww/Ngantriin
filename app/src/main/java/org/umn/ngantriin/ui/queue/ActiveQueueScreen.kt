@@ -1,5 +1,7 @@
 package org.umn.ngantriin.ui.queue
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -52,7 +56,6 @@ import org.umn.ngantriin.ui.components.OfflineBanner
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.SecondaryButton
-import org.umn.ngantriin.ui.components.visuals
 import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
@@ -255,7 +258,8 @@ private fun ActiveQueueContent(
  */
 @Composable
 private fun QueueNumberCard(queue: ActiveQueue) {
-    val visuals = queue.status.visuals()
+    val dividerColor = MaterialTheme.colorScheme.outline
+    val ticketInk = MaterialTheme.colorScheme.secondary
     val numberDescription = stringResource(R.string.cd_queue_number, queue.queueNumber)
     val aheadDescription =
         pluralStringResource(R.plurals.cd_people_ahead, queue.peopleAhead, queue.peopleAhead)
@@ -268,6 +272,7 @@ private fun QueueNumberCard(queue: ActiveQueue) {
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -281,7 +286,7 @@ private fun QueueNumberCard(queue: ActiveQueue) {
             Text(
                 text = queue.queueNumber,
                 style = QueueNumberStyle,
-                color = visuals.content,
+                color = ticketInk,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clearAndSetSemantics {
                     contentDescription = numberDescription
@@ -289,7 +294,15 @@ private fun QueueNumberCard(queue: ActiveQueue) {
             )
 
             Spacer(Modifier.height(Spacing.xl))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Canvas(Modifier.fillMaxWidth().height(1.dp)) {
+                drawLine(
+                    color = dividerColor,
+                    start = Offset.Zero,
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx()))
+                )
+            }
             Spacer(Modifier.height(Spacing.xl))
 
             Row(Modifier.fillMaxWidth()) {

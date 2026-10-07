@@ -102,12 +102,12 @@
     <string name="home_empty_no_results">We couldn\'t find any restaurants around you yet.</string>
     <string name="home_refresh">Refresh</string>
     <string name="home_near_you">Near You</string>
-    <string name="home_near_you_subtitle_located">Sorted by distance from where you are</string>
+    <string name="home_near_you_subtitle_located">Your next meal, just around the corner</string>
     <string name="home_near_you_subtitle_default">Turn on location to sort by distance</string>
     <string name="home_all_restaurants">All restaurants</string>
-    <string name="home_all_restaurants_subtitle">Live queue lengths, updated as they change</string>
+    <string name="home_all_restaurants_subtitle">Check the wait before you head out</string>
     <string name="home_see_all">See all</string>
-    <string name="home_location_known">Your location: Gading Serpong area</string>
+    <string name="home_location_known">Restaurants around you</string>
     <string name="home_location_finding">Finding your location…</string>
     <string name="home_location_off">Turn on location</string>
     <string name="home_search_placeholder">Search restaurants…</string>
@@ -154,15 +154,12 @@
     <string name="restaurant_not_found">We couldn\'t load this restaurant.</string>
     <string name="action_go_back">Go back</string>
     <string name="action_view_my_queue">View my queue</string>
-    <string name="action_try_again">Try again</string>
 
     <!-- Password field visibility toggle -->
     <string name="cd_show_password">Show password</string>
     <string name="cd_hide_password">Hide password</string>
 
     <!-- Generic error / empty states -->
-    <string name="error_state_offline_title">You\'re offline</string>
-    <string name="error_state_generic_title">Something went wrong</string>
 
     <!-- Location permission rationale dialog -->
     <string name="location_rationale_title">Allow Ngantriin to use your location</string>
@@ -198,7 +195,7 @@
     <string name="auth_email_placeholder">you@example.com</string>
     <string name="auth_password_label">Password</string>
     <string name="auth_demo_mode_title">Demo mode</string>
-    <string name="auth_demo_mode_body">No Supabase credentials configured, so nothing is verified — any email signs you in against the bundled sample data. Use an email starting with \"staff\" to open the restaurant dashboard.</string>
+    <string name="auth_demo_mode_body">Explore with sample data. Any email works; passwords are not verified in demo mode.</string>
 
     <!-- Login screen -->
     <string name="login_title">Welcome back</string>
@@ -457,7 +454,6 @@
         <item quantity="one">Estimated wait %1$d minute</item>
         <item quantity="other">Estimated wait %1$d minutes</item>
     </plurals>
-    <string name="cd_offline">You are offline</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
@@ -472,4 +468,11 @@
     <string name="settings_backend_demo">Demo mode — sample data on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
     <string name="settings_backend_connected">Connected to Supabase.</string>
     <string name="settings_version">Ngantriin • version 1.0</string>
+
+    <!-- Discovery -->
+    <string name="home_hero_eyebrow">A LITTLE LESS WAITING</string>
+    <string name="home_hero_title">Good food.\nMore good times.</string>
+    <string name="home_hero_action">Find your table</string>
+    <string name="search_title">Find your next favorite</string>
+    <string name="search_subtitle">Good food is closer than you think.</string>
 </resources>

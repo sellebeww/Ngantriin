@@ -1,5 +1,7 @@
 package org.umn.ngantriin.ui.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,7 +22,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.Badge
@@ -33,7 +37,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
@@ -104,6 +111,14 @@ fun HomeScreen(
                         vertical = Spacing.lg
                     )
                 )
+            }
+
+            item {
+                DiscoveryBanner(
+                    onClick = onSearchClick,
+                    modifier = Modifier.padding(horizontal = Spacing.screenGutter)
+                )
+                Spacer(Modifier.height(Spacing.xxl))
             }
 
             state.activeQueue?.let { queue ->
@@ -209,7 +224,7 @@ private fun HomeHeader(
             .fillMaxWidth()
             .padding(
                 start = Spacing.screenGutter,
-                end = Spacing.sm,
+                end = Spacing.screenGutter,
                 top = Spacing.lg
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -217,13 +232,17 @@ private fun HomeHeader(
         Column(Modifier.weight(1f)) {
             Text(
                 text = if (userName.isBlank()) greeting else "$greeting, $userName",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(Modifier.height(Spacing.xs))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable(enabled = !locationGranted, onClick = onEnableLocation)
+                modifier = Modifier
+                    .clickable(enabled = !locationGranted, role = Role.Button, onClick = onEnableLocation)
+                    .heightIn(min = Spacing.touchTarget)
             ) {
                 Icon(
                     imageVector = Icons.Filled.MyLocation,
@@ -244,18 +263,21 @@ private fun HomeHeader(
             }
         }
 
-        IconButton(onClick = onNotificationsClick) {
+        IconButton(
+            onClick = onNotificationsClick,
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
+        ) {
             BadgedBox(
                 badge = {
                     if (unreadCount > 0) {
                         Badge {
-                        Text(if (unreadCount > 9) stringResource(R.string.badge_overflow) else "$unreadCount")
-                    }
+                            Text(if (unreadCount > 9) stringResource(R.string.badge_overflow) else "$unreadCount")
+                        }
                     }
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Notifications,
+                    imageVector = Icons.Outlined.Notifications,
                     contentDescription = stringResource(R.string.cd_notifications)
                 )
             }
@@ -266,8 +288,10 @@ private fun HomeHeader(
 @Composable
 private fun HomeSearchBar(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.large,
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         color = MaterialTheme.colorScheme.surface
     ) {
         Row(
@@ -282,8 +306,48 @@ private fun HomeSearchBar(onClick: () -> Unit, modifier: Modifier = Modifier) {
             Spacer(Modifier.width(Spacing.md))
             Text(
                 text = stringResource(R.string.home_search_placeholder),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun DiscoveryBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(start = Spacing.xl, top = Spacing.xl, bottom = Spacing.xl),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.home_hero_eyebrow),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.72f)
+                )
+                Spacer(Modifier.height(Spacing.sm))
+                Text(
+                    stringResource(R.string.home_hero_title),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Spacer(Modifier.height(Spacing.md))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.home_hero_action), style = MaterialTheme.typography.labelMedium)
+                    Spacer(Modifier.width(Spacing.sm))
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(18.dp))
+                }
+            }
+            Image(
+                painter = painterResource(R.drawable.dining_bowl),
+                contentDescription = null,
+                modifier = Modifier.weight(0.65f).height(144.dp)
             )
         }
     }

@@ -16,11 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.R
 import org.umn.ngantriin.core.AppError
@@ -61,18 +58,19 @@ fun EmptyState(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.xxl, vertical = Spacing.xxxl),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
-                .size(76.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(50)),
+                .size(96.dp)
+                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.extraLarge),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(34.dp)
             )
         }
@@ -97,26 +95,6 @@ fun EmptyState(
             }
         }
     }
-}
-
-@Composable
-fun ErrorState(
-    error: AppError,
-    modifier: Modifier = Modifier,
-    onRetry: (() -> Unit)? = null
-) {
-    EmptyState(
-        icon = if (error is AppError.Network) Icons.Filled.CloudOff else Icons.Filled.ErrorOutline,
-        title = if (error is AppError.Network) {
-            stringResource(R.string.error_state_offline_title)
-        } else {
-            stringResource(R.string.error_state_generic_title)
-        },
-        message = error.message(),
-        modifier = modifier,
-        actionLabel = onRetry?.let { stringResource(R.string.action_try_again) },
-        onAction = onRetry
-    )
 }
 
 /** Resolves an [AppError] to its user-facing sentence. */
@@ -158,11 +136,6 @@ fun SkeletonBox(
     )
 }
 
-@Composable
-fun SkeletonLine(width: Dp, modifier: Modifier = Modifier, height: Dp = 14.dp) {
-    SkeletonBox(modifier = modifier.width(width).height(height))
-}
-
 /** Section 21. The persistent "we may be showing you stale data" strip. */
 @Composable
 fun OfflineBanner(modifier: Modifier = Modifier, message: String) {
@@ -188,6 +161,3 @@ fun OfflineBanner(modifier: Modifier = Modifier, message: String) {
         )
     }
 }
-
-@Composable
-fun offlineMessage(): String = stringResource(R.string.cd_offline)
