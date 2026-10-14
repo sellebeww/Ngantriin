@@ -24,6 +24,7 @@ object Routes {
     const val ONBOARDING = "onboarding"
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val RESET_PASSWORD = "reset_password"
 
     const val HOME = "home"
     const val SEARCH = "search"
@@ -32,6 +33,7 @@ object Routes {
     const val PROFILE = "profile"
 
     const val SETTINGS = "settings"
+    const val ABOUT = "about"
     const val NOTIFICATIONS = "notifications"
 
     const val ARG_RESTAURANT_ID = "restaurantId"

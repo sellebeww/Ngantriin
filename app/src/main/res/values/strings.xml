@@ -206,6 +206,12 @@
     <string name="login_reset_email_sent">Password reset link sent to %1$s</string>
 
     <!-- Register screen -->
+    <string name="reset_password_title">Choose a new password</string>
+    <string name="reset_password_subtitle">Pick a password you have not used here before.</string>
+    <string name="reset_password_new_label">New password</string>
+    <string name="reset_password_button">Save password</string>
+    <string name="reset_password_cancel">Cancel</string>
+
     <string name="register_title">Create your account</string>
     <string name="register_subtitle">One account, every queue in Gading Serpong.</string>
     <string name="register_full_name_label">Full name</string>
@@ -461,6 +467,14 @@
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_demo">Sample mode — the data lives only on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
     <string name="settings_backend_connected">Connected to Supabase.</string>
+    <string name="settings_about">Help, privacy and terms</string>
+    <string name="about_title">Help, privacy and terms</string>
+    <string name="about_help_heading">How it works</string>
+    <string name="about_help_body">Pick a restaurant and tap Join Queue; the server gives you a number. You can leave and do something else. You are notified as your turn gets close and again when you are called.\n\nOnce called you have 10 minutes to check in by taking a photo at the restaurant. If the time runs out the ticket expires. If you arrive early you can check in at any time without losing your place.\n\nAfter check-in, wait until the staff mark your table ready. You can only hold one active queue at a time, and after cancelling you must wait 60 seconds before joining the same restaurant again.\n\nForgot your password? Use Forgot password on the login screen and open the link in the email on this phone.</string>
+    <string name="about_privacy_heading">Privacy</string>
+    <string name="about_privacy_body">We store your name, email, optional phone number, your queue history, your reviews and a device token used to send you queue notifications.\n\nYour location is used only on this phone to sort restaurants by distance. It is never sent to our servers.\n\nThe check-in photo is uploaded so the restaurant staff can confirm you are there. Only you and the staff of that restaurant can see it.\n\nNotifications never include the restaurant name. Signing out removes this device from your account and clears queue data stored on the phone.</string>
+    <string name="about_terms_heading">Terms of use</string>
+    <string name="about_terms_body">Ngantriin helps you hold a place in line; the restaurant decides when a table is available. Estimated waiting times are estimates, not promises.\n\nPlease do not join queues you do not plan to attend, and do not use another person\'s account. Tickets that are not checked in on time, or that repeatedly go unattended, may be removed by the restaurant.\n\nReviews should be honest and respectful; you can edit the rating and text of your own review.</string>
     <string name="settings_version">Ngantriin • version 1.0</string>
 
     <!-- Discovery -->

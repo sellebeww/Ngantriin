@@ -17,6 +17,9 @@ import org.umn.ngantriin.BuildConfig
  */
 object SupabaseClientFactory {
 
+    const val RECOVERY_SCHEME = "ngantriin"
+    const val RECOVERY_HOST = "auth"
+
     val isConfigured: Boolean
         get() = BuildConfig.SUPABASE_URL.isNotBlank() && BuildConfig.SUPABASE_ANON_KEY.isNotBlank()
 
@@ -32,7 +35,12 @@ object SupabaseClientFactory {
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
-            install(Auth)
+            install(Auth) {
+                // The password-reset email links to ngantriin://auth; the
+                // manifest routes it back to MainActivity.
+                scheme = RECOVERY_SCHEME
+                host = RECOVERY_HOST
+            }
             install(Postgrest)
             install(Realtime)
             install(Storage)

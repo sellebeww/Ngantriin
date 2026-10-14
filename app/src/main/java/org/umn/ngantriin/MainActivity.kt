@@ -31,7 +31,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val container = (application as NgantriinApplication).container
-        if (savedInstanceState == null) pendingLaunch = intent.toLaunch()
+        if (savedInstanceState == null) {
+            pendingLaunch = intent.toLaunch()
+            container.authRepository.handleRecoveryLink(intent)
+        }
 
         setContent {
             NgantriinApp(
@@ -46,6 +49,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         intent.toLaunch()?.let { pendingLaunch = it }
+        (application as NgantriinApplication).container.authRepository.handleRecoveryLink(intent)
     }
 
     private fun Intent?.toLaunch(): NotificationLaunch? {

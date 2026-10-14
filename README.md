@@ -102,6 +102,8 @@ Firebase Cloud Messaging.
   Mengikuti pengaturan animasi sistem Android.
 - **Tahan offline**: tanpa internet, aplikasi tetap menampilkan data terakhir,
   dan aksi yang tertunda dikirim otomatis begitu online lagi.
+- **Lupa kata sandi**: tautan di email membuka aplikasi langsung ke layar kata
+  sandi baru. Pengaturan juga memuat halaman bantuan, privasi, dan ketentuan.
 - **Dua bahasa** yang bisa dipilih per aplikasi, terpisah dari bahasa sistem.
 
 **Untuk staf restoran**
@@ -194,13 +196,14 @@ supabase db push   # atau tempel isi supabase/migrations/*.sql ke SQL editor
 | `0011_queue_status_table_ready.sql` | Status baru `TABLE_READY` dan `EXPIRED` |
 | `0012_check_in_window_and_table_ready.sql` | Batas check-in 10 menit, check-in lebih awal, meja siap, jam buka di server, verifikasi foto, pengetatan RLS, webhook ber-secret, jadwal pg_cron |
 | `0013_fcm_token_hygiene.sql` | Satu token perangkat hanya milik satu akun: trigger + unique index, agar push akun lama tidak jatuh ke HP yang sudah dipakai akun lain |
+| `0014_staff_admin.sql` | `grant_staff(email, restaurant_id)` dan `revoke_staff(...)`: jadikan atau cabut staf dalam satu panggilan, hanya bisa dijalankan dari SQL editor / service role |
 
 > Aktifkan ekstensi **pg_cron** (Database → Extensions) sebelum menjalankan
 > 0012 agar tiket yang tidak check-in hangus tepat waktu. Tanpa pg_cron aturan
 > tetap berlaku, hanya dieksekusi saat ada aktivitas di antrean restoran itu.
 
-Empat berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
-`concurrency_test.sql`, `journey_test.sql`, `fcm_token_test.sql`) menguji
+Lima berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
+`concurrency_test.sql`, `journey_test.sql`, `fcm_token_test.sql`, `staff_admin_test.sql`) menguji
 isolasi RLS, locking/cooldown, seluruh alur dari antre sampai meja siap /
 hangus, dan kepemilikan token FCM. Cara termudah menjalankannya (butuh Docker):
 
@@ -213,6 +216,12 @@ menjalankan keempat tes, dan juga dipakai CI. Berkas `ci_bootstrap.sql` hanya
 menambal bagian yang di Supabase hosted disediakan layanan lain (tabel Storage,
 `auth.uid()` versi baru); jangan dijalankan ke project sungguhan.
 
+**Reset password.** Tautan di email reset membuka aplikasi lewat `ngantriin://auth`.
+Di Supabase Dashboard → Authentication → URL Configuration, tambahkan
+`ngantriin://auth` ke **Redirect URLs**; tanpa itu tautan akan diarahkan ke Site
+URL dan layar kata sandi baru tidak muncul. Buka tautan di HP yang sama dengan
+aplikasinya. Alur ini belum teruji ujung ke ujung dengan project Supabase asli.
+
 Lalu isi kredensial di `local.properties` (di-ignore git, tidak pernah
 di-commit):
 
@@ -224,16 +233,18 @@ SUPABASE_ANON_KEY=your-anon-key
 CI bisa memakai environment variable dengan nama yang sama. Setelah rebuild,
 mode contoh otomatis mati.
 
-Untuk menjadikan akun sebagai staf, tambahkan baris di `restaurant_staff`:
+Untuk menjadikan akun sebagai staf, akun itu harus sudah mendaftar, lalu jalankan
+di SQL editor:
 
 ```sql
-insert into restaurant_staff (restaurant_id, user_id)
-values ('11111111-1111-4111-8111-111111111111', '<auth user id>');
-
-update users set role = 'STAFF' where id = '<auth user id>';
+select grant_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
+select revoke_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
 ```
 
-Ini satu-satunya cara resmi menambah staf. Tabel `restaurant_staff` tidak punya
+`grant_staff` menambah baris `restaurant_staff` sekaligus mengubah role;
+`revoke_staff` mengembalikan akun menjadi pelanggan saat restoran terakhirnya
+dicabut. Ini satu-satunya cara resmi mengelola staf; fungsinya tidak bisa
+dipanggil dari aplikasi. Tabel `restaurant_staff` tidak punya
 policy INSERT/UPDATE/DELETE sama sekali, dan kolom `role` tidak bisa diubah
 dari aplikasi, jadi tidak ada pengguna yang bisa menjadikan dirinya staf.
 
@@ -351,10 +362,28 @@ apa pun (mode contoh).
 
 ---
 
+## Checklist Sebelum Rilis
+
+Hal-hal berikut butuh akun atau perangkat milik Anda, jadi tidak ada di repo:
+
+- [ ] Semua migrasi `0001`–`0014` sudah dijalankan; ekstensi **pg_cron** aktif.
+- [ ] `google-services.json` ada di `app/`; Edge Function `queue-notifier`
+      ter-deploy beserta secret `QUEUE_NOTIFIER_SECRET`, `FCM_PROJECT_ID`,
+      `FCM_SERVICE_ACCOUNT_JSON`; `app.settings.functions_url` dan
+      `app.settings.queue_notifier_secret` sudah diatur.
+- [ ] `ngantriin://auth` terdaftar di Redirect URLs Supabase.
+- [ ] Keystore rilis dan empat nilai `RELEASE_*` sudah diisi.
+- [ ] Satu putaran manual di perangkat sungguhan: daftar, antre, dipanggil,
+      check-in dengan foto, meja siap, selesai, ulasan, dan reset password.
+- [ ] Teks privasi dan ketentuan di Pengaturan sudah ditinjau untuk restoran
+      Anda (isinya draf yang menjelaskan perilaku aplikasi, bukan nasihat hukum).
+
+---
+
 ## Tes
 
 ```bash
-./gradlew :app:testDebugUnitTest          # 56 unit test
+./gradlew :app:testDebugUnitTest          # unit test
 ./gradlew :app:connectedDebugAndroidTest  # 7 instrumented test, butuh perangkat
 ./gradlew :app:lintDebug
 ```

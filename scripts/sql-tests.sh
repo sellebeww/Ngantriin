@@ -30,7 +30,7 @@ for f in supabase/migrations/*.sql; do
 done
 
 status=0
-for t in rls journey fcm_token concurrency; do
+for t in rls journey fcm_token staff_admin concurrency; do
   echo "test     $t"
   out=$(psql_in < "supabase/tests/${t}_test.sql" 2>&1) || { echo "$out"; echo "FAILED: $t"; status=1; continue; }
   echo "$out" | grep -E 'PASSED|passed' || true

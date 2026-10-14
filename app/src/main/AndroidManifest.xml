@@ -53,6 +53,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Password-reset link from the Supabase email. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="ngantriin" android:host="auth"/>
+            </intent-filter>
         </activity>
 
         <!-- Queue pushes sent by the backend. -->

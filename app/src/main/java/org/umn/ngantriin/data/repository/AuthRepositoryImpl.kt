@@ -1,9 +1,12 @@
 package org.umn.ngantriin.data.repository
 
+import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.umn.ngantriin.core.Outcome
@@ -22,6 +25,8 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     private val cachedUser = MutableStateFlow<User?>(null)
+    private val _recoveryPending = MutableStateFlow(false)
+    override val recoveryPending: StateFlow<Boolean> = _recoveryPending.asStateFlow()
 
     override val sessionState: Flow<SessionState> = remote.session
         .map { session ->
@@ -78,6 +83,21 @@ class AuthRepositoryImpl(
 
     override suspend fun sendPasswordReset(email: String): Outcome<Unit> =
         runCatchingOutcome { remote.sendPasswordReset(email) }
+
+    override fun handleRecoveryLink(intent: Intent) {
+        remote.handleRecoveryLink(intent) { _recoveryPending.value = true }
+    }
+
+    override suspend fun updatePassword(newPassword: String): Outcome<Unit> =
+        runCatchingOutcome {
+            remote.updatePassword(newPassword)
+            _recoveryPending.value = false
+        }
+
+    override suspend fun abandonRecovery(): Outcome<Unit> {
+        _recoveryPending.value = false
+        return signOut()
+    }
 
     override suspend fun refreshProfile(): Outcome<User> = runCatchingOutcome {
         val id = remote.currentUserId() ?: error("NOT_AUTHENTICATED")

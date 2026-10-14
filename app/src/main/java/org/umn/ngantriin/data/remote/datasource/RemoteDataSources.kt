@@ -1,5 +1,6 @@
 package org.umn.ngantriin.data.remote.datasource
 
+import android.content.Intent
 import kotlinx.coroutines.flow.Flow
 import org.umn.ngantriin.domain.model.AppNotification
 import org.umn.ngantriin.domain.model.QueueEntry
@@ -38,6 +39,14 @@ interface AuthRemoteDataSource {
     suspend fun signUp(name: String, email: String, password: String): User
     suspend fun signOut()
     suspend fun sendPasswordReset(email: String)
+
+    /**
+     * Imports the session carried by a password-reset link. [onRecovered]
+     * fires once the session is usable; links that are not ours are ignored.
+     */
+    fun handleRecoveryLink(intent: Intent, onRecovered: () -> Unit)
+
+    suspend fun updatePassword(newPassword: String)
 
     suspend fun fetchProfile(userId: String): User
     suspend fun updateProfile(userId: String, name: String, phone: String?): User

@@ -1,5 +1,6 @@
 package org.umn.ngantriin.data.remote.demo
 
+import android.content.Intent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -81,6 +82,11 @@ class DemoAuthRemoteDataSource(
     }
 
     override suspend fun sendPasswordReset(email: String) = Unit
+
+    // Sample mode has no reset emails, so there is no link to receive.
+    override fun handleRecoveryLink(intent: Intent, onRecovered: () -> Unit) = Unit
+
+    override suspend fun updatePassword(newPassword: String) = Unit
 
     override suspend fun fetchProfile(userId: String): User =
         preferences.demoProfile.first()?.toUser() ?: error("NOT_AUTHENTICATED")

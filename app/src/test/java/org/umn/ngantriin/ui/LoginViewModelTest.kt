@@ -116,31 +116,4 @@ class LoginViewModelTest {
             assertEquals("you@example.com", vm.uiState.value.resetEmailSent)
             assertEquals(1, auth.resetCalls)
         }
-
-    private class FakeAuth(
-        private val result: Outcome<User> = Outcome.Success(User("u1", "You", "you@example.com"))
-    ) : AuthRepository {
-        var signInCalls = 0
-        var resetCalls = 0
-
-        override val sessionState: Flow<SessionState> = MutableStateFlow(SessionState.SignedOut)
-        override fun currentUserOrNull(): User? = null
-
-        override suspend fun signIn(email: String, password: String): Outcome<User> {
-            signInCalls++
-            return result
-        }
-
-        override suspend fun signUp(name: String, email: String, password: String) = result
-        override suspend fun signOut(): Outcome<Unit> = Outcome.Success(Unit)
-        override suspend fun sendPasswordReset(email: String): Outcome<Unit> {
-            resetCalls++
-            return Outcome.Success(Unit)
-        }
-
-        override suspend fun refreshProfile() = result
-        override suspend fun updateProfile(name: String, phone: String?) = result
-        override suspend fun syncPushToken(token: String): Outcome<Unit> = Outcome.Success(Unit)
-        override suspend fun syncLocale(locale: String): Outcome<Unit> = Outcome.Success(Unit)
-    }
 }

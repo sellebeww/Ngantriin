@@ -74,7 +74,10 @@ fun NgantriinApp(
             }
             val onboardingCompleted by onboardingFlow.collectAsStateWithLifecycle(null)
 
-            val area = resolveArea(session, onboardingCompleted)
+            val recoveryPending by container.authRepository.recoveryPending
+                .collectAsStateWithLifecycle()
+
+            val area = resolveArea(session, onboardingCompleted, recoveryPending)
 
             // Ask for notification permission only once the user is actually
             // in the app and a queue update could matter to them.
@@ -218,9 +221,16 @@ fun NgantriinApp(
  * Null means "not decided yet" — the splash stays up rather than flashing the
  * login screen at someone who is already signed in.
  */
-private fun resolveArea(session: SessionState, onboardingCompleted: Boolean?): String? = when {
+private fun resolveArea(
+    session: SessionState,
+    onboardingCompleted: Boolean?,
+    recoveryPending: Boolean
+): String? = when {
     onboardingCompleted == null || session is SessionState.Loading -> null
     !onboardingCompleted -> Routes.ONBOARDING
+    // The reset link signs the person in; hold them on the new-password
+    // screen rather than dropping them into the app with the old password.
+    recoveryPending && session is SessionState.SignedIn -> Routes.RESET_PASSWORD
     session is SessionState.SignedOut -> Routes.LOGIN
     session is SessionState.SignedIn && session.user.role == UserRole.STAFF ->
         Routes.STAFF_DASHBOARD

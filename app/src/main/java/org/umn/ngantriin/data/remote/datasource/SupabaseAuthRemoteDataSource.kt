@@ -1,7 +1,9 @@
 package org.umn.ngantriin.data.remote.datasource
 
+import android.content.Intent
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.handleDeeplinks
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.from
@@ -70,6 +72,14 @@ class SupabaseAuthRemoteDataSource(
 
     override suspend fun sendPasswordReset(email: String) {
         client.auth.resetPasswordForEmail(email.trim())
+    }
+
+    override fun handleRecoveryLink(intent: Intent, onRecovered: () -> Unit) {
+        client.handleDeeplinks(intent) { onRecovered() }
+    }
+
+    override suspend fun updatePassword(newPassword: String) {
+        client.auth.updateUser { password = newPassword }
     }
 
     override suspend fun fetchProfile(userId: String): User =

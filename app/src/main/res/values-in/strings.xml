@@ -197,6 +197,12 @@
     <string name="login_reset_email_sent">Tautan reset kata sandi sudah dikirim ke %1$s</string>
 
     <!-- Register screen -->
+    <string name="reset_password_title">Buat kata sandi baru</string>
+    <string name="reset_password_subtitle">Pilih kata sandi yang belum pernah kamu pakai di sini.</string>
+    <string name="reset_password_new_label">Kata sandi baru</string>
+    <string name="reset_password_button">Simpan kata sandi</string>
+    <string name="reset_password_cancel">Batal</string>
+
     <string name="register_title">Buat akunmu</string>
     <string name="register_subtitle">Satu akun, untuk semua antrean di Gading Serpong.</string>
     <string name="register_full_name_label">Nama lengkap</string>
@@ -447,6 +453,14 @@
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_demo">Mode contoh — datanya hanya ada di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
     <string name="settings_backend_connected">Tersambung ke Supabase.</string>
+    <string name="settings_about">Bantuan, privasi, dan ketentuan</string>
+    <string name="about_title">Bantuan, privasi, dan ketentuan</string>
+    <string name="about_help_heading">Cara kerja</string>
+    <string name="about_help_body">Pilih restoran lalu ketuk Join Queue; nomor antreanmu dibuat oleh server. Kamu boleh pergi dulu. Kamu diberi tahu saat giliran mendekat dan saat dipanggil.\n\nSetelah dipanggil, kamu punya 10 menit untuk check-in dengan memotret dirimu di restoran. Kalau waktunya habis, tiket hangus. Kalau sudah sampai lebih awal, kamu boleh check-in kapan saja tanpa kehilangan urutan.\n\nSetelah check-in, tunggu sampai staf menandai mejamu siap. Kamu hanya bisa punya satu antrean aktif, dan setelah membatalkan harus menunggu 60 detik sebelum bergabung lagi ke restoran yang sama.\n\nLupa kata sandi? Ketuk Lupa kata sandi di layar masuk, lalu buka tautan di email lewat HP ini.</string>
+    <string name="about_privacy_heading">Privasi</string>
+    <string name="about_privacy_body">Kami menyimpan namamu, email, nomor telepon (opsional), riwayat antrean, ulasan, dan token perangkat untuk mengirim notifikasi antrean.\n\nLokasimu hanya dipakai di HP ini untuk mengurutkan restoran berdasarkan jarak dan tidak dikirim ke server kami.\n\nFoto check-in diunggah agar staf restoran bisa memastikan kamu sudah hadir. Hanya kamu dan staf restoran itu yang bisa melihatnya.\n\nNotifikasi tidak pernah menyebut nama restoran. Keluar dari akun akan melepas perangkat ini dari akunmu dan menghapus data antrean di HP.</string>
+    <string name="about_terms_heading">Ketentuan penggunaan</string>
+    <string name="about_terms_body">Ngantriin membantumu menjaga urutan antre; restoran yang menentukan kapan meja tersedia. Estimasi waktu tunggu hanyalah perkiraan, bukan janji.\n\nJangan mengambil antrean yang tidak akan kamu datangi dan jangan memakai akun orang lain. Tiket yang tidak check-in tepat waktu, atau berulang kali tidak dihadiri, bisa dikeluarkan oleh restoran.\n\nUlasan harus jujur dan sopan; kamu bisa mengubah rating dan isi ulasanmu sendiri.</string>
     <string name="settings_version">Ngantriin • versi 1.0</string>
 
     <!-- Discovery -->

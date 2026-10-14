@@ -22,11 +22,13 @@ import androidx.navigation.navArgument
 import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.ui.auth.LoginScreen
 import org.umn.ngantriin.ui.auth.RegisterScreen
+import org.umn.ngantriin.ui.auth.ResetPasswordScreen
 import org.umn.ngantriin.ui.history.HistoryDetailScreen
 import org.umn.ngantriin.ui.history.HistoryScreen
 import org.umn.ngantriin.ui.home.HomeScreen
 import org.umn.ngantriin.ui.notifications.NotificationsScreen
 import org.umn.ngantriin.ui.onboarding.OnboardingScreen
+import org.umn.ngantriin.ui.profile.AboutScreen
 import org.umn.ngantriin.ui.profile.ProfileScreen
 import org.umn.ngantriin.ui.profile.SettingsScreen
 import org.umn.ngantriin.ui.queue.ActiveQueueScreen
@@ -91,6 +93,8 @@ fun NgantriinNavHost(
         composable(Routes.LOGIN) {
             LoginScreen(onNavigateToRegister = { navController.navigate(Routes.REGISTER) })
         }
+
+        composable(Routes.RESET_PASSWORD) { ResetPasswordScreen() }
 
         composable(Routes.REGISTER) {
             RegisterScreen(onBack = { navController.popBackStack() })
@@ -236,7 +240,14 @@ fun NgantriinNavHost(
         }
 
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenAbout = { navController.navigate(Routes.ABOUT) }
+            )
+        }
+
+        composable(Routes.ABOUT) {
+            AboutScreen(onBack = { navController.popBackStack() })
         }
 
         // --- Staff -----------------------------------------------------------
