@@ -21,6 +21,9 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews WHERE queueId = :queueId LIMIT 1")
     suspend fun findByQueue(queueId: String): ReviewEntity?
 
+    @Query("SELECT * FROM reviews WHERE queueId = :queueId LIMIT 1")
+    fun observeByQueue(queueId: String): Flow<ReviewEntity?>
+
     @Query("DELETE FROM reviews")
     suspend fun clear()
 }

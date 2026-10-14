@@ -38,4 +38,7 @@ interface AuthRepository {
 
     /** Section 15: stores the device push token against the profile. */
     suspend fun syncPushToken(token: String): Outcome<Unit>
+
+    /** Tells the backend which language to write push notifications in. */
+    suspend fun syncLocale(locale: String): Outcome<Unit>
 }

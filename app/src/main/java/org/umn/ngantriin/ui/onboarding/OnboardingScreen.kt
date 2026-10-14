@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.umn.ngantriin.R
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Section 6. Three pages that each answer one worry about leaving a queue:
@@ -162,7 +163,7 @@ private fun OnboardingPageContent(page: OnboardingPage) {
 
         Text(
             text = stringResource(page.descriptionRes),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

@@ -1,6 +1,8 @@
 package org.umn.ngantriin.ui.history
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -8,11 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
@@ -41,6 +45,7 @@ import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.RestaurantImage
 import org.umn.ngantriin.ui.components.SkeletonBox
 import org.umn.ngantriin.ui.components.dateTimeText
+import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.Spacing
 
 /** Section 19. */
@@ -48,13 +53,14 @@ import org.umn.ngantriin.ui.theme.Spacing
 fun HistoryScreen(
     onFindRestaurants: () -> Unit,
     onRate: (String) -> Unit,
-    onRestaurantClick: (String) -> Unit,
+    onOpenVisit: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = containerViewModel { container ->
         HistoryViewModel(
             authRepository = container.authRepository,
             queueRepository = container.queueRepository,
+            reviewRepository = container.reviewRepository,
             connectivityObserver = container.connectivityObserver
         )
     }
@@ -74,6 +80,24 @@ fun HistoryScreen(
                 vertical = Spacing.lg
             )
         )
+
+        if (!state.isEmpty && !state.isLoading) {
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.screenGutter),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            ) {
+                HistoryFilter.entries.forEach { option ->
+                    ChoiceChip(
+                        label = stringResource(option.labelRes()),
+                        selected = option == state.filter,
+                        onClick = { viewModel.onFilterChange(option) }
+                    )
+                }
+            }
+            Spacer(Modifier.height(Spacing.sm))
+        }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -103,11 +127,20 @@ fun HistoryScreen(
                     )
                 }
 
+                state.isFilterEmpty -> item {
+                    Text(
+                        text = stringResource(R.string.history_filter_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = Spacing.xxl)
+                    )
+                }
+
                 else -> items(state.items, key = { it.entry.id }) { item ->
                     HistoryCard(
                         item = item,
                         onRate = { onRate(item.entry.id) },
-                        onClick = { onRestaurantClick(item.entry.restaurantId) },
+                        onClick = { onOpenVisit(item.entry.id) },
                         modifier = Modifier.padding(vertical = Spacing.sm)
                     )
                 }
@@ -190,7 +223,9 @@ private fun HistoryCard(
                 )
 
                 when {
-                    canRate -> TextButton(onClick = onRate) {
+                    // Nudged right by the button's own 12dp inset so "Rate visit"
+                    // ends where the status pill above it does.
+                    canRate -> TextButton(onClick = onRate, modifier = Modifier.offset(x = 12.dp)) {
                         Text(stringResource(R.string.history_rate_visit), style = MaterialTheme.typography.labelMedium)
                     }
 
@@ -203,4 +238,10 @@ private fun HistoryCard(
             }
         }
     }
+}
+
+private fun HistoryFilter.labelRes(): Int = when (this) {
+    HistoryFilter.ALL -> R.string.history_filter_all
+    HistoryFilter.COMPLETED -> R.string.history_filter_completed
+    HistoryFilter.ENDED -> R.string.history_filter_ended
 }

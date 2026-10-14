@@ -28,12 +28,12 @@
     <plurals name="push_almost_there_body">
         <item quantity="other">Tinggal %1$d grup lagi di depanmu. Estimasi tunggu: %2$s.</item>
     </plurals>
-    <string name="push_return_now_title">Bersiap-siap</string>
-    <string name="push_return_now_body">Giliranmu hampir tiba. Segera kembali ke restoran.</string>
-    <string name="push_called_title">Giliranmu tiba!</string>
-    <string name="push_called_body">Antrean %1$s sedang dipanggil. Segera check-in di restoran.</string>
+    <string name="push_return_now_title">Saatnya kembali</string>
+    <string name="push_return_now_body">Sebentar lagi giliranmu. Mulai kembali ke restoran sekarang.</string>
+    <string name="push_called_title">Giliranmu!</string>
+    <string name="push_called_body">Antrean %1$s sedang dipanggil. Check-in dalam %2$d menit atau antreanmu hangus.</string>
     <string name="push_checked_in_title">Check-in berhasil</string>
-    <string name="push_checked_in_body">Kamu sudah check-in. Selamat menikmati!</string>
+    <string name="push_checked_in_body">Kami kabari begitu mejamu siap.</string>
     <string name="push_completed_title">Terima kasih sudah berkunjung</string>
     <string name="push_completed_body">Ketuk untuk menilai pengalamanmu.</string>
     <string name="push_cancelled_title">Antrean dibatalkan</string>
@@ -105,8 +105,8 @@
     <string name="badge_overflow">9+</string>
 
     <!-- Active queue banner (Home / bottom tabs) -->
-    <string name="queue_banner_ready_to_check_in">Mejamu sudah siap — ketuk untuk check-in</string>
-    <string name="queue_banner_checked_in">Sudah check-in — selamat menikmati</string>
+    <string name="queue_banner_ready_to_check_in">Giliranmu — ketuk untuk check-in</string>
+    <string name="queue_banner_checked_in">Sudah check-in — menunggu meja</string>
     <string name="queue_banner_youre_next">Giliranmu berikutnya</string>
     <string name="queue_banner_ahead_and_wait">%1$s lagi • %2$s</string>
 
@@ -271,25 +271,24 @@
     </plurals>
     <string name="active_queue_estimated_wait_label">estimasi tunggu</string>
     <string name="active_queue_position_party">Posisi #%1$d • %2$d orang</string>
-    <string name="guidance_called">Mejamu sudah siap. Segera ke %1$s dan check-in.</string>
-    <string name="guidance_checked_in">Kamu sudah check-in. Silakan menuju area tunggu.</string>
+    <string name="guidance_called">Giliranmu! Segera ke %1$s dan check-in sebelum waktu habis.</string>
+    <string name="guidance_checked_in">Kamu sudah check-in. Silakan tunggu di area tunggu — kami kabari begitu mejamu siap.</string>
     <string name="guidance_almost_there">Kamu hampir di depan. Mulai kembali ke restoran sekarang.</string>
     <string name="guidance_default">Kamu tidak perlu menunggu di sini. Kami akan kabari saat giliranmu dekat.</string>
 
     <!-- Check-in screen -->
     <string name="checkin_title">Check-in</string>
-    <string name="checkin_table_ready">Mejamu sudah siap.</string>
-    <string name="checkin_not_called">Belum dipanggil</string>
+    <string name="checkin_not_called">Tiket ini tidak bisa check-in saat ini</string>
     <string name="cd_checkin_photo">Foto check-in kamu</string>
     <string name="checkin_uploading">Mengunggah fotomu…</string>
     <string name="checkin_looks_good">Terlihat bagus — kirim untuk check-in.</string>
-    <string name="checkin_instruction">Ambil foto dirimu di restoran untuk check-in.</string>
+    <string name="checkin_instruction">Ambil foto dirimu di restoran. Staf memakainya untuk memastikan kamu sudah datang.</string>
     <string name="checkin_take_photo">Ambil foto</string>
     <string name="checkin_submit">Kirim dan check-in</string>
     <string name="checkin_retake_photo">Ambil ulang foto</string>
     <string name="checkin_back_to_queue">Kembali ke antreanku</string>
     <string name="checkin_success_title">Kamu sudah check-in!</string>
-    <string name="checkin_success_body">%1$s di %2$s. Silakan menuju area tunggu.</string>
+    <string name="checkin_success_body">%1$s di %2$s. Silakan tunggu di area tunggu — kami kabari saat mejamu siap.</string>
     <string name="action_done">Selesai</string>
 
     <!-- Join queue confirmation screen -->
@@ -366,7 +365,7 @@
     <string name="staff_no_restaurants_message">Akun ini belum terdaftar sebagai staf untuk restoran mana pun. Tambahkan baris ke restaurant_staff untuk mengelolanya.</string>
     <string name="staff_waiting">menunggu</string>
     <string name="staff_called">dipanggil</string>
-    <string name="staff_seated">duduk</string>
+    <string name="staff_seated">di lokasi</string>
     <string name="staff_estimated_wait_new_group">Estimasi tunggu untuk grup baru: %1$s</string>
     <string name="staff_call_next_button">Panggil berikutnya • %1$s</string>
     <string name="staff_nobody_waiting">Belum ada yang menunggu</string>
@@ -380,17 +379,14 @@
     <string name="staff_empty_title">Belum ada yang mengantre</string>
     <string name="staff_empty_message">Tiket akan muncul di sini begitu pelanggan bergabung.</string>
     <string name="staff_section_called">Dipanggil</string>
-    <string name="staff_section_called_subtitle">Menunggu pelanggan check-in</string>
-    <string name="staff_section_seated">Duduk</string>
-    <string name="staff_section_seated_subtitle">Sudah check-in dan sedang dilayani</string>
+    <string name="staff_section_called_subtitle">Harus check-in sebelum waktunya habis</string>
     <string name="staff_section_waiting">Menunggu</string>
     <string name="staff_section_waiting_subtitle">Dalam antrean, sesuai urutan tiket</string>
     <string name="staff_section_title_count">%1$s (%2$d)</string>
     <string name="staff_party_joined">%1$d orang • bergabung %2$s</string>
     <string name="staff_action_call">Panggil</string>
     <string name="staff_action_remove">Hapus</string>
-    <string name="staff_action_seat">Dudukkan</string>
-    <string name="staff_action_complete">Selesai</string>
+    <string name="staff_action_complete">Sudah duduk</string>
     <string name="staff_action_no_show">Tidak hadir</string>
 
     <!-- Staff customer detail screen -->
@@ -407,8 +403,7 @@
     <string name="staff_note">Catatan: %1$s</string>
     <string name="staff_call_this_customer">Panggil pelanggan ini</string>
     <string name="staff_remove_from_queue">Hapus dari antrean</string>
-    <string name="staff_mark_seated">Tandai sudah duduk</string>
-    <string name="staff_mark_completed">Tandai selesai</string>
+    <string name="staff_mark_completed">Tandai sudah duduk (selesai)</string>
     <string name="staff_ticket_finished">Tiket ini sudah selesai. Tidak ada tindakan lain.</string>
     <string name="cd_checkin_photo_view">Foto check-in</string>
     <string name="error_already_in_queue">Kamu sudah punya antrean aktif.</string>
@@ -447,9 +442,9 @@
     <string name="settings_queue_notifications">Notifikasi antrean</string>
     <string name="settings_queue_notifications_subtitle">Dapatkan kabar saat giliranmu dekat.</string>
     <string name="settings_location_access">Akses lokasi</string>
-    <string name="settings_location_subtitle_granted">Dipakai untuk restoran terdekat dan check-in.</string>
+    <string name="settings_location_subtitle_granted">Dipakai untuk mencari dan mengurutkan restoran terdekat.</string>
     <string name="settings_location_subtitle_blocked">Diblokir untuk Ngantriin. Akan membuka pengaturan sistem.</string>
-    <string name="settings_location_subtitle_default">Aktifkan untuk mengurutkan berdasarkan jarak dan check-in.</string>
+    <string name="settings_location_subtitle_default">Aktifkan untuk mengurutkan restoran berdasarkan jarak.</string>
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_demo">Mode demo — data contoh di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
     <string name="settings_backend_connected">Tersambung ke Supabase.</string>
@@ -461,4 +456,78 @@
     <string name="home_hero_action">Temukan tempatmu</string>
     <string name="search_title">Mau makan apa?</string>
     <string name="search_subtitle">Temukan tempat enak untuk hari ini.</string>
+
+    <!-- Check-in window, table ready, history detail (0012) -->
+    <string name="status_table_ready">Meja siap</string>
+    <string name="status_expired">Hangus</string>
+    <string name="channel_live_name">Antrean live</string>
+    <string name="channel_live_description">Menampilkan posisi antreanmu di bilah notifikasi selama menunggu.</string>
+    <string name="push_table_ready_title">Mejamu sudah siap</string>
+    <string name="push_table_ready_body">Tunjukkan nomor %1$s ke staf, kamu akan diantar ke meja.</string>
+    <string name="push_expired_title">Antreanmu hangus</string>
+    <string name="push_expired_body">Antrean %1$s tidak check-in dalam %2$d menit. Kamu bisa antre lagi.</string>
+    <string name="live_title">Antrean %1$s</string>
+    <string name="live_check_in_now">Giliranmu — check-in sebelum waktu habis</string>
+    <string name="live_checked_in">Sudah check-in — menunggu meja</string>
+    <string name="live_table_ready">Mejamu siap — temui staf</string>
+    <string name="live_youre_next">Giliranmu berikutnya</string>
+    <string name="live_ahead_and_wait">%1$d lagi • %2$s</string>
+    <string name="queue_banner_table_ready">Mejamu siap — temui staf</string>
+    <string name="active_queue_im_here">Saya sudah di restoran — check-in</string>
+    <string name="guidance_checked_in_early">Kamu check-in lebih awal dan posisimu tetap aman. Saat nomormu tiba, mejamu langsung disiapkan.</string>
+    <string name="guidance_table_ready">Mejamu sudah siap! Tunjukkan nomor %1$s ke staf, kamu akan diantar ke meja.</string>
+    <string name="countdown_label">CHECK-IN DALAM</string>
+    <string name="countdown_expiring">Waktu habis — memperbarui tiketmu…</string>
+    <string name="countdown_hint">Antreanmu hangus jika tidak check-in dalam %1$d menit setelah dipanggil.</string>
+    <string name="table_ready_title">Mejamu sudah siap!</string>
+    <string name="waiting_for_table_title">Menunggu meja</string>
+    <string name="journey_in_line">Antre</string>
+    <string name="journey_near">Dekat</string>
+    <string name="journey_check_in">Check-in</string>
+    <string name="journey_table">Meja</string>
+    <string name="journey_done">Selesai</string>
+    <string name="cd_journey">Langkah %1$d dari %2$d: %3$s</string>
+    <string name="checkin_heading_called">Giliranmu — ayo check-in</string>
+    <string name="checkin_heading_early">Sudah di restoran?</string>
+    <string name="checkin_early_note">Check-in lebih awal tidak mengubah posisimu. Saat nomormu tiba, mejamu langsung disiapkan.</string>
+    <string name="ticket_expired_message">Antrean %1$s hangus — tidak check-in dalam batas waktu.</string>
+    <string name="ticket_cancelled_by_restaurant">Antrean %1$s dihapus oleh restoran.</string>
+    <string name="error_check_in_expired">Waktu check-in sudah lewat, jadi antrean ini hangus. Kamu bisa antre lagi.</string>
+    <string name="error_check_in_not_allowed">Tiket ini sudah tidak bisa check-in.</string>
+    <string name="error_photo_not_uploaded">Fotomu gagal terunggah. Coba lagi.</string>
+    <string name="error_invalid_party_size">Jumlah orang harus antara 1 sampai 20.</string>
+    <string name="history_filter_all">Semua</string>
+    <string name="history_filter_completed">Selesai</string>
+    <string name="history_filter_ended">Batal &amp; hangus</string>
+    <string name="history_filter_empty">Belum ada riwayat di filter ini.</string>
+    <string name="history_detail_title">Detail kunjungan</string>
+    <string name="history_timeline">LINIMASA</string>
+    <string name="history_party_size">Rombongan %1$d orang</string>
+    <string name="history_your_review">ULASANMU</string>
+    <string name="history_no_review">Kamu belum mengulas kunjungan ini.</string>
+    <string name="history_edit_review">Ubah ulasan</string>
+    <string name="history_view_restaurant">Lihat restoran</string>
+    <string name="history_open_live">Buka antrean aktifku</string>
+    <string name="history_not_found">Kunjungan ini tidak ditemukan.</string>
+    <string name="timeline_joined">Masuk antrean</string>
+    <string name="timeline_called">Dipanggil</string>
+    <string name="timeline_checked_in">Check-in di restoran</string>
+    <string name="timeline_table_ready">Meja siap</string>
+    <string name="timeline_completed">Kunjungan selesai</string>
+    <string name="timeline_cancelled">Dibatalkan</string>
+    <string name="timeline_expired">Hangus — tidak check-in tepat waktu</string>
+    <string name="staff_section_arrived">Sudah datang</string>
+    <string name="staff_section_arrived_subtitle">Sudah check-in — siapkan mejanya</string>
+    <string name="staff_section_table_ready">Meja siap</string>
+    <string name="staff_section_table_ready_subtitle">Sedang diantar — selesaikan setelah duduk</string>
+    <string name="staff_action_check_in">Sudah datang</string>
+    <string name="staff_action_table_ready">Meja siap</string>
+    <string name="staff_badge_early">Sudah di lokasi</string>
+    <string name="staff_countdown">sisa %1$s</string>
+    <string name="staff_countdown_over">Waktu habis</string>
+    <string name="staff_mark_arrived">Tandai sudah datang</string>
+    <string name="staff_mark_table_ready">Tandai meja siap</string>
+    <string name="staff_table_ready_label">Meja siap</string>
+    <string name="staff_deadline_label">Batas check-in</string>
+    <string name="history_wait_not_recorded_short">Tidak tercatat</string>
 </resources>

@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.core.Outcome
@@ -34,20 +36,29 @@ data class StaffQueueUiState(
     val isWorking: Boolean = false,
     val error: AppError? = null
 ) {
+    /** Not called yet, in ticket order — early arrivals included. */
     val waiting: List<QueueEntry>
-        get() = entries.filter {
-            it.status == QueueStatus.WAITING || it.status == QueueStatus.ALMOST_THERE
-        }
+        get() = entries.filter { it.isWaitingToBeCalled }.sortedBy { it.ticketSequence }
 
+    /** Their turn; the check-in window is running. */
     val called: List<QueueEntry>
         get() = entries.filter { it.status == QueueStatus.CALLED }
 
-    val seated: List<QueueEntry>
-        get() = entries.filter { it.status == QueueStatus.CHECKED_IN }
+    /** Called and checked in: prepare their table. */
+    val arrived: List<QueueEntry>
+        get() = entries.filter { it.status == QueueStatus.CHECKED_IN && it.hasBeenCalled }
+
+    /** Table set, being seated: complete once they sit down. */
+    val tableReady: List<QueueEntry>
+        get() = entries.filter { it.status == QueueStatus.TABLE_READY }
+
+    /** Everyone physically at the restaurant right now. */
+    val atRestaurant: Int get() = entries.count { it.status.isAtRestaurant }
 
     val nowServing: QueueEntry? get() = QueueMath.currentServing(entries)
 
-    val next: QueueEntry? get() = waiting.minByOrNull { it.ticketSequence }
+    /** What call_next would pick. */
+    val next: QueueEntry? get() = QueueMath.nextToCall(entries)
 
     val canCallNext: Boolean get() = next != null && !isWorking
 }
@@ -90,6 +101,15 @@ class StaffQueueViewModel(
                 }
             }
             settled.value = true
+        }
+
+        // Section 16: keep the board honest while it's open. The backend's
+        // own sweep may be minutes away (or absent without pg_cron).
+        viewModelScope.launch {
+            while (isActive) {
+                delay(SWEEP_INTERVAL_MILLIS)
+                selectedId.value?.let { queueRepository.expireOverdue(it) }
+            }
         }
     }
 
@@ -152,6 +172,12 @@ class StaffQueueViewModel(
         }
     }
 
+    /** A CALLED row's countdown reached zero on screen. */
+    fun onCheckInWindowClosed() {
+        val restaurantId = selectedId.value ?: return
+        viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
+    }
+
     fun dismissError() {
         error.value = null
     }
@@ -173,5 +199,9 @@ class StaffQueueViewModel(
      */
     fun signOut() {
         viewModelScope.launch { authRepository.signOut() }
+    }
+
+    private companion object {
+        const val SWEEP_INTERVAL_MILLIS = 30_000L
     }
 }

@@ -21,12 +21,42 @@ data class QueueEntry(
     val completedAt: Instant? = null,
     val cancelledAt: Instant? = null,
     /** Storage path of the check-in verification photo, set once CHECKED_IN. */
-    val checkInPhotoUrl: String? = null
+    val checkInPhotoUrl: String? = null,
+    /** Set when CALLED: check in before this or the ticket EXPIRES. */
+    val checkInDeadline: Instant? = null,
+    val tableReadyAt: Instant? = null,
+    val expiredAt: Instant? = null
 ) {
     val isActive: Boolean get() = status.isActive
 
+    /** The restaurant has reached this ticket at least once. */
+    val hasBeenCalled: Boolean get() = calledAt != null
+
+    /**
+     * Still waiting for the restaurant to reach it — including a customer who
+     * checked in early and is sitting in the waiting area.
+     */
+    val isWaitingToBeCalled: Boolean
+        get() = status == QueueStatus.WAITING || status == QueueStatus.ALMOST_THERE ||
+            (status == QueueStatus.CHECKED_IN && !hasBeenCalled)
+
+    /** Checked in before the restaurant called the ticket. */
+    val checkedInEarly: Boolean
+        get() = status == QueueStatus.CHECKED_IN && !hasBeenCalled
+
     /** When the ticket reached its terminal state, if it has. */
-    val finishedAt: Instant? get() = completedAt ?: cancelledAt
+    val finishedAt: Instant? get() = completedAt ?: cancelledAt ?: expiredAt
+
+    /** Seconds left in the check-in window, or null when no window is running. */
+    fun checkInSecondsLeft(now: Instant = Instant.now()): Long? {
+        if (status != QueueStatus.CALLED) return null
+        val deadline = checkInDeadline ?: return null
+        return Duration.between(now, deadline).seconds.coerceAtLeast(0)
+    }
+
+    /** True when a CALLED ticket has run out its window (expiry may lag). */
+    fun isCheckInOverdue(now: Instant = Instant.now()): Boolean =
+        checkInSecondsLeft(now) == 0L
 
     /**
      * How long the customer actually waited — joined until called, or until
@@ -57,14 +87,21 @@ data class ActiveQueue(
     val queueNumber: String get() = entry.queueNumber
     val status: QueueStatus get() = entry.status
 
-    /** Section 17: the check-in CTA only appears once the ticket is called. */
-    val canCheckIn: Boolean get() = entry.status == QueueStatus.CALLED
+    /**
+     * Section 17: the customer can check in as soon as they're at the
+     * restaurant — early, or once called and still inside the window.
+     */
+    val canCheckIn: Boolean
+        get() = entry.status.allowsCheckIn && !entry.isCheckInOverdue()
 
-    /** Section 18. */
-    val canLeave: Boolean
-        get() = entry.status == QueueStatus.WAITING ||
-            entry.status == QueueStatus.ALMOST_THERE ||
-            entry.status == QueueStatus.CALLED
+    /** It's this ticket's turn and the clock is running. */
+    val isCheckInCountdown: Boolean get() = entry.status == QueueStatus.CALLED
+
+    /** Section 18: any live ticket can be given up. */
+    val canLeave: Boolean get() = entry.status.isActive
+
+    /** Position and wait only mean something until the restaurant calls you. */
+    val showsLinePosition: Boolean get() = entry.isWaitingToBeCalled
 }
 
 /** A past ticket, as rendered by the history screen (section 19). */

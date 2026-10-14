@@ -6,6 +6,7 @@ import io.github.jan.supabase.postgrest.query.Order
 import org.umn.ngantriin.data.mapper.toDomain
 import org.umn.ngantriin.data.remote.dto.ReviewDto
 import org.umn.ngantriin.data.remote.dto.ReviewInsertDto
+import org.umn.ngantriin.data.remote.dto.ReviewUpdateDto
 import org.umn.ngantriin.domain.model.Review
 
 class SupabaseReviewRemoteDataSource(
@@ -27,6 +28,26 @@ class SupabaseReviewRemoteDataSource(
             .select { filter { eq("queue_id", queueId) } }
             .decodeSingleOrNull<ReviewDto>()
             ?.toDomain()
+
+    override suspend fun fetchUserReviews(userId: String): List<Review> =
+        client.from("reviews")
+            .select {
+                filter { eq("user_id", userId) }
+                order("created_at", Order.DESCENDING)
+                limit(200)
+            }
+            .decodeList<ReviewDto>()
+            .map { it.toDomain() }
+
+    /** Column grants (0012) allow exactly rating and review to change. */
+    override suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review =
+        client.from("reviews")
+            .update(ReviewUpdateDto(rating = rating.coerceIn(1, 5), review = comment.trim())) {
+                filter { eq("id", reviewId) }
+                select()
+            }
+            .decodeSingle<ReviewDto>()
+            .toDomain()
 
     /**
      * The insert is allowed only by the `reviews_insert_completed_only` policy,

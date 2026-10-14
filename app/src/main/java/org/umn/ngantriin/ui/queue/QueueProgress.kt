@@ -24,6 +24,7 @@ import org.umn.ngantriin.R
 import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Section 41's progress section: where the restaurant is now, where this
@@ -164,7 +165,7 @@ fun QueueStat(
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

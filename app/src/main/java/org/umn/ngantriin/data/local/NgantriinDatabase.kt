@@ -28,7 +28,9 @@ import org.umn.ngantriin.data.local.entity.ReviewEntity
     ],
     // v2: added QueueEntryEntity.checkInPhotoUrl (photo check-in replaces GPS).
     // v3: added RestaurantEntity.availableSeats ("kursi kosong" walk-ins).
-    version = 3,
+    // v4: TABLE_READY / EXPIRED journey — check-in deadline, table-ready and
+    //     expiry timestamps, per-restaurant check-in window.
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

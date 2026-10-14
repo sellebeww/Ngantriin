@@ -198,7 +198,8 @@ private fun NotificationRow(
             Text(
                 text = relativeText(notification.createdAt),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                // `outline` is a border colour; as text it was ~1.4:1 on the card.
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 

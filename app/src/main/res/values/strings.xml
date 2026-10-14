@@ -29,12 +29,12 @@
         <item quantity="one">Only %1$d group ahead of you. Estimated wait: %2$s.</item>
         <item quantity="other">Only %1$d groups ahead of you. Estimated wait: %2$s.</item>
     </plurals>
-    <string name="push_return_now_title">Get ready</string>
-    <string name="push_return_now_body">Your turn is almost here. Please return to the restaurant.</string>
+    <string name="push_return_now_title">Head back now</string>
+    <string name="push_return_now_body">You\'re almost up. Start heading back to the restaurant.</string>
     <string name="push_called_title">It\'s your turn!</string>
-    <string name="push_called_body">Queue %1$s is now being called. Please check in at the restaurant.</string>
-    <string name="push_checked_in_title">Check-in successful</string>
-    <string name="push_checked_in_body">You\'re checked in. Enjoy!</string>
+    <string name="push_called_body">Queue %1$s is being called. Check in within %2$d minutes or your ticket expires.</string>
+    <string name="push_checked_in_title">You\'re checked in</string>
+    <string name="push_checked_in_body">We\'ll let you know the moment your table is ready.</string>
     <string name="push_completed_title">Thanks for visiting</string>
     <string name="push_completed_body">Tap to rate your experience.</string>
     <string name="push_cancelled_title">Queue cancelled</string>
@@ -114,8 +114,8 @@
     <string name="badge_overflow">9+</string>
 
     <!-- Active queue banner (Home / bottom tabs) -->
-    <string name="queue_banner_ready_to_check_in">Your table is ready — tap to check in</string>
-    <string name="queue_banner_checked_in">Checked in — enjoy your meal</string>
+    <string name="queue_banner_ready_to_check_in">Your turn — tap to check in</string>
+    <string name="queue_banner_checked_in">Checked in — waiting for your table</string>
     <string name="queue_banner_youre_next">You\'re next</string>
     <string name="queue_banner_ahead_and_wait">%1$s ahead • %2$s</string>
 
@@ -282,25 +282,24 @@
     </plurals>
     <string name="active_queue_estimated_wait_label">estimated wait</string>
     <string name="active_queue_position_party">Position #%1$d • party of %2$d</string>
-    <string name="guidance_called">Your table is ready. Head to %1$s and check in.</string>
-    <string name="guidance_checked_in">You\'re checked in. Please proceed to the waiting area.</string>
+    <string name="guidance_called">It\'s your turn! Head to %1$s and check in before the timer runs out.</string>
+    <string name="guidance_checked_in">You\'re checked in. Have a seat in the waiting area — we\'ll tell you the moment your table is ready.</string>
     <string name="guidance_almost_there">You\'re near the front. Start heading back to the restaurant now.</string>
     <string name="guidance_default">You don\'t have to wait here. We\'ll notify you when your turn is near.</string>
 
     <!-- Check-in screen -->
     <string name="checkin_title">Check in</string>
-    <string name="checkin_table_ready">Your table is ready.</string>
-    <string name="checkin_not_called">Not called yet</string>
+    <string name="checkin_not_called">This ticket can\'t be checked in right now</string>
     <string name="cd_checkin_photo">Your check-in photo</string>
     <string name="checkin_uploading">Uploading your photo…</string>
     <string name="checkin_looks_good">Looks good — submit to check in.</string>
-    <string name="checkin_instruction">Take a photo of yourself at the restaurant to check in.</string>
+    <string name="checkin_instruction">Take a photo of yourself at the restaurant. Staff use it to confirm you\'ve arrived.</string>
     <string name="checkin_take_photo">Take photo</string>
     <string name="checkin_submit">Submit and check in</string>
     <string name="checkin_retake_photo">Retake photo</string>
     <string name="checkin_back_to_queue">Back to my queue</string>
     <string name="checkin_success_title">You\'re checked in!</string>
-    <string name="checkin_success_body">%1$s at %2$s. Please proceed to the waiting area.</string>
+    <string name="checkin_success_body">%1$s at %2$s. Take a seat in the waiting area — we\'ll notify you when your table is ready.</string>
     <string name="action_done">Done</string>
 
     <!-- Join queue confirmation screen -->
@@ -377,7 +376,7 @@
     <string name="staff_no_restaurants_message">This account isn\'t listed as staff for any venue yet. Add a row to restaurant_staff to manage one.</string>
     <string name="staff_waiting">waiting</string>
     <string name="staff_called">called</string>
-    <string name="staff_seated">seated</string>
+    <string name="staff_seated">here</string>
     <string name="staff_estimated_wait_new_group">Estimated wait for a new group: %1$s</string>
     <string name="staff_call_next_button">Call next • %1$s</string>
     <string name="staff_nobody_waiting">Nobody waiting</string>
@@ -391,17 +390,14 @@
     <string name="staff_empty_title">Nobody in the queue</string>
     <string name="staff_empty_message">Tickets appear here the moment a customer joins.</string>
     <string name="staff_section_called">Called</string>
-    <string name="staff_section_called_subtitle">Waiting for the customer to check in</string>
-    <string name="staff_section_seated">Seated</string>
-    <string name="staff_section_seated_subtitle">Checked in and being served</string>
+    <string name="staff_section_called_subtitle">Must check in before their timer runs out</string>
     <string name="staff_section_waiting">Waiting</string>
     <string name="staff_section_waiting_subtitle">In line, in ticket order</string>
     <string name="staff_section_title_count">%1$s (%2$d)</string>
     <string name="staff_party_joined">Party of %1$d • joined %2$s</string>
     <string name="staff_action_call">Call</string>
     <string name="staff_action_remove">Remove</string>
-    <string name="staff_action_seat">Seat</string>
-    <string name="staff_action_complete">Complete</string>
+    <string name="staff_action_complete">Seated</string>
     <string name="staff_action_no_show">No-show</string>
 
     <!-- Staff customer detail screen -->
@@ -418,8 +414,7 @@
     <string name="staff_note">Note: %1$s</string>
     <string name="staff_call_this_customer">Call this customer</string>
     <string name="staff_remove_from_queue">Remove from queue</string>
-    <string name="staff_mark_seated">Mark as seated</string>
-    <string name="staff_mark_completed">Mark as completed</string>
+    <string name="staff_mark_completed">Mark as seated (complete)</string>
     <string name="staff_ticket_finished">This ticket is finished. No further actions.</string>
     <string name="cd_checkin_photo_view">Check-in photo</string>
     <string name="error_already_in_queue">You already have an active queue.</string>
@@ -461,9 +456,9 @@
     <string name="settings_queue_notifications">Queue notifications</string>
     <string name="settings_queue_notifications_subtitle">Get told when your turn is close.</string>
     <string name="settings_location_access">Location access</string>
-    <string name="settings_location_subtitle_granted">Used for nearby restaurants and check-in.</string>
+    <string name="settings_location_subtitle_granted">Used to find and sort restaurants near you.</string>
     <string name="settings_location_subtitle_blocked">Blocked for Ngantriin. Opens system settings.</string>
-    <string name="settings_location_subtitle_default">Turn on to sort by distance and check in.</string>
+    <string name="settings_location_subtitle_default">Turn on to sort restaurants by distance.</string>
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_demo">Demo mode — sample data on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
     <string name="settings_backend_connected">Connected to Supabase.</string>
@@ -475,4 +470,78 @@
     <string name="home_hero_action">Find your table</string>
     <string name="search_title">Find your next favorite</string>
     <string name="search_subtitle">Good food is closer than you think.</string>
+
+    <!-- Check-in window, table ready, history detail (0012) -->
+    <string name="status_table_ready">Table ready</string>
+    <string name="status_expired">Expired</string>
+    <string name="channel_live_name">Live queue</string>
+    <string name="channel_live_description">Keeps your queue position in the notification bar while you wait.</string>
+    <string name="push_table_ready_title">Your table is ready</string>
+    <string name="push_table_ready_body">Show queue %1$s to the staff and they\'ll seat you.</string>
+    <string name="push_expired_title">Your ticket expired</string>
+    <string name="push_expired_body">Queue %1$s wasn\'t checked in within %2$d minutes. You can join again.</string>
+    <string name="live_title">Queue %1$s</string>
+    <string name="live_check_in_now">Your turn — check in before the timer ends</string>
+    <string name="live_checked_in">Checked in — waiting for your table</string>
+    <string name="live_table_ready">Your table is ready — see the staff</string>
+    <string name="live_youre_next">You\'re next</string>
+    <string name="live_ahead_and_wait">%1$d ahead • %2$s</string>
+    <string name="queue_banner_table_ready">Your table is ready — see the staff</string>
+    <string name="active_queue_im_here">I\'m already here — check in</string>
+    <string name="guidance_checked_in_early">You checked in early and keep your place in line. When your number comes up, your table goes straight to ready.</string>
+    <string name="guidance_table_ready">Your table is ready! Show number %1$s to the staff and they\'ll take you there.</string>
+    <string name="countdown_label">CHECK IN WITHIN</string>
+    <string name="countdown_expiring">Time\'s up — updating your ticket…</string>
+    <string name="countdown_hint">Your ticket expires if you don\'t check in within %1$d minutes of being called.</string>
+    <string name="table_ready_title">Your table is ready!</string>
+    <string name="waiting_for_table_title">Waiting for your table</string>
+    <string name="journey_in_line">In line</string>
+    <string name="journey_near">Near</string>
+    <string name="journey_check_in">Check in</string>
+    <string name="journey_table">Table</string>
+    <string name="journey_done">Done</string>
+    <string name="cd_journey">Step %1$d of %2$d: %3$s</string>
+    <string name="checkin_heading_called">It\'s your turn — check in</string>
+    <string name="checkin_heading_early">Already at the restaurant?</string>
+    <string name="checkin_early_note">Checking in early keeps your place in line. When your number comes up, your table goes straight to ready.</string>
+    <string name="ticket_expired_message">Ticket %1$s expired — it wasn\'t checked in within the time limit.</string>
+    <string name="ticket_cancelled_by_restaurant">Ticket %1$s was removed by the restaurant.</string>
+    <string name="error_check_in_expired">Your check-in window has closed, so this ticket expired. You can join the queue again.</string>
+    <string name="error_check_in_not_allowed">This ticket can\'t be checked in anymore.</string>
+    <string name="error_photo_not_uploaded">Your photo didn\'t upload. Please try again.</string>
+    <string name="error_invalid_party_size">Party size must be between 1 and 20 people.</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_completed">Completed</string>
+    <string name="history_filter_ended">Cancelled &amp; expired</string>
+    <string name="history_filter_empty">Nothing in this filter yet.</string>
+    <string name="history_detail_title">Visit details</string>
+    <string name="history_timeline">TIMELINE</string>
+    <string name="history_party_size">Party of %1$d</string>
+    <string name="history_your_review">YOUR REVIEW</string>
+    <string name="history_no_review">You haven\'t reviewed this visit yet.</string>
+    <string name="history_edit_review">Edit review</string>
+    <string name="history_view_restaurant">View restaurant</string>
+    <string name="history_open_live">Open my live queue</string>
+    <string name="history_not_found">We couldn\'t find this visit.</string>
+    <string name="timeline_joined">Joined the queue</string>
+    <string name="timeline_called">Called</string>
+    <string name="timeline_checked_in">Checked in at the restaurant</string>
+    <string name="timeline_table_ready">Table ready</string>
+    <string name="timeline_completed">Visit completed</string>
+    <string name="timeline_cancelled">Cancelled</string>
+    <string name="timeline_expired">Expired — missed the check-in window</string>
+    <string name="staff_section_arrived">Arrived</string>
+    <string name="staff_section_arrived_subtitle">Checked in — prepare their table</string>
+    <string name="staff_section_table_ready">Table ready</string>
+    <string name="staff_section_table_ready_subtitle">Being seated — complete once they sit down</string>
+    <string name="staff_action_check_in">Arrived</string>
+    <string name="staff_action_table_ready">Table ready</string>
+    <string name="staff_badge_early">Here early</string>
+    <string name="staff_countdown">%1$s left</string>
+    <string name="staff_countdown_over">Time\'s up</string>
+    <string name="staff_mark_arrived">Mark as arrived</string>
+    <string name="staff_mark_table_ready">Mark table ready</string>
+    <string name="staff_table_ready_label">Table ready</string>
+    <string name="staff_deadline_label">Check-in deadline</string>
+    <string name="history_wait_not_recorded_short">Not recorded</string>
 </resources>

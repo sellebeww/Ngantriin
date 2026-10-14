@@ -203,8 +203,12 @@ fun SortRow(
     onSelect: (RestaurantSort) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Scroll first, gutter padding second: the padding becomes content padding,
+    // so chips run off the screen edge instead of being cut at the gutter.
     Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = Spacing.screenGutter),
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
     ) {
         RestaurantSort.entries.forEach { sort ->

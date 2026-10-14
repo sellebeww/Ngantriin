@@ -16,13 +16,18 @@ class QueueStatusTest {
     private val legalTransitions = setOf(
         QueueStatus.WAITING to QueueStatus.ALMOST_THERE,
         QueueStatus.WAITING to QueueStatus.CALLED,
+        QueueStatus.WAITING to QueueStatus.CHECKED_IN,
         QueueStatus.WAITING to QueueStatus.CANCELLED,
         QueueStatus.ALMOST_THERE to QueueStatus.CALLED,
+        QueueStatus.ALMOST_THERE to QueueStatus.CHECKED_IN,
         QueueStatus.ALMOST_THERE to QueueStatus.CANCELLED,
         QueueStatus.CALLED to QueueStatus.CHECKED_IN,
-        QueueStatus.CALLED to QueueStatus.COMPLETED,
         QueueStatus.CALLED to QueueStatus.CANCELLED,
-        QueueStatus.CHECKED_IN to QueueStatus.COMPLETED
+        QueueStatus.CALLED to QueueStatus.EXPIRED,
+        QueueStatus.CHECKED_IN to QueueStatus.TABLE_READY,
+        QueueStatus.CHECKED_IN to QueueStatus.CANCELLED,
+        QueueStatus.TABLE_READY to QueueStatus.COMPLETED,
+        QueueStatus.TABLE_READY to QueueStatus.CANCELLED
     )
 
     @Test
@@ -44,6 +49,7 @@ class QueueStatusTest {
         for (to in QueueStatus.entries) {
             assertFalse(QueueStatus.COMPLETED.canTransitionTo(to))
             assertFalse(QueueStatus.CANCELLED.canTransitionTo(to))
+            assertFalse(QueueStatus.EXPIRED.canTransitionTo(to))
         }
     }
 
@@ -60,8 +66,35 @@ class QueueStatusTest {
         assertTrue(QueueStatus.ALMOST_THERE.isActive)
         assertTrue(QueueStatus.CALLED.isActive)
         assertTrue(QueueStatus.CHECKED_IN.isActive)
+        assertTrue(QueueStatus.TABLE_READY.isActive)
         assertFalse(QueueStatus.COMPLETED.isActive)
         assertFalse(QueueStatus.CANCELLED.isActive)
+        assertFalse(QueueStatus.EXPIRED.isActive)
+    }
+
+    @Test
+    fun `the journey must pass check-in and table ready to complete`() {
+        // The concept's order: no skipping from called straight to done.
+        assertFalse(QueueStatus.CALLED.canTransitionTo(QueueStatus.COMPLETED))
+        assertFalse(QueueStatus.CALLED.canTransitionTo(QueueStatus.TABLE_READY))
+        assertFalse(QueueStatus.CHECKED_IN.canTransitionTo(QueueStatus.COMPLETED))
+    }
+
+    @Test
+    fun `only a called ticket can expire`() {
+        QueueStatus.entries.forEach { from ->
+            assertEquals("$from -> EXPIRED", from == QueueStatus.CALLED, from.canTransitionTo(QueueStatus.EXPIRED))
+        }
+    }
+
+    @Test
+    fun `check-in is open early and while called, not after`() {
+        assertTrue(QueueStatus.WAITING.allowsCheckIn)
+        assertTrue(QueueStatus.ALMOST_THERE.allowsCheckIn)
+        assertTrue(QueueStatus.CALLED.allowsCheckIn)
+        assertFalse(QueueStatus.CHECKED_IN.allowsCheckIn)
+        assertFalse(QueueStatus.TABLE_READY.allowsCheckIn)
+        assertFalse(QueueStatus.EXPIRED.allowsCheckIn)
     }
 
     @Test

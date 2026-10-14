@@ -95,10 +95,14 @@ data class StatusColors(
     val calledContainer: Color,
     val checkedIn: Color,
     val checkedInContainer: Color,
+    val tableReady: Color,
+    val tableReadyContainer: Color,
     val completed: Color,
     val completedContainer: Color,
     val cancelled: Color,
     val cancelledContainer: Color,
+    val expired: Color,
+    val expiredContainer: Color,
     val offline: Color
 )
 
@@ -107,8 +111,10 @@ private val LightStatusColors = StatusColors(
     almostThere = StatusAlmostThere, almostThereContainer = StatusAlmostThereContainer,
     called = StatusCalled, calledContainer = StatusCalledContainer,
     checkedIn = StatusCheckedIn, checkedInContainer = StatusCheckedInContainer,
+    tableReady = StatusTableReady, tableReadyContainer = StatusTableReadyContainer,
     completed = StatusCompleted, completedContainer = StatusCompletedContainer,
     cancelled = StatusCancelled, cancelledContainer = StatusCancelledContainer,
+    expired = StatusExpired, expiredContainer = StatusExpiredContainer,
     offline = OfflineSlate
 )
 
@@ -117,8 +123,10 @@ private val DarkStatusColors = StatusColors(
     almostThere = Color(0xFFFFA97A), almostThereContainer = Color(0xFF55220A),
     called = Color(0xFF6CD99A), calledContainer = Color(0xFF0A3E22),
     checkedIn = Color(0xFF9CBBFF), checkedInContainer = Color(0xFF16295C),
+    tableReady = Color(0xFFC4B1FF), tableReadyContainer = Color(0xFF2E1A5E),
     completed = Color(0xFF6FD4BE), completedContainer = Color(0xFF07382C),
     cancelled = Color(0xFFFF9D95), cancelledContainer = Color(0xFF4F120E),
+    expired = Color(0xFFC9C4BF), expiredContainer = Color(0xFF3A3633),
     offline = Color(0xFF9CA3AF)
 )
 

@@ -3,12 +3,15 @@ package org.umn.ngantriin.ui.staff
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
 import org.umn.ngantriin.core.AppError
@@ -41,6 +45,9 @@ import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.SectionHeader
 import org.umn.ngantriin.ui.components.relativeText
+import org.umn.ngantriin.ui.queue.formatCountdown
+import org.umn.ngantriin.ui.queue.rememberSecondsLeft
+import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
 /** Screen 21 (section 24). */
@@ -111,8 +118,10 @@ fun StaffQueueScreen(
 
         val calledTitle = stringResource(R.string.staff_section_called)
         val calledSubtitle = stringResource(R.string.staff_section_called_subtitle)
-        val seatedTitle = stringResource(R.string.staff_section_seated)
-        val seatedSubtitle = stringResource(R.string.staff_section_seated_subtitle)
+        val arrivedTitle = stringResource(R.string.staff_section_arrived)
+        val arrivedSubtitle = stringResource(R.string.staff_section_arrived_subtitle)
+        val tableReadyTitle = stringResource(R.string.staff_section_table_ready)
+        val tableReadySubtitle = stringResource(R.string.staff_section_table_ready_subtitle)
         val waitingTitle = stringResource(R.string.staff_section_waiting)
         val waitingSubtitle = stringResource(R.string.staff_section_waiting_subtitle)
         val sectionTitleCount = stringResource(R.string.staff_section_title_count)
@@ -125,33 +134,24 @@ fun StaffQueueScreen(
                 bottom = Spacing.xxxl
             )
         ) {
-            queueSection(
-                title = calledTitle,
-                subtitle = calledSubtitle,
-                sectionTitleCount = sectionTitleCount,
-                entries = state.called,
-                isWorking = state.isWorking,
-                onOpenCustomer = onOpenCustomer,
-                onUpdateStatus = viewModel::updateStatus
-            )
-            queueSection(
-                title = seatedTitle,
-                subtitle = seatedSubtitle,
-                sectionTitleCount = sectionTitleCount,
-                entries = state.seated,
-                isWorking = state.isWorking,
-                onOpenCustomer = onOpenCustomer,
-                onUpdateStatus = viewModel::updateStatus
-            )
-            queueSection(
-                title = waitingTitle,
-                subtitle = waitingSubtitle,
-                sectionTitleCount = sectionTitleCount,
-                entries = state.waiting,
-                isWorking = state.isWorking,
-                onOpenCustomer = onOpenCustomer,
-                onUpdateStatus = viewModel::updateStatus
-            )
+            // Ordered by urgency: who is standing at the host right now first.
+            listOf(
+                Triple(tableReadyTitle, tableReadySubtitle, state.tableReady),
+                Triple(arrivedTitle, arrivedSubtitle, state.arrived),
+                Triple(calledTitle, calledSubtitle, state.called),
+                Triple(waitingTitle, waitingSubtitle, state.waiting)
+            ).forEach { (title, subtitle, entries) ->
+                queueSection(
+                    title = title,
+                    subtitle = subtitle,
+                    sectionTitleCount = sectionTitleCount,
+                    entries = entries,
+                    isWorking = state.isWorking,
+                    onOpenCustomer = onOpenCustomer,
+                    onUpdateStatus = viewModel::updateStatus,
+                    onCountdownFinished = viewModel::onCheckInWindowClosed
+                )
+            }
         }
     }
 }
@@ -163,7 +163,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
     entries: List<QueueEntry>,
     isWorking: Boolean,
     onOpenCustomer: (String) -> Unit,
-    onUpdateStatus: (String, QueueStatus) -> Unit
+    onUpdateStatus: (String, QueueStatus) -> Unit,
+    onCountdownFinished: () -> Unit
 ) {
     if (entries.isEmpty()) return
 
@@ -182,19 +183,28 @@ private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
             isWorking = isWorking,
             onClick = { onOpenCustomer(entry.id) },
             onUpdateStatus = { status -> onUpdateStatus(entry.id, status) },
+            onCountdownFinished = onCountdownFinished,
             modifier = Modifier.padding(vertical = Spacing.xs)
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StaffQueueRow(
     entry: QueueEntry,
     isWorking: Boolean,
     onClick: () -> Unit,
     onUpdateStatus: (QueueStatus) -> Unit,
+    onCountdownFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val statusColors = LocalStatusColors.current
+    val seconds = rememberSecondsLeft(
+        deadline = entry.checkInDeadline.takeIf { entry.status == QueueStatus.CALLED },
+        onFinished = onCountdownFinished
+    )
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -217,16 +227,39 @@ private fun StaffQueueRow(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (seconds != null) {
+                        Text(
+                            text = if (seconds > 0L) {
+                                stringResource(R.string.staff_countdown, formatCountdown(seconds))
+                            } else {
+                                stringResource(R.string.staff_countdown_over)
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (seconds <= 120L) statusColors.cancelled else statusColors.called
+                        )
+                    }
+                    if (entry.checkedInEarly) {
+                        Text(
+                            text = stringResource(R.string.staff_badge_early),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = statusColors.checkedIn
+                        )
+                    }
                 }
                 QueueStatusPill(status = entry.status, compact = true)
             }
 
             // Only the transitions the state machine actually allows are
             // offered, so staff cannot get the queue into an illegal state.
-            val actions = entry.status.staffActions()
+            val actions = entry.staffActions()
             if (actions.isNotEmpty()) {
                 Spacer(Modifier.height(Spacing.sm))
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                // A TextButton insets its label by 12dp; pull the row back so the
+                // first action lines up with the ticket number above it.
+                FlowRow(
+                    modifier = Modifier.offset(x = (-12).dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
+                ) {
                     actions.forEach { (labelRes, status) ->
                         TextButton(
                             onClick = { onUpdateStatus(status) },
@@ -242,16 +275,23 @@ private fun StaffQueueRow(
 }
 
 /** The legal next moves for staff, straight out of section 14. */
-private fun QueueStatus.staffActions(): List<Pair<Int, QueueStatus>> = when (this) {
+private fun QueueEntry.staffActions(): List<Pair<Int, QueueStatus>> = when (status) {
     QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> listOf(
         R.string.staff_action_call to QueueStatus.CALLED,
+        R.string.staff_action_check_in to QueueStatus.CHECKED_IN,
         R.string.staff_action_remove to QueueStatus.CANCELLED
     )
     QueueStatus.CALLED -> listOf(
-        R.string.staff_action_seat to QueueStatus.CHECKED_IN,
+        R.string.staff_action_check_in to QueueStatus.CHECKED_IN,
+        R.string.staff_action_no_show to QueueStatus.CANCELLED
+    )
+    QueueStatus.CHECKED_IN -> listOf(
+        R.string.staff_action_table_ready to QueueStatus.TABLE_READY,
+        R.string.staff_action_remove to QueueStatus.CANCELLED
+    )
+    QueueStatus.TABLE_READY -> listOf(
         R.string.staff_action_complete to QueueStatus.COMPLETED,
         R.string.staff_action_no_show to QueueStatus.CANCELLED
     )
-    QueueStatus.CHECKED_IN -> listOf(R.string.staff_action_complete to QueueStatus.COMPLETED)
-    QueueStatus.COMPLETED, QueueStatus.CANCELLED -> emptyList()
+    QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.EXPIRED -> emptyList()
 }

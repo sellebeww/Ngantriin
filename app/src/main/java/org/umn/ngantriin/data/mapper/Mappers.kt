@@ -56,7 +56,8 @@ fun RestaurantDto.toDomain() = Restaurant(
     queuePrefix = queuePrefix,
     queueCapacity = queueCapacity,
     checkInRadiusMeters = checkInRadiusMeters,
-    availableSeats = availableSeats
+    availableSeats = availableSeats,
+    checkInWindowMinutes = checkInWindowMinutes.coerceIn(1, 60)
 )
 
 fun QueueStatsDto.toDomain() = QueueStats(
@@ -82,7 +83,10 @@ fun QueueDto.toDomain() = QueueEntry(
     checkedInAt = parseTimestampOrNull(checkedInAt),
     completedAt = parseTimestampOrNull(completedAt),
     cancelledAt = parseTimestampOrNull(cancelledAt),
-    checkInPhotoUrl = checkInPhotoUrl
+    checkInPhotoUrl = checkInPhotoUrl,
+    checkInDeadline = parseTimestampOrNull(checkInDeadline),
+    tableReadyAt = parseTimestampOrNull(tableReadyAt),
+    expiredAt = parseTimestampOrNull(expiredAt)
 )
 
 fun ReviewDto.toDomain(authorName: String? = null) = Review(
@@ -130,7 +134,8 @@ fun Restaurant.toEntity(cachedAt: Instant = Instant.now()) = RestaurantEntity(
     queueCapacity = queueCapacity,
     checkInRadiusMeters = checkInRadiusMeters,
     availableSeats = availableSeats,
-    cachedAt = cachedAt
+    cachedAt = cachedAt,
+    checkInWindowMinutes = checkInWindowMinutes
 )
 
 fun QueueStats.toEntity() = QueueStatsEntity(
@@ -156,7 +161,10 @@ fun QueueEntry.toEntity() = QueueEntryEntity(
     checkedInAt = checkedInAt,
     completedAt = completedAt,
     cancelledAt = cancelledAt,
-    checkInPhotoUrl = checkInPhotoUrl
+    checkInPhotoUrl = checkInPhotoUrl,
+    checkInDeadline = checkInDeadline,
+    tableReadyAt = tableReadyAt,
+    expiredAt = expiredAt
 )
 
 fun Review.toEntity() = ReviewEntity(
@@ -203,7 +211,8 @@ fun RestaurantEntity.toDomain() = Restaurant(
     queuePrefix = queuePrefix,
     queueCapacity = queueCapacity,
     checkInRadiusMeters = checkInRadiusMeters,
-    availableSeats = availableSeats
+    availableSeats = availableSeats,
+    checkInWindowMinutes = checkInWindowMinutes
 )
 
 fun QueueStatsEntity.toDomain() = QueueStats(
@@ -229,7 +238,10 @@ fun QueueEntryEntity.toDomain() = QueueEntry(
     checkedInAt = checkedInAt,
     completedAt = completedAt,
     cancelledAt = cancelledAt,
-    checkInPhotoUrl = checkInPhotoUrl
+    checkInPhotoUrl = checkInPhotoUrl,
+    checkInDeadline = checkInDeadline,
+    tableReadyAt = tableReadyAt,
+    expiredAt = expiredAt
 )
 
 fun ReviewEntity.toDomain() = Review(

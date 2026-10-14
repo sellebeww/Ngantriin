@@ -44,6 +44,16 @@ object LanguageManager {
         return if (language == INDONESIAN_LEGACY) INDONESIAN else language ?: ENGLISH
     }
 
+    /**
+     * The language the UI is actually rendering in: the per-app choice when
+     * one is set, otherwise the device language. Only "id" or "en" — the two
+     * the app ships — so the backend can write pushes in the same language.
+     */
+    fun effective(context: Context): String {
+        val language = context.resources.configuration.locales.get(0)?.language
+        return if (language == INDONESIAN || language == INDONESIAN_LEGACY) INDONESIAN else ENGLISH
+    }
+
     fun setLanguage(tag: String, context: Context, activity: Activity?) {
         if (Build.VERSION.SDK_INT >= 33) {
             context.getSystemService(LocaleManager::class.java)?.applicationLocales =

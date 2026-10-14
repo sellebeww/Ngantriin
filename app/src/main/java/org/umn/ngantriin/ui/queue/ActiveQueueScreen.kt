@@ -18,8 +18,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.TableRestaurant
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,6 +63,7 @@ import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Sections 12, 26 and 41 — the screen the whole product exists for.
@@ -72,7 +76,6 @@ fun ActiveQueueScreen(
     onFindRestaurants: () -> Unit,
     onViewRestaurant: (String) -> Unit,
     onCheckIn: (String) -> Unit,
-    onRate: (String) -> Unit,
     onMessage: (AppError) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -130,7 +133,7 @@ fun ActiveQueueScreen(
                 isLeaving = state.isLeaving,
                 onViewRestaurant = onViewRestaurant,
                 onCheckIn = onCheckIn,
-                onRate = onRate,
+                onCountdownFinished = viewModel::onCheckInWindowClosed,
                 onLeave = { confirmLeave = true }
             )
         }
@@ -143,7 +146,7 @@ private fun ActiveQueueContent(
     isLeaving: Boolean,
     onViewRestaurant: (String) -> Unit,
     onCheckIn: (String) -> Unit,
-    onRate: (String) -> Unit,
+    onCountdownFinished: () -> Unit,
     onLeave: () -> Unit
 ) {
     Column(
@@ -166,25 +169,32 @@ private fun ActiveQueueContent(
             color = MaterialTheme.colorScheme.onBackground
         )
 
+        Spacer(Modifier.height(Spacing.lg))
+        QueueJourney(queue.status)
         Spacer(Modifier.height(Spacing.xl))
 
-        QueueNumberCard(queue)
+        when (queue.status) {
+            QueueStatus.CALLED -> CheckInCountdownCard(queue, onCountdownFinished)
+            QueueStatus.TABLE_READY -> TableReadyCard(queue)
+            else -> QueueNumberCard(queue)
+        }
 
-        Spacer(Modifier.height(Spacing.xl))
-
-        Surface(
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(Spacing.xl)) {
-                Text(
-                    text = stringResource(R.string.active_queue_progress),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(Spacing.lg))
-                QueueProgressTrack(queue)
+        if (queue.showsLinePosition) {
+            Spacer(Modifier.height(Spacing.xl))
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(Modifier.padding(Spacing.xl)) {
+                    Text(
+                        text = stringResource(R.string.active_queue_progress),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(Spacing.lg))
+                    QueueProgressTrack(queue)
+                }
             }
         }
 
@@ -199,6 +209,7 @@ private fun ActiveQueueContent(
                 PrimaryButton(
                     text = stringResource(R.string.active_queue_check_in_now),
                     onClick = { onCheckIn(queue.entry.id) },
+                    enabled = queue.canCheckIn,
                     icon = Icons.Filled.CheckCircle
                 )
                 Spacer(Modifier.height(Spacing.md))
@@ -209,28 +220,27 @@ private fun ActiveQueueContent(
                 )
             }
 
-            QueueStatus.CHECKED_IN -> {
+            QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> {
+                // Section 17: already at the restaurant? Check in early and
+                // keep your place.
                 SecondaryButton(
-                    text = stringResource(R.string.active_queue_view_restaurant),
-                    onClick = { onViewRestaurant(queue.restaurant.id) },
-                    icon = Icons.Filled.Storefront
+                    text = stringResource(R.string.active_queue_im_here),
+                    onClick = { onCheckIn(queue.entry.id) },
+                    icon = Icons.Filled.HowToReg
                 )
-            }
-
-            QueueStatus.COMPLETED -> {
-                PrimaryButton(
-                    text = stringResource(R.string.active_queue_rate_experience),
-                    onClick = { onRate(queue.entry.id) }
-                )
-            }
-
-            else -> {
+                Spacer(Modifier.height(Spacing.md))
                 SecondaryButton(
                     text = stringResource(R.string.active_queue_check_restaurant_location),
                     onClick = { onViewRestaurant(queue.restaurant.id) },
                     icon = Icons.Filled.Storefront
                 )
             }
+
+            else -> SecondaryButton(
+                text = stringResource(R.string.active_queue_view_restaurant),
+                onClick = { onViewRestaurant(queue.restaurant.id) },
+                icon = Icons.Filled.Storefront
+            )
         }
 
         if (queue.canLeave) {
@@ -249,6 +259,119 @@ private fun ActiveQueueContent(
         }
 
         Spacer(Modifier.height(Spacing.xxxl))
+    }
+}
+
+/**
+ * Section 16: it's this ticket's turn and the check-in window is running.
+ * The countdown is the biggest thing on screen — missing it costs the ticket.
+ */
+@Composable
+private fun CheckInCountdownCard(queue: ActiveQueue, onFinished: () -> Unit) {
+    val statusColors = LocalStatusColors.current
+    val seconds = rememberSecondsLeft(queue.entry.checkInDeadline, onFinished)
+    val urgent = seconds != null && seconds <= 120
+
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = statusColors.calledContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = Spacing.xxl, horizontal = Spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            QueueStatusPill(queue.status)
+            Spacer(Modifier.height(Spacing.lg))
+            Text(
+                text = queue.queueNumber,
+                style = QueueNumberStyle,
+                color = statusColors.called,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(Spacing.xl))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Timer,
+                    contentDescription = null,
+                    tint = if (urgent) statusColors.cancelled else statusColors.called,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(Spacing.xs))
+                Text(
+                    text = stringResource(R.string.countdown_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = statusColors.called
+                )
+            }
+            Spacer(Modifier.height(Spacing.xs))
+            Text(
+                text = when {
+                    seconds == null -> "—"
+                    seconds <= 0L -> stringResource(R.string.countdown_expiring)
+                    else -> formatCountdown(seconds)
+                },
+                style = if (seconds != null && seconds > 0L) {
+                    MaterialTheme.typography.displayMedium
+                } else {
+                    MaterialTheme.typography.titleMedium
+                },
+                color = if (urgent) statusColors.cancelled else MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(Spacing.md))
+            Text(
+                text = stringResource(R.string.countdown_hint, queue.restaurant.checkInWindowMinutes),
+                style = MaterialTheme.typography.bodySmall.balanced(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/** The moment the whole queue was for. */
+@Composable
+private fun TableReadyCard(queue: ActiveQueue) {
+    val statusColors = LocalStatusColors.current
+
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = statusColors.tableReadyContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = Spacing.xxl, horizontal = Spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.extraLarge),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.TableRestaurant,
+                    contentDescription = null,
+                    tint = statusColors.tableReady,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+            Spacer(Modifier.height(Spacing.lg))
+            Text(
+                text = stringResource(R.string.table_ready_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = statusColors.tableReady,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(Spacing.md))
+            Text(
+                text = queue.queueNumber,
+                style = QueueNumberStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -304,6 +427,18 @@ private fun QueueNumberCard(queue: ActiveQueue) {
                 )
             }
             Spacer(Modifier.height(Spacing.xl))
+
+            if (!queue.showsLinePosition) {
+                // Called and checked in: the line no longer matters, the
+                // table does.
+                Text(
+                    text = stringResource(R.string.waiting_for_table_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                )
+                return@Column
+            }
 
             Row(Modifier.fillMaxWidth()) {
                 QueueStat(
@@ -363,7 +498,17 @@ private fun GuidanceCard(queue: ActiveQueue) {
         QueueStatus.CHECKED_IN -> Triple(
             statusColors.checkedInContainer,
             statusColors.checkedIn,
-            stringResource(R.string.guidance_checked_in)
+            if (queue.entry.checkedInEarly) {
+                stringResource(R.string.guidance_checked_in_early)
+            } else {
+                stringResource(R.string.guidance_checked_in)
+            }
+        )
+
+        QueueStatus.TABLE_READY -> Triple(
+            statusColors.tableReadyContainer,
+            statusColors.tableReady,
+            stringResource(R.string.guidance_table_ready, queue.queueNumber)
         )
 
         QueueStatus.ALMOST_THERE -> Triple(

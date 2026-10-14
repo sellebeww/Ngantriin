@@ -29,12 +29,7 @@ class SupabaseQueueRemoteDataSource(
 
     private val checkInPhotosBucket = "checkin-photos"
 
-    private val activeStatuses = listOf(
-        QueueStatus.WAITING.wireValue,
-        QueueStatus.ALMOST_THERE.wireValue,
-        QueueStatus.CALLED.wireValue,
-        QueueStatus.CHECKED_IN.wireValue
-    )
+    private val activeStatuses = QueueStatus.ACTIVE.map { it.wireValue }
 
     override suspend fun joinQueue(
         restaurantId: String,
@@ -55,8 +50,10 @@ class SupabaseQueueRemoteDataSource(
     ).decodeAs<QueueDto>().toDomain()
 
     override suspend fun checkIn(queueId: String, restaurantId: String, photo: ByteArray): QueueEntry {
+        // check_in_queue verifies this exact object exists under
+        // {restaurant_id}/{queue_id}/ before it allows CHECKED_IN.
         val path = "$restaurantId/$queueId/${System.currentTimeMillis()}.jpg"
-        client.storage.from(checkInPhotosBucket).upload(path, photo) { upsert = true }
+        client.storage.from(checkInPhotosBucket).upload(path, photo) { upsert = false }
 
         return client.postgrest.rpc(
             function = "check_in_queue",
@@ -83,6 +80,13 @@ class SupabaseQueueRemoteDataSource(
                 put("p_status", status.wireValue)
             }
         ).decodeAs<QueueDto>().toDomain()
+
+    override suspend fun expireOverdue(restaurantId: String) {
+        client.postgrest.rpc(
+            function = "expire_overdue_queues",
+            parameters = buildJsonObject { put("p_restaurant_id", restaurantId) }
+        )
+    }
 
     override suspend fun fetchQueue(queueId: String): QueueEntry =
         client.from("queues")

@@ -1,7 +1,9 @@
 package org.umn.ngantriin.domain
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.umn.ngantriin.domain.model.NotificationType
 import org.umn.ngantriin.domain.model.QueueEntry
@@ -13,11 +15,11 @@ import java.time.Instant
 class QueueMathTest {
 
     /**
-     * The section 40 sample: A-020 is at the table, A-021 to A-026 are still
+     * The section 40 sample: A-020 is being seated, A-021 to A-026 are still
      * in line, and the customer holds A-027.
      */
     private val sampleQueue = buildList {
-        add(entry(20, QueueStatus.CHECKED_IN))
+        add(entry(20, QueueStatus.TABLE_READY))
         (21..26).forEach { add(entry(it, QueueStatus.WAITING)) }
         add(entry(27, QueueStatus.WAITING))
         add(entry(28, QueueStatus.WAITING))
@@ -26,7 +28,8 @@ class QueueMathTest {
     private fun entry(
         sequence: Int,
         status: QueueStatus,
-        restaurantId: String = "r1"
+        restaurantId: String = "r1",
+        called: Boolean = status == QueueStatus.CALLED || status == QueueStatus.TABLE_READY
     ) = QueueEntry(
         id = "q$sequence",
         restaurantId = restaurantId,
@@ -35,7 +38,8 @@ class QueueMathTest {
         ticketSequence = sequence,
         partySize = 2,
         status = status,
-        joinedAt = Instant.EPOCH.plusSeconds(sequence.toLong())
+        joinedAt = Instant.EPOCH.plusSeconds(sequence.toLong()),
+        calledAt = if (called) Instant.EPOCH.plusSeconds(1_000L + sequence) else null
     )
 
     @Test
@@ -44,9 +48,19 @@ class QueueMathTest {
     }
 
     @Test
-    fun `a seated group no longer counts as ahead`() {
-        // A-020 is CHECKED_IN, so its table is taken but it is not in line.
+    fun `a group being seated no longer counts as ahead`() {
+        // A-020 is TABLE_READY: its table is taken but it is not in line.
         assertEquals(0, QueueMath.peopleAhead(sampleQueue, ticketSequence = 21))
+    }
+
+    @Test
+    fun `a checked-in group still waiting for a table counts as ahead`() {
+        val queue = listOf(
+            entry(1, QueueStatus.CHECKED_IN, called = true),
+            entry(2, QueueStatus.CHECKED_IN, called = false),
+            entry(3, QueueStatus.WAITING)
+        )
+        assertEquals(2, QueueMath.peopleAhead(queue, ticketSequence = 3))
     }
 
     @Test
@@ -89,6 +103,37 @@ class QueueMathTest {
     }
 
     @Test
+    fun `an early check-in is still waiting to be called, a called one is not`() {
+        val queue = listOf(
+            entry(1, QueueStatus.CHECKED_IN, called = true),
+            entry(2, QueueStatus.CHECKED_IN, called = false),
+            entry(3, QueueStatus.WAITING),
+            entry(4, QueueStatus.EXPIRED)
+        )
+        assertEquals(2, QueueMath.waitingCount(queue))
+    }
+
+    @Test
+    fun `next to call is the lowest ticket not yet called, early arrivals included`() {
+        val queue = listOf(
+            entry(1, QueueStatus.CALLED),
+            entry(2, QueueStatus.CHECKED_IN, called = false),
+            entry(3, QueueStatus.WAITING)
+        )
+        assertEquals("A-002", QueueMath.nextToCall(queue)?.queueNumber)
+        assertNull(QueueMath.nextToCall(listOf(entry(1, QueueStatus.CALLED))))
+    }
+
+    @Test
+    fun `an early check-in is not what the board says is being served`() {
+        val queue = listOf(
+            entry(1, QueueStatus.COMPLETED),
+            entry(5, QueueStatus.CHECKED_IN, called = false)
+        )
+        assertEquals("A-001", QueueMath.currentServing(queue)?.queueNumber)
+    }
+
+    @Test
     fun `now serving prefers a called ticket over a completed one`() {
         val queue = listOf(
             entry(1, QueueStatus.COMPLETED),
@@ -124,10 +169,39 @@ class QueueMathTest {
             NotificationType.CALLED,
             QueueMath.notificationMilestone(QueueStatus.CALLED, peopleAhead = 0)
         )
+        assertEquals(
+            NotificationType.TABLE_READY,
+            QueueMath.notificationMilestone(QueueStatus.TABLE_READY, peopleAhead = 0)
+        )
     }
 
     @Test
-    fun `terminal tickets produce no further milestones`() {
-        assertNull(QueueMath.notificationMilestone(QueueStatus.CANCELLED, peopleAhead = 0))
+    fun `checked in early does not nag the customer to head back`() {
+        // They're already there; the next thing they hear about is the table.
+        assertEquals(
+            NotificationType.CHECKED_IN,
+            QueueMath.notificationMilestone(QueueStatus.CHECKED_IN, peopleAhead = 1)
+        )
+    }
+
+    @Test
+    fun `each ending has its own notification`() {
+        assertEquals(NotificationType.COMPLETED, QueueMath.notificationMilestone(QueueStatus.COMPLETED, 0))
+        assertEquals(NotificationType.CANCELLED, QueueMath.notificationMilestone(QueueStatus.CANCELLED, 0))
+        assertEquals(NotificationType.EXPIRED, QueueMath.notificationMilestone(QueueStatus.EXPIRED, 0))
+    }
+
+    @Test
+    fun `check-in window counts down and then is overdue`() {
+        val now = Instant.parse("2026-10-08T12:00:00Z")
+        val called = entry(1, QueueStatus.CALLED).copy(checkInDeadline = now.plusSeconds(600))
+
+        assertEquals(600L, called.checkInSecondsLeft(now))
+        assertFalse(called.isCheckInOverdue(now))
+        assertEquals(0L, called.checkInSecondsLeft(now.plusSeconds(601)))
+        assertTrue(called.isCheckInOverdue(now.plusSeconds(601)))
+
+        // No window outside CALLED.
+        assertNull(entry(2, QueueStatus.WAITING).checkInSecondsLeft(now))
     }
 }

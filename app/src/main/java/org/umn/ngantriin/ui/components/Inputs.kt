@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -103,6 +104,9 @@ fun NgantriinPasswordField(
             value = value,
             onValueChange = onValueChange,
             label = { Text(label) },
+            // Same leading icon slot as NgantriinTextField, so the two fields
+            // stacked on a form line their text up.
+            leadingIcon = { Icon(Icons.Filled.LockOpen, contentDescription = null) },
             isError = errorText != null,
             singleLine = true,
             enabled = enabled,

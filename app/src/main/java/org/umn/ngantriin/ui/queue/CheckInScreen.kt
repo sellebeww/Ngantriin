@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,6 +64,7 @@ import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 import java.io.File
 
 /** Sections 16 and 17: the customer photographs themselves at the restaurant. */
@@ -158,58 +160,98 @@ fun CheckInScreen(
                 Spacer(Modifier.height(Spacing.xl))
 
                 Text(
-                    text = if (queue.canCheckIn) {
-                        stringResource(R.string.checkin_table_ready)
-                    } else {
-                        stringResource(R.string.checkin_not_called)
+                    text = when {
+                        !queue.canCheckIn -> stringResource(R.string.checkin_not_called)
+                        queue.isCheckInCountdown -> stringResource(R.string.checkin_heading_called)
+                        else -> stringResource(R.string.checkin_heading_early)
                     },
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(Modifier.height(Spacing.xxl))
-
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(Spacing.xxl),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                if (queue.isCheckInCountdown) {
+                    val seconds = rememberSecondsLeft(
+                        queue.entry.checkInDeadline,
+                        onFinished = viewModel::onCheckInWindowClosed
+                    )
+                    if (seconds != null) {
+                        Spacer(Modifier.height(Spacing.sm))
                         Text(
-                            text = queue.restaurant.name,
+                            text = if (seconds > 0L) {
+                                "${stringResource(R.string.countdown_label)} ${formatCountdown(seconds)}"
+                            } else {
+                                stringResource(R.string.countdown_expiring)
+                            },
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (seconds <= 120L) {
+                                LocalStatusColors.current.cancelled
+                            } else {
+                                LocalStatusColors.current.called
+                            },
+                            textAlign = TextAlign.Center
                         )
-                        Spacer(Modifier.height(Spacing.md))
-                        Text(
-                            text = queue.queueNumber,
-                            style = QueueNumberStyle,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.height(Spacing.lg))
-                        QueueStatusPill(queue.status)
                     }
                 }
 
-                Spacer(Modifier.height(Spacing.xl))
+                Spacer(Modifier.height(Spacing.xxl))
 
                 val currentPhotoUri = photoUri
-                if (currentPhotoUri != null) {
+
+                if (currentPhotoUri == null) {
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(Spacing.xxl),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = queue.restaurant.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(Spacing.md))
+                            Text(
+                                text = queue.queueNumber,
+                                style = QueueNumberStyle,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.height(Spacing.lg))
+                            QueueStatusPill(queue.status)
+                        }
+                    }
+                } else {
+                    // With a photo on screen the ticket shrinks to one line, so
+                    // the photo and the Submit button both fit above the fold.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = queue.queueNumber,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(Modifier.width(Spacing.md))
+                        QueueStatusPill(queue.status, compact = true)
+                    }
+                    Spacer(Modifier.height(Spacing.md))
                     AsyncImage(
                         model = currentPhotoUri,
                         contentDescription = stringResource(R.string.cd_checkin_photo),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(0.72f)
                             .aspectRatio(1f)
                             .clip(MaterialTheme.shapes.large)
                     )
-                    Spacer(Modifier.height(Spacing.md))
                 }
+
+                Spacer(Modifier.height(Spacing.lg))
 
                 (state.step as? CheckInStep.Failed)?.let { failure ->
                     CheckInError(failure.error)
@@ -222,10 +264,20 @@ fun CheckInScreen(
                         currentPhotoUri != null -> stringResource(R.string.checkin_looks_good)
                         else -> stringResource(R.string.checkin_instruction)
                     },
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.balanced(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
+
+                if (queue.canCheckIn && !queue.isCheckInCountdown) {
+                    Spacer(Modifier.height(Spacing.sm))
+                    Text(
+                        text = stringResource(R.string.checkin_early_note),
+                        style = MaterialTheme.typography.bodySmall.balanced(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 Spacer(Modifier.weight(1f))
 
@@ -328,7 +380,9 @@ private fun CheckedInState(
         modifier = modifier.padding(horizontal = Spacing.screenGutter),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(Spacing.huge))
+        // Centred in the space above the button; weighted slightly high, which
+        // is where the eye expects the middle of a success screen to be.
+        Spacer(Modifier.weight(0.8f))
 
         Box(
             modifier = Modifier
@@ -355,12 +409,12 @@ private fun CheckedInState(
         Spacer(Modifier.height(Spacing.sm))
         Text(
             text = stringResource(R.string.checkin_success_body, queueNumber, restaurantName),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(1.2f))
         PrimaryButton(text = stringResource(R.string.action_done), onClick = onDone)
         Spacer(Modifier.height(Spacing.xxl))
     }

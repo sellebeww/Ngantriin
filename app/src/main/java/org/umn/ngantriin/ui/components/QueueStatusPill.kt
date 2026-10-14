@@ -12,7 +12,9 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.HowToReg
+import androidx.compose.material.icons.filled.TableRestaurant
+import androidx.compose.material.icons.filled.TimerOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -81,11 +83,15 @@ fun QueueStatus.visuals(): StatusVisuals {
         QueueStatus.CALLED ->
             StatusVisuals(Icons.Filled.NotificationsActive, colors.called, colors.calledContainer)
         QueueStatus.CHECKED_IN ->
-            StatusVisuals(Icons.Filled.Restaurant, colors.checkedIn, colors.checkedInContainer)
+            StatusVisuals(Icons.Filled.HowToReg, colors.checkedIn, colors.checkedInContainer)
+        QueueStatus.TABLE_READY ->
+            StatusVisuals(Icons.Filled.TableRestaurant, colors.tableReady, colors.tableReadyContainer)
         QueueStatus.COMPLETED ->
             StatusVisuals(Icons.Filled.CheckCircle, colors.completed, colors.completedContainer)
         QueueStatus.CANCELLED ->
             StatusVisuals(Icons.Filled.Cancel, colors.cancelled, colors.cancelledContainer)
+        QueueStatus.EXPIRED ->
+            StatusVisuals(Icons.Filled.TimerOff, colors.expired, colors.expiredContainer)
     }
 }
 
@@ -94,6 +100,8 @@ fun QueueStatus.labelRes(): Int = when (this) {
     QueueStatus.ALMOST_THERE -> R.string.status_almost_there
     QueueStatus.CALLED -> R.string.status_called
     QueueStatus.CHECKED_IN -> R.string.status_checked_in
+    QueueStatus.TABLE_READY -> R.string.status_table_ready
     QueueStatus.COMPLETED -> R.string.status_completed
     QueueStatus.CANCELLED -> R.string.status_cancelled
+    QueueStatus.EXPIRED -> R.string.status_expired
 }

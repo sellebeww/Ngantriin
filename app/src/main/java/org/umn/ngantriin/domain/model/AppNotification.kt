@@ -14,8 +14,10 @@ enum class NotificationType {
     RETURN_NOW,
     CALLED,
     CHECKED_IN,
+    TABLE_READY,
     COMPLETED,
-    CANCELLED;
+    CANCELLED,
+    EXPIRED;
 
     companion object {
         fun fromWire(value: String?): NotificationType =

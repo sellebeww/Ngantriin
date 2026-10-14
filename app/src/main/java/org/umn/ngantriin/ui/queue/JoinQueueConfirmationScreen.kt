@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,7 @@ import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Section 11's confirmation. Its one job is to make the number the backend
@@ -146,17 +148,27 @@ fun JoinQueueConfirmationScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Spacer(Modifier.height(Spacing.xl))
 
+                // Same two-column split as the Active Queue card, so the numbers
+                // sit in the same place on both screens.
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     QueueStat(
                         value = "${queue.peopleAhead}",
-                        label = pluralStringResource(R.plurals.queue_group_ahead_label, queue.peopleAhead)
+                        label = pluralStringResource(R.plurals.queue_group_ahead_label, queue.peopleAhead),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Box(
+                        Modifier
+                            .width(1.dp)
+                            .height(48.dp)
+                            .background(MaterialTheme.colorScheme.outlineVariant)
                     )
                     QueueStat(
                         value = waitTimeText(queue.estimatedWaitMinutes),
-                        label = stringResource(R.string.active_queue_estimated_wait_label)
+                        label = stringResource(R.string.active_queue_estimated_wait_label),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -166,7 +178,15 @@ fun JoinQueueConfirmationScreen(
 
         Text(
             text = stringResource(R.string.confirm_body),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.balanced(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(Spacing.sm))
+        // Section 16: say the one rule that can cost the ticket up front.
+        Text(
+            text = stringResource(R.string.countdown_hint, queue.restaurant.checkInWindowMinutes),
+            style = MaterialTheme.typography.bodySmall.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

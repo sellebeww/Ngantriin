@@ -161,6 +161,7 @@ class NgantriinDatabaseTest {
         queuePrefix = "T",
         queueCapacity = 35,
         checkInRadiusMeters = 150,
+        availableSeats = 0,
         cachedAt = Instant.EPOCH
     )
 

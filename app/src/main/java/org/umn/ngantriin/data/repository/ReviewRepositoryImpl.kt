@@ -62,8 +62,16 @@ class ReviewRepositoryImpl(
         }
 
         val outcome = runCatchingOutcome {
-            remote.submitReview(queueId, restaurantId, userId, rating, comment)
-                .also { reviewDao.upsert(it.toEntity()) }
+            // One review per visit (reviews.queue_id is unique): a second
+            // submit edits the first instead of failing on the constraint.
+            val existing = reviewDao.findByQueue(queueId)?.toDomain()
+                ?: runCatching { remote.fetchReviewForQueue(queueId) }.getOrNull()
+            val saved = if (existing != null) {
+                remote.updateReview(existing.id, rating, comment)
+            } else {
+                remote.submitReview(queueId, restaurantId, userId, rating, comment)
+            }
+            saved.also { reviewDao.upsert(it.toEntity()) }
         }
 
         if (outcome is Outcome.Failure && outcome.error is AppError.Network) {
@@ -73,6 +81,16 @@ class ReviewRepositoryImpl(
             return Outcome.Failure(AppError.OfflineActionQueued)
         }
         return outcome
+    }
+
+    override fun observeReviewForQueue(queueId: String): Flow<Review?> =
+        reviewDao.observeByQueue(queueId)
+            .map { it?.toDomain() }
+            .distinctUntilChanged()
+
+    override suspend fun refreshUserReviews(userId: String): Outcome<Unit> = runCatchingOutcome {
+        val reviews = remote.fetchUserReviews(userId)
+        if (reviews.isNotEmpty()) reviewDao.upsert(reviews.map { it.toEntity() })
     }
 
     override suspend fun reviewForQueue(queueId: String): Outcome<Review?> = runCatchingOutcome {

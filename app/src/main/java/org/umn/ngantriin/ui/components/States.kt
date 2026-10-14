@@ -40,6 +40,7 @@ import org.umn.ngantriin.R
 import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Section 30. An empty state always says what is missing and, where there is
@@ -84,7 +85,7 @@ fun EmptyState(
         Spacer(Modifier.height(Spacing.sm))
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

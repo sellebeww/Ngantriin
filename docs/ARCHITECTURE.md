@@ -14,14 +14,28 @@ Compose screen  →  ViewModel  →  Repository  ┬→  RemoteDataSource  →  
 Everything else exists to serve this:
 
 ```
-WAITING ──► ALMOST_THERE ──► CALLED ──► CHECKED_IN ──► COMPLETED
-   │              │            │
-   └──────────────┴────────────┴──────────────────► CANCELLED
+WAITING ─► ALMOST_THERE ─► CALLED ─► CHECKED_IN ─► TABLE_READY ─► COMPLETED
+   │             │            └── 10 min, no check-in ──► EXPIRED
+   └─────────────┴── already at the restaurant ──► CHECKED_IN (early)
+
+any live status ──► CANCELLED
 ```
 
-`COMPLETED` and `CANCELLED` are terminal. A cancelled ticket can never return
-to `WAITING` — a customer who left the queue and then saw themselves back in it
-would never trust the app again.
+It is the product concept, step for step: wait anywhere, get reminded, come
+back, check in, get told the table is ready, eat, review.
+
+- `CALLED` starts a check-in window (10 minutes by default, per restaurant).
+  Missing it makes the ticket `EXPIRED` — see
+  [BACKEND.md](BACKEND.md#the-check-in-window-10-minutes) for the three places
+  that enforce it.
+- A customer already at the restaurant may check in early and keeps their
+  place; when their number comes up `call_next` goes straight to `TABLE_READY`.
+- A visit cannot jump from `CALLED` to `COMPLETED`: it passes `CHECKED_IN` and
+  `TABLE_READY`, so history always tells the whole story.
+
+`COMPLETED`, `CANCELLED` and `EXPIRED` are terminal. A cancelled ticket can
+never return to `WAITING` — a customer who left the queue and then saw
+themselves back in it would never trust the app again.
 
 The rule is written down twice, on purpose:
 
@@ -30,7 +44,7 @@ The rule is written down twice, on purpose:
 - `is_valid_queue_transition` plus the `queues_transition_guard` trigger reject
   it at the database, so a stale client or a direct API call cannot get through.
 
-`QueueStatusTest` checks all 36 state pairs. If the table changes, both halves
+`QueueStatusTest` checks all 64 state pairs. If the table changes, both halves
 have to change with it.
 
 ---
@@ -43,7 +57,8 @@ have to change with it.
 | People ahead | `queue_position()`, a `SECURITY DEFINER` function | RLS hides other customers' rows, so the client genuinely cannot count the line itself |
 | Estimated wait | `average_service_minutes × people ahead` | One formula, in `QueueMath`, called by both the client and the demo backend |
 | Waiting count | `queue_stats`, maintained by an `AFTER` trigger on `queues` | Public and cheap, so the discovery list can show it for every venue at once |
-| Check-in verification | `check_in_queue()` rejects the transition if `photo_url` is blank | A client cannot force `CHECKED_IN` without a photo reaching the server |
+| Check-in verification | `check_in_queue()` requires the photo object to exist under `{restaurant}/{ticket}/` in Storage | A client cannot force `CHECKED_IN` with an invented path |
+| Check-in countdown | `queues.check_in_deadline`, set by the server when the ticket is CALLED | The phone's clock is only used to *display* it; expiry is decided by the database |
 
 When the server-computed position is unavailable — offline, or a request in
 flight — `QueueRepositoryImpl.fallbackPeopleAhead` degrades in two steps: count
@@ -113,12 +128,15 @@ Two subscriptions drive the active-queue screen:
 
 `QueueMath.notificationMilestone` decides what a ticket has reached:
 
-| People ahead | Milestone |
+| Ticket | Milestone |
 | --- | --- |
-| > 3 | nothing |
-| ≤ 3 | `ALMOST_THERE` |
-| ≤ 1 | `RETURN_NOW` |
-| status = CALLED | `CALLED` |
+| waiting, > 3 ahead | nothing |
+| waiting, ≤ 3 ahead | `ALMOST_THERE` |
+| waiting, ≤ 1 ahead | `RETURN_NOW` |
+| `CALLED` | `CALLED` — includes the check-in window |
+| `CHECKED_IN` | `CHECKED_IN` |
+| `TABLE_READY` | `TABLE_READY` |
+| `COMPLETED` / `CANCELLED` / `EXPIRED` | the matching ending; `COMPLETED` opens the review |
 
 De-duplication is structural, not a flag: every notification is a row with a
 unique `(queue_id, type)` index. A ticket oscillating around a threshold cannot
@@ -130,12 +148,29 @@ Two delivery paths, one body of copy (`QueueNotificationCopy`):
   recomputes positions, inserts the rows and sends data-only FCM messages.
   Data-only so the app renders them, picks the channel and persists the event
   before showing it.
+  The function authenticates its caller with a shared secret and re-reads the
+  ticket itself, so it cannot be used to push to an arbitrary user.
 - **Local** — `QueueNotificationScheduler` derives the same milestones from the
-  same state while the app is in memory. It runs only when no
+  same state while the process is alive. It runs only when no
   `google-services.json` is present, and stands down entirely once push works.
+- **Live tracking** — `QueueTrackingService`, a foreground service started
+  while a ticket is live, keeps the process (and so the realtime subscription
+  and the local scheduler) alive after the app is backgrounded, and shows the
+  queue in an ongoing notification with a system-ticked countdown once called.
 
-Two channels, because "your turn is coming" and "your table is ready" are not
-the same interruption: someone who mutes the first should still hear the second.
+Three channels: "your turn is coming" and "your table is ready" are not the same
+interruption, and the live view must never make a sound at all.
+
+Settings → Queue notifications silences the system tray for both delivery
+paths; the in-app notification list still records everything.
+
+### When a ticket ends
+
+A finished ticket drops out of `observeActiveQueue`, so `NgantriinApp` also
+watches `observeLatestTicket` and reacts to the transition itself:
+`COMPLETED` opens the thank-you screen and its review prompt, `EXPIRED` and a
+restaurant-side `CANCELLED` explain themselves in a snackbar rather than
+silently emptying the queue tab.
 
 ---
 

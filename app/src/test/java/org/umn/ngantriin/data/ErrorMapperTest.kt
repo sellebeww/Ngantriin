@@ -45,6 +45,14 @@ class ErrorMapperTest {
     }
 
     @Test
+    fun `check-in window rules from 0012 reach the user as copy`() {
+        assertEquals(AppError.CheckInExpired, ErrorMapper.map(Exception("CHECK_IN_EXPIRED")))
+        assertEquals(AppError.CheckInNotAllowed, ErrorMapper.map(Exception("CHECK_IN_NOT_ALLOWED")))
+        assertEquals(AppError.PhotoNotUploaded, ErrorMapper.map(Exception("PHOTO_NOT_UPLOADED")))
+        assertEquals(AppError.InvalidPartySize, ErrorMapper.map(Exception("INVALID_PARTY_SIZE")))
+    }
+
+    @Test
     fun `the post-cancel cooldown reaches the user as copy`() {
         assertEquals(AppError.JoinCooldown, ErrorMapper.map(Exception("JOIN_COOLDOWN")))
     }

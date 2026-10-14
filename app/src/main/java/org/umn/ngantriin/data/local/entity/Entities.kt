@@ -33,7 +33,8 @@ data class RestaurantEntity(
     val queueCapacity: Int,
     val checkInRadiusMeters: Int,
     val availableSeats: Int,
-    val cachedAt: Instant
+    val cachedAt: Instant,
+    val checkInWindowMinutes: Int = 10
 )
 
 @Entity(tableName = "queue_stats")
@@ -64,7 +65,10 @@ data class QueueEntryEntity(
     val checkedInAt: Instant?,
     val completedAt: Instant?,
     val cancelledAt: Instant?,
-    val checkInPhotoUrl: String? = null
+    val checkInPhotoUrl: String? = null,
+    val checkInDeadline: Instant? = null,
+    val tableReadyAt: Instant? = null,
+    val expiredAt: Instant? = null
 )
 
 @Entity(tableName = "reviews", indices = [Index("restaurantId"), Index(value = ["queueId"], unique = true)])

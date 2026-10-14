@@ -42,6 +42,9 @@ interface AuthRemoteDataSource {
     suspend fun fetchProfile(userId: String): User
     suspend fun updateProfile(userId: String, name: String, phone: String?): User
     suspend fun updatePushToken(userId: String, token: String)
+
+    /** Language the server writes push notifications in ("id" or "en"). */
+    suspend fun updateLocale(userId: String, locale: String)
 }
 
 interface RestaurantRemoteDataSource {
@@ -80,6 +83,13 @@ interface QueueRemoteDataSource {
     suspend fun callNext(restaurantId: String): QueueEntry
     suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry
 
+    /**
+     * Section 16: marks CALLED tickets past their check-in window as EXPIRED.
+     * The backend also does this on a schedule; calling it just settles a
+     * countdown that reached zero without waiting for the next sweep.
+     */
+    suspend fun expireOverdue(restaurantId: String)
+
     suspend fun fetchQueue(queueId: String): QueueEntry
 
     /**
@@ -103,6 +113,12 @@ interface QueueRemoteDataSource {
 interface ReviewRemoteDataSource {
     suspend fun fetchReviews(restaurantId: String): List<Review>
     suspend fun fetchReviewForQueue(queueId: String): Review?
+
+    /** Every review this customer wrote, so history knows what's reviewed. */
+    suspend fun fetchUserReviews(userId: String): List<Review>
+
+    /** Only rating and text are editable; the visit it belongs to is fixed. */
+    suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review
     suspend fun submitReview(
         queueId: String,
         restaurantId: String,

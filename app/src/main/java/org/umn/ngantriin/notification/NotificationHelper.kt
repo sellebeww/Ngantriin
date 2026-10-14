@@ -17,8 +17,10 @@ import com.google.firebase.FirebaseApp
 import org.umn.ngantriin.MainActivity
 import org.umn.ngantriin.R
 import org.umn.ngantriin.core.Constants
+import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.domain.model.AppNotification
 import org.umn.ngantriin.domain.model.NotificationType
+import org.umn.ngantriin.domain.model.QueueStatus
 
 /**
  * Section 15. Owns the notification channels and turns an [AppNotification]
@@ -54,8 +56,19 @@ class NotificationHelper(private val context: Context) {
             enableVibration(true)
         }
 
+        // Silent and low: it updates every time the line moves, and must
+        // never buzz for that. The milestones above do the interrupting.
+        val live = NotificationChannel(
+            Constants.CHANNEL_QUEUE_LIVE,
+            context.getString(R.string.channel_live_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = context.getString(R.string.channel_live_description)
+            setShowBadge(false)
+        }
+
         context.getSystemService(NotificationManager::class.java)
-            ?.createNotificationChannels(listOf(updates, called))
+            ?.createNotificationChannels(listOf(updates, called, live))
     }
 
     fun hasPermission(): Boolean =
@@ -75,9 +88,10 @@ class NotificationHelper(private val context: Context) {
         // inline check.
         if (!hasPermission()) return
 
-        val channel = when (notification.type) {
-            NotificationType.CALLED, NotificationType.RETURN_NOW -> Constants.CHANNEL_QUEUE_CALLED
-            else -> Constants.CHANNEL_QUEUE_UPDATES
+        val channel = if (notification.type.isUrgent) {
+            Constants.CHANNEL_QUEUE_CALLED
+        } else {
+            Constants.CHANNEL_QUEUE_UPDATES
         }
 
         val built = NotificationCompat.Builder(context, channel)
@@ -96,26 +110,94 @@ class NotificationHelper(private val context: Context) {
         runCatching { manager.notify(notification.id.hashCode(), built) }
     }
 
-    private fun priorityFor(type: NotificationType): Int = when (type) {
-        NotificationType.CALLED, NotificationType.RETURN_NOW -> NotificationCompat.PRIORITY_HIGH
-        NotificationType.ALMOST_THERE -> NotificationCompat.PRIORITY_DEFAULT
+    /** Replaces the ongoing live-queue notification in place. */
+    @SuppressLint("MissingPermission")
+    fun updateLive(notification: Notification) {
+        if (!hasPermission()) return
+        runCatching { manager.notify(Constants.LIVE_NOTIFICATION_ID, notification) }
+    }
+
+    /**
+     * The ongoing "live queue" notification held by [QueueTrackingService]:
+     * number, what to do now, and a running countdown while the check-in
+     * window is open. Like every other notification here it never names the
+     * restaurant (section 28.13).
+     */
+    fun buildLive(queue: ActiveQueue): Notification {
+        val entry = queue.entry
+        val text = when {
+            entry.status == QueueStatus.CALLED -> context.getString(R.string.live_check_in_now)
+            entry.status == QueueStatus.TABLE_READY -> context.getString(R.string.live_table_ready)
+            entry.status == QueueStatus.CHECKED_IN && entry.hasBeenCalled ->
+                context.getString(R.string.live_checked_in)
+            queue.peopleAhead == 0 -> context.getString(R.string.live_youre_next)
+            else -> context.getString(
+                R.string.live_ahead_and_wait,
+                queue.peopleAhead,
+                QueueNotificationCopy.waitTimeText(context, queue.estimatedWaitMinutes)
+            )
+        }
+
+        val builder = NotificationCompat.Builder(context, Constants.CHANNEL_QUEUE_LIVE)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.live_title, queue.queueNumber))
+            .setContentText(text)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setContentIntent(openAppIntent(entry.id, type = null, requestCode = LIVE_REQUEST_CODE))
+
+        val deadline = entry.checkInDeadline
+        if (entry.status == QueueStatus.CALLED && deadline != null) {
+            // The system ticks the countdown itself; no wake-ups needed.
+            builder.setWhen(deadline.toEpochMilli())
+                .setShowWhen(true)
+                .setUsesChronometer(true)
+                .setChronometerCountDown(true)
+        } else if (queue.showsLinePosition) {
+            val total = (queue.peopleAhead + 1).coerceAtLeast(1)
+            builder.setProgress(total, 1, false)
+        }
+
+        return builder.build()
+    }
+
+    private val NotificationType.isUrgent: Boolean
+        get() = this == NotificationType.CALLED || this == NotificationType.RETURN_NOW ||
+            this == NotificationType.TABLE_READY || this == NotificationType.EXPIRED
+
+    private fun priorityFor(type: NotificationType): Int = when {
+        type.isUrgent -> NotificationCompat.PRIORITY_HIGH
+        type == NotificationType.ALMOST_THERE -> NotificationCompat.PRIORITY_DEFAULT
         else -> NotificationCompat.PRIORITY_LOW
     }
 
-    private fun openAppIntent(notification: AppNotification): PendingIntent {
+    private fun openAppIntent(notification: AppNotification): PendingIntent =
+        openAppIntent(notification.queueId, notification.type, notification.id.hashCode())
+
+    private fun openAppIntent(
+        queueId: String?,
+        type: NotificationType?,
+        requestCode: Int
+    ): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(Constants.EXTRA_QUEUE_ID, notification.queueId)
-            putExtra(Constants.EXTRA_NOTIFICATION_TYPE, notification.type.name)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(Constants.EXTRA_QUEUE_ID, queueId)
+            type?.let { putExtra(Constants.EXTRA_NOTIFICATION_TYPE, it.name) }
         }
         return PendingIntent.getActivity(
             context,
-            notification.id.hashCode(),
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
-    @Suppress("unused")
-    private fun Notification.unused() = Unit
+    private companion object {
+        const val LIVE_REQUEST_CODE = 7_001
+    }
 }

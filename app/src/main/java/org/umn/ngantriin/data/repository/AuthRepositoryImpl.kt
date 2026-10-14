@@ -90,4 +90,9 @@ class AuthRepositoryImpl(
         val id = remote.currentUserId() ?: return@runCatchingOutcome
         remote.updatePushToken(id, token)
     }
+
+    override suspend fun syncLocale(locale: String): Outcome<Unit> = runCatchingOutcome {
+        val id = remote.currentUserId() ?: return@runCatchingOutcome
+        remote.updateLocale(id, locale)
+    }
 }

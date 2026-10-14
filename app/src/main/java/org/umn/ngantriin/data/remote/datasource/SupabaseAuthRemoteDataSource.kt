@@ -11,10 +11,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.umn.ngantriin.data.mapper.toDomain
 import org.umn.ngantriin.data.remote.dto.FcmTokenUpdateDto
+import org.umn.ngantriin.data.remote.dto.LocaleUpdateDto
 import org.umn.ngantriin.data.remote.dto.UserDto
 import org.umn.ngantriin.data.remote.dto.UserProfileUpdateDto
 import org.umn.ngantriin.domain.model.User
-import org.umn.ngantriin.domain.model.UserRole
 
 class SupabaseAuthRemoteDataSource(
     private val client: SupabaseClient
@@ -49,10 +49,11 @@ class SupabaseAuthRemoteDataSource(
             this.email = email.trim()
             this.password = password
             // Read by the handle_new_user trigger, so the profile row exists
-            // before the client ever asks for it.
+            // before the client ever asks for it. The role is not sent: the
+            // trigger always creates a CUSTOMER (0012), staff access is
+            // granted by an admin via restaurant_staff.
             data = buildJsonObject {
                 put("name", name.trim())
-                put("role", UserRole.CUSTOMER.wireValue)
             }
         }
 
@@ -88,6 +89,12 @@ class SupabaseAuthRemoteDataSource(
 
     override suspend fun updatePushToken(userId: String, token: String) {
         client.from("users").update(FcmTokenUpdateDto(token)) {
+            filter { eq("id", userId) }
+        }
+    }
+
+    override suspend fun updateLocale(userId: String, locale: String) {
+        client.from("users").update(LocaleUpdateDto(locale)) {
             filter { eq("id", userId) }
         }
     }

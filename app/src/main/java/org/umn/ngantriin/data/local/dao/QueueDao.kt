@@ -31,18 +31,26 @@ interface QueueDao {
         """
         SELECT * FROM queue_entries
         WHERE userId = :userId
-          AND status IN ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN')
+          AND status IN ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN', 'TABLE_READY')
         ORDER BY joinedAt DESC
         LIMIT 1
         """
     )
     fun observeActive(userId: String): Flow<QueueEntryEntity?>
 
+    /**
+     * The customer's most recent ticket, live or finished. This is what lets
+     * the app notice a ticket *ending* (completed, expired) — the moment it
+     * drops out of [observeActive].
+     */
+    @Query("SELECT * FROM queue_entries WHERE userId = :userId ORDER BY joinedAt DESC LIMIT 1")
+    fun observeLatest(userId: String): Flow<QueueEntryEntity?>
+
     @Query(
         """
         SELECT * FROM queue_entries
         WHERE restaurantId = :restaurantId
-          AND status IN ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN')
+          AND status IN ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN', 'TABLE_READY')
         ORDER BY ticketSequence
         """
     )
@@ -71,6 +79,20 @@ interface QueueDao {
         """
     )
     fun observeHistory(userId: String): Flow<List<QueueHistoryRow>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT q.*,
+               r.name AS restaurantName,
+               r.imageUrl AS restaurantImageUrl,
+               EXISTS(SELECT 1 FROM reviews rv WHERE rv.queueId = q.id) AS hasReview
+        FROM queue_entries q
+        LEFT JOIN restaurants r ON r.id = q.restaurantId
+        WHERE q.id = :queueId
+        """
+    )
+    fun observeHistoryItem(queueId: String): Flow<QueueHistoryRow?>
 
     @Query("DELETE FROM queue_entries WHERE restaurantId = :restaurantId AND id NOT IN (:keepIds)")
     suspend fun deleteStaleForRestaurant(restaurantId: String, keepIds: List<String>)

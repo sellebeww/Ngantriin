@@ -51,7 +51,8 @@ data class RestaurantDto(
     @SerialName("queue_prefix") val queuePrefix: String = "A",
     @SerialName("queue_capacity") val queueCapacity: Int = 50,
     @SerialName("checkin_radius_meters") val checkInRadiusMeters: Int = 150,
-    @SerialName("available_seats") val availableSeats: Int = 0
+    @SerialName("available_seats") val availableSeats: Int = 0,
+    @SerialName("checkin_window_minutes") val checkInWindowMinutes: Int = 10
 )
 
 @Serializable
@@ -79,7 +80,10 @@ data class QueueDto(
     @SerialName("checked_in_at") val checkedInAt: String? = null,
     @SerialName("completed_at") val completedAt: String? = null,
     @SerialName("cancelled_at") val cancelledAt: String? = null,
-    @SerialName("check_in_photo_url") val checkInPhotoUrl: String? = null
+    @SerialName("check_in_photo_url") val checkInPhotoUrl: String? = null,
+    @SerialName("check_in_deadline") val checkInDeadline: String? = null,
+    @SerialName("table_ready_at") val tableReadyAt: String? = null,
+    @SerialName("expired_at") val expiredAt: String? = null
 )
 
 /** Return shape of the `queue_position` SQL function. */
@@ -110,6 +114,18 @@ data class ReviewInsertDto(
     @SerialName("queue_id") val queueId: String,
     val rating: Int,
     val review: String
+)
+
+/** Only the editable columns (0012 grants UPDATE on exactly these). */
+@Serializable
+data class ReviewUpdateDto(
+    val rating: Int,
+    val review: String
+)
+
+@Serializable
+data class LocaleUpdateDto(
+    val locale: String
 )
 
 @Serializable

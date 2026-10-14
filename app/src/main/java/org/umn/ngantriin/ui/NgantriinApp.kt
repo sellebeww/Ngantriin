@@ -20,11 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.umn.ngantriin.R
+import org.umn.ngantriin.core.LanguageManager
 import org.umn.ngantriin.di.AppContainer
 import org.umn.ngantriin.di.LocalAppContainer
+import org.umn.ngantriin.domain.model.NotificationType
+import org.umn.ngantriin.domain.model.QueueEntry
+import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.UserRole
+import org.umn.ngantriin.notification.QueueTrackingService
 import org.umn.ngantriin.domain.repository.SessionState
 import org.umn.ngantriin.navigation.BottomTab
 import org.umn.ngantriin.navigation.NgantriinBottomBar
@@ -41,16 +50,21 @@ import org.umn.ngantriin.ui.theme.NgantriinTheme
  * themselves. Signing out anywhere therefore lands on login, and signing in
  * lands on the right home for the role.
  */
+/** A notification tap: which ticket, and what happened to it. */
+data class NotificationLaunch(val queueId: String, val type: NotificationType?)
+
 @Composable
 fun NgantriinApp(
     container: AppContainer,
-    pendingQueueId: String? = null
+    pendingLaunch: NotificationLaunch? = null,
+    onLaunchHandled: () -> Unit = {}
 ) {
     CompositionLocalProvider(LocalAppContainer provides container) {
         NgantriinTheme {
             val navController = rememberNavController()
             val snackbarHostState = remember { SnackbarHostState() }
             val scope = rememberCoroutineScope()
+            val context = LocalContext.current
 
             val session by container.authRepository.sessionState
                 .collectAsStateWithLifecycle(SessionState.Loading)
@@ -85,10 +99,28 @@ fun NgantriinApp(
                 }
             }
 
-            // Opened from a push: jump straight to the ticket it is about.
-            LaunchedEffect(pendingQueueId, area) {
-                if (pendingQueueId != null && area == Routes.HOME) {
-                    navController.navigateToTab(Routes.ACTIVE_QUEUE)
+            // Opened from a notification: jump straight to what it is about.
+            LaunchedEffect(pendingLaunch, area) {
+                val launch = pendingLaunch ?: return@LaunchedEffect
+                if (area != Routes.HOME) return@LaunchedEffect
+                when (launch.type) {
+                    NotificationType.COMPLETED ->
+                        navController.navigate(Routes.queueCompleted(launch.queueId)) { launchSingleTop = true }
+                    NotificationType.EXPIRED, NotificationType.CANCELLED ->
+                        navController.navigate(Routes.historyDetail(launch.queueId)) { launchSingleTop = true }
+                    else -> navController.navigateToTab(Routes.ACTIVE_QUEUE)
+                }
+                onLaunchHandled()
+            }
+
+            val signedInUserId = (session as? SessionState.SignedIn)?.user?.id
+
+            // The backend writes pushes in the language the app is showing.
+            // Re-run on every (re)composition root — a language change
+            // recreates the activity, so this follows it.
+            LaunchedEffect(signedInUserId) {
+                if (signedInUserId != null) {
+                    container.authRepository.syncLocale(LanguageManager.effective(context))
                 }
             }
 
@@ -96,13 +128,55 @@ fun NgantriinApp(
             val currentRoute = backStackEntry?.destination?.route
             val showBottomBar = currentRoute in BottomTab.routes
 
-            val activeQueue by remember(container, session) {
-                when (val state = session) {
-                    is SessionState.SignedIn ->
-                        container.queueRepository.observeActiveQueue(state.user.id)
-                    else -> kotlinx.coroutines.flow.flowOf(null)
-                }
+            val activeQueue by remember(container, signedInUserId) {
+                signedInUserId?.let { container.queueRepository.observeActiveQueue(it) }
+                    ?: flowOf(null)
             }.collectAsStateWithLifecycle(null)
+
+            // Section 15: a live ticket keeps tracking after the app leaves
+            // the screen. Started from here because Android only allows a
+            // foreground service to start while the app is visible.
+            val liveTicketId = activeQueue?.entry?.id
+            LaunchedEffect(liveTicketId) {
+                if (liveTicketId != null) QueueTrackingService.start(context)
+            }
+
+            // React to the ticket *ending*: completed -> thank-you and review,
+            // expired or removed -> say so instead of silently emptying the
+            // queue tab.
+            val latestTicket by remember(container, signedInUserId) {
+                signedInUserId?.let { container.queueRepository.observeLatestTicket(it) }
+                    ?: flowOf(null)
+            }.collectAsStateWithLifecycle(null)
+            var lastSeenTicket by remember { mutableStateOf<QueueEntry?>(null) }
+            // Resolved in composition (like NgantriinNavHost's errors) so the
+            // copy follows a language change instead of going stale.
+            var outcomeMessage by remember { mutableStateOf<Pair<Int, String>?>(null) }
+            val outcomeText = outcomeMessage?.let { (res, number) -> stringResource(res, number) }
+            LaunchedEffect(outcomeText) {
+                if (outcomeText != null) {
+                    snackbarHostState.showSnackbar(outcomeText)
+                    outcomeMessage = null
+                }
+            }
+            LaunchedEffect(latestTicket) {
+                val previous = lastSeenTicket
+                val current = latestTicket
+                lastSeenTicket = current
+                if (area != Routes.HOME || current == null || previous == null) return@LaunchedEffect
+                if (previous.id != current.id || !previous.isActive || current.isActive) return@LaunchedEffect
+
+                when (current.status) {
+                    QueueStatus.COMPLETED ->
+                        navController.navigate(Routes.queueCompleted(current.id)) { launchSingleTop = true }
+                    QueueStatus.EXPIRED ->
+                        outcomeMessage = R.string.ticket_expired_message to current.queueNumber
+                    QueueStatus.CANCELLED -> if (!container.queueRepository.wasLeftByCustomer(current.id)) {
+                        outcomeMessage = R.string.ticket_cancelled_by_restaurant to current.queueNumber
+                    }
+                    else -> Unit
+                }
+            }
 
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,

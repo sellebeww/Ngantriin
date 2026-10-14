@@ -2,7 +2,7 @@
 -- NGANTRIIN — RLS isolation tests.
 --
 -- HOW TO RUN: paste into the Supabase SQL editor of a real project (after
--- applying all migrations through 0007), or `psql "$DATABASE_URL" -f
+-- applying all migrations through 0012), or `psql "$DATABASE_URL" -f
 -- supabase/tests/rls_test.sql`. Everything runs inside one transaction and
 -- ends with `rollback`, so it never leaves fixture data behind — safe to run
 -- against a project with real data, including production, though a scratch/
@@ -134,9 +134,15 @@ begin
         raise exception 'FAILED case 3a: staff of restaurant X could see restaurant Y''s ticket';
     end if;
 
-    update public.queues set party_size = 99
-    where id = 'e0000000-0000-4000-8000-00000000000e';
-    get diagnostics v_updated = row_count;
+    -- Since 0012 nobody may UPDATE queues directly (every change goes
+    -- through an RPC), so this is either refused outright or matches 0 rows.
+    begin
+        update public.queues set party_size = 99
+        where id = 'e0000000-0000-4000-8000-00000000000e';
+        get diagnostics v_updated = row_count;
+    exception when insufficient_privilege then
+        v_updated := 0;
+    end;
 
     if v_updated <> 0 then
         raise exception 'FAILED case 3b: staff of restaurant X updated restaurant Y''s ticket';
@@ -149,6 +155,6 @@ reset role;
 reset request.jwt.claims;
 
 -- All three cases raise on failure, so reaching here means everything passed.
-raise notice 'All RLS isolation cases passed.';
+do $$ begin raise notice 'All RLS isolation cases passed.'; end $$;
 
 rollback;

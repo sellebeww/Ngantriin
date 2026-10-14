@@ -13,6 +13,12 @@
     <!-- Section 15. Optional: a refusal only silences the system tray. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Live queue tracking while the app is in the background (section 15):
+         keeps the queue moving in an ongoing notification and lets the local
+         milestone alerts fire without the app on screen. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+
     <!-- Check-in verification: the customer photographs themselves at the
          restaurant instead of relying on a GPS distance check. -->
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -56,6 +62,16 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
+        </service>
+
+        <!-- Section 15: the live queue while the customer is away. -->
+        <service
+                android:name=".notification.QueueTrackingService"
+                android:exported="false"
+                android:foregroundServiceType="specialUse">
+            <property
+                    android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                    android:value="Live restaurant queue position and check-in countdown while the customer waits away from the restaurant."/>
         </service>
 
         <meta-data

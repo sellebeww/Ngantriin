@@ -49,6 +49,12 @@ object ErrorMapper {
             message.contains("ILLEGAL_TRANSITION") -> AppError.Server("illegal transition")
 
             message.contains("PHOTO_REQUIRED") -> AppError.PhotoRequired
+            message.contains("PHOTO_NOT_UPLOADED") -> AppError.PhotoNotUploaded
+            message.contains("CHECK_IN_EXPIRED") -> AppError.CheckInExpired
+            message.contains("CHECK_IN_NOT_ALLOWED") -> AppError.CheckInNotAllowed
+            message.contains("INVALID_PARTY_SIZE") -> AppError.InvalidPartySize
+            message.contains("REVIEW_EXISTS") ||
+                message.contains("reviews_queue_id_key") -> AppError.ReviewNotAllowed
 
             message.contains("NOT_AUTHENTICATED", ignoreCase = true) ||
                 message.contains("JWT expired", ignoreCase = true) ||

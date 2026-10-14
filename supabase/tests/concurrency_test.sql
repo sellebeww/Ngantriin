@@ -128,7 +128,9 @@ rollback;
 --   -- leave open
 --
 -- Session B (while A is open):
---   select public.check_in_queue('<ticket id>', 'test-photo-path.jpg');
+--   select public.check_in_queue('<ticket id>', '<restaurant id>/<ticket id>/<uploaded>.jpg');
+--   -- (since 0012 the path must be a real object in the checkin-photos
+--   -- bucket under {restaurant_id}/{queue_id}/, otherwise PHOTO_NOT_UPLOADED)
 --   -- Expected: B blocks until A commits or rolls back (the `for update` in
 --   -- 0006's check_in_queue), rather than reading a pre-commit CALLED status
 --   -- that A might still roll back.

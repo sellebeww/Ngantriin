@@ -46,6 +46,17 @@ sealed class AppError(
     /** Check-in attempted before the restaurant called the ticket. */
     data object QueueNotCalled : AppError(R.string.error_queue_not_called)
 
+    /** Section 16: called, but the check-in window ran out. */
+    data object CheckInExpired : AppError(R.string.error_check_in_expired)
+
+    /** Check-in attempted from a status that doesn't allow it. */
+    data object CheckInNotAllowed : AppError(R.string.error_check_in_not_allowed)
+
+    /** The backend found no uploaded photo for this ticket. */
+    data object PhotoNotUploaded : AppError(R.string.error_photo_not_uploaded)
+
+    data object InvalidPartySize : AppError(R.string.error_invalid_party_size)
+
     data object QueueNotCancellable : AppError(R.string.error_queue_not_cancellable)
 
     data object QueueEmpty : AppError(R.string.error_queue_empty)

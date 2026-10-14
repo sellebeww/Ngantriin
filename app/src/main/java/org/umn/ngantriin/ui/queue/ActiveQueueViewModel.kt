@@ -84,6 +84,16 @@ class ActiveQueueViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ActiveQueueUiState())
 
+    /**
+     * Section 16: the countdown on screen reached zero. Ask the backend to
+     * settle it now rather than waiting for its scheduled sweep; the ticket
+     * then flips to EXPIRED through the normal realtime path.
+     */
+    fun onCheckInWindowClosed() {
+        val restaurantId = uiState.value.queue?.restaurant?.id ?: return
+        viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
+    }
+
     /** Section 18. Only reached after the confirmation dialog. */
     fun leaveQueue() {
         val queueId = uiState.value.queue?.entry?.id ?: return

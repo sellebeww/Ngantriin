@@ -139,8 +139,7 @@ fun SearchScreen(
 
         SortRow(
             selected = state.filters.sort,
-            onSelect = viewModel::onSortChange,
-            modifier = Modifier.padding(horizontal = Spacing.screenGutter)
+            onSelect = viewModel::onSortChange
         )
 
         Spacer(Modifier.height(Spacing.md))

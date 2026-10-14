@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.R
 import org.umn.ngantriin.ui.components.NgantriinLogo
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /** Shared chrome for the sign-in and sign-up screens (section 7). */
 @Composable
@@ -65,7 +66,7 @@ fun AuthScaffold(
 
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             NgantriinLogo(modifier = Modifier.width(164.dp).height(132.dp))
 
@@ -75,14 +76,15 @@ fun AuthScaffold(
                 text = title,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(Spacing.xs))
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.balanced(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = Spacing.lg)
             )
         }
 

@@ -49,6 +49,9 @@ object Routes {
     const val QUEUE_COMPLETED = "queue_completed/{$ARG_QUEUE_ID}"
     fun queueCompleted(queueId: String) = "queue_completed/$queueId"
 
+    const val HISTORY_DETAIL = "history_detail/{$ARG_QUEUE_ID}"
+    fun historyDetail(queueId: String) = "history_detail/$queueId"
+
     const val REVIEW = "review/{$ARG_QUEUE_ID}"
     fun review(queueId: String) = "review/$queueId"
 

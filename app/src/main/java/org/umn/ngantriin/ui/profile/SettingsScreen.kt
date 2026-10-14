@@ -215,7 +215,8 @@ fun SettingsScreen(
                     Column(Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.settings_backend),
-                            style = MaterialTheme.typography.titleSmall,
+                            // Same weight as the other rows' titles.
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
@@ -236,7 +237,7 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.settings_version),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(Modifier.height(Spacing.xxxl))

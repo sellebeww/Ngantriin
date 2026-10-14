@@ -24,6 +24,7 @@ import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Screen 13. The hand-off from "you were served" to "tell us how it went"
@@ -42,7 +43,9 @@ fun QueueCompletedScreen(
         modifier = modifier.padding(horizontal = Spacing.screenGutter),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(Spacing.huge))
+        // Centred in the space above the button; weighted slightly high, which
+        // is where the eye expects the middle of a success screen to be.
+        Spacer(Modifier.weight(0.8f))
 
         Box(
             modifier = Modifier
@@ -69,12 +72,12 @@ fun QueueCompletedScreen(
         Spacer(Modifier.height(Spacing.sm))
         Text(
             text = stringResource(R.string.completed_body),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(1.2f))
 
         PrimaryButton(
             text = stringResource(R.string.active_queue_rate_experience),

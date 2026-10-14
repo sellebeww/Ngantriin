@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.TableRestaurant
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -165,10 +167,26 @@ fun StaffCustomerDetailScreen(
                     value = dateTimeText(it)
                 )
             }
+            if (entry.status == QueueStatus.CALLED) {
+                entry.checkInDeadline?.let {
+                    InfoRow(
+                        icon = Icons.Filled.Timer,
+                        label = stringResource(R.string.staff_deadline_label),
+                        value = dateTimeText(it)
+                    )
+                }
+            }
             entry.checkedInAt?.let {
                 InfoRow(
                     icon = Icons.AutoMirrored.Filled.Login,
                     label = stringResource(R.string.staff_checked_in_label),
+                    value = dateTimeText(it)
+                )
+            }
+            entry.tableReadyAt?.let {
+                InfoRow(
+                    icon = Icons.Filled.TableRestaurant,
+                    label = stringResource(R.string.staff_table_ready_label),
                     value = dateTimeText(it)
                 )
             }
@@ -214,6 +232,12 @@ fun StaffCustomerDetailScreen(
                     )
                     Spacer(Modifier.height(Spacing.md))
                     SecondaryButton(
+                        text = stringResource(R.string.staff_mark_arrived),
+                        onClick = { viewModel.updateStatus(entry.id, QueueStatus.CHECKED_IN) },
+                        enabled = !state.isWorking
+                    )
+                    Spacer(Modifier.height(Spacing.md))
+                    SecondaryButton(
                         text = stringResource(R.string.staff_remove_from_queue),
                         onClick = { viewModel.updateStatus(entry.id, QueueStatus.CANCELLED) },
                         enabled = !state.isWorking
@@ -221,8 +245,9 @@ fun StaffCustomerDetailScreen(
                 }
 
                 QueueStatus.CALLED -> {
+                    // For a guest who arrived without opening the app.
                     PrimaryButton(
-                        text = stringResource(R.string.staff_mark_seated),
+                        text = stringResource(R.string.staff_mark_arrived),
                         onClick = { viewModel.updateStatus(entry.id, QueueStatus.CHECKED_IN) },
                         enabled = !state.isWorking
                     )
@@ -234,13 +259,35 @@ fun StaffCustomerDetailScreen(
                     )
                 }
 
-                QueueStatus.CHECKED_IN -> PrimaryButton(
-                    text = stringResource(R.string.staff_mark_completed),
-                    onClick = { viewModel.updateStatus(entry.id, QueueStatus.COMPLETED) },
-                    enabled = !state.isWorking
-                )
+                QueueStatus.CHECKED_IN -> {
+                    PrimaryButton(
+                        text = stringResource(R.string.staff_mark_table_ready),
+                        onClick = { viewModel.updateStatus(entry.id, QueueStatus.TABLE_READY) },
+                        enabled = !state.isWorking
+                    )
+                    Spacer(Modifier.height(Spacing.md))
+                    SecondaryButton(
+                        text = stringResource(R.string.staff_remove_from_queue),
+                        onClick = { viewModel.updateStatus(entry.id, QueueStatus.CANCELLED) },
+                        enabled = !state.isWorking
+                    )
+                }
 
-                QueueStatus.COMPLETED, QueueStatus.CANCELLED -> Text(
+                QueueStatus.TABLE_READY -> {
+                    PrimaryButton(
+                        text = stringResource(R.string.staff_mark_completed),
+                        onClick = { viewModel.updateStatus(entry.id, QueueStatus.COMPLETED) },
+                        enabled = !state.isWorking
+                    )
+                    Spacer(Modifier.height(Spacing.md))
+                    SecondaryButton(
+                        text = stringResource(R.string.staff_action_no_show),
+                        onClick = { viewModel.updateStatus(entry.id, QueueStatus.CANCELLED) },
+                        enabled = !state.isWorking
+                    )
+                }
+
+                QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.EXPIRED -> Text(
                     text = stringResource(R.string.staff_ticket_finished),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

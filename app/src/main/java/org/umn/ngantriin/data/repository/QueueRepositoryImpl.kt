@@ -56,6 +56,9 @@ class QueueRepositoryImpl(
      */
     private val positions = MutableStateFlow<Map<String, QueuePosition>>(emptyMap())
 
+    /** Tickets this device cancelled — see [wasLeftByCustomer]. */
+    private val leftByCustomer = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
     override fun observeActiveQueue(userId: String): Flow<ActiveQueue?> = channelFlow {
         val entryFlow = queueDao.observeActive(userId)
             .map { it?.toDomain() }
@@ -133,9 +136,19 @@ class QueueRepositoryImpl(
             }
         }
 
+    override fun observeLatestTicket(userId: String): Flow<QueueEntry?> =
+        queueDao.observeLatest(userId)
+            .map { it?.toDomain() }
+            .distinctUntilChanged()
+
     override fun observeHistory(userId: String): Flow<List<QueueHistoryItem>> =
         queueDao.observeHistory(userId)
             .map { rows -> rows.map { it.toDomain() } }
+            .distinctUntilChanged()
+
+    override fun observeHistoryItem(queueId: String): Flow<QueueHistoryItem?> =
+        queueDao.observeHistoryItem(queueId)
+            .map { it?.toDomain() }
             .distinctUntilChanged()
 
     override suspend fun refreshHistory(userId: String): Outcome<Unit> = runCatchingOutcome {
@@ -159,7 +172,10 @@ class QueueRepositoryImpl(
         entry
     }
 
+    override fun wasLeftByCustomer(queueId: String): Boolean = queueId in leftByCustomer
+
     override suspend fun leaveQueue(queueId: String): Outcome<QueueEntry> {
+        leftByCustomer += queueId
         val outcome = runCatchingOutcome {
             val entry = remote.leaveQueue(queueId)
             queueDao.upsert(entry.toEntity())
@@ -208,6 +224,20 @@ class QueueRepositoryImpl(
         queueDao.upsert(entry.toEntity())
         syncRestaurantQueue(entry.restaurantId)
         entry
+    }
+
+    override suspend fun expireOverdue(restaurantId: String): Outcome<Unit> = runCatchingOutcome {
+        remote.expireOverdue(restaurantId)
+        // Realtime delivers the change too; re-reading the called tickets we
+        // hold just means the screen settles without waiting for it. RLS
+        // decides which of them this account may see.
+        queueDao.findAllForRestaurant(restaurantId)
+            .filter { it.status == QueueStatus.CALLED.wireValue }
+            .forEach { cached ->
+                runCatching { remote.fetchQueue(cached.id) }
+                    .onSuccess { queueDao.upsert(it.toEntity()) }
+            }
+        syncRestaurant(restaurantId)
     }
 
     // -------------------------------------------------------------------------

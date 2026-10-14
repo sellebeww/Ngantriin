@@ -51,11 +51,20 @@ Firebase Cloud Messaging.
   status buka/tutup, dan nomor yang sedang dilayani.
 - **Ambil antrean dari HP**: pilih jumlah orang, nomor antrean dibuat oleh
   server (bukan klien), jadi tidak bisa bentrok.
-- **Notifikasi bertahap**: pelanggan diberi tahu saat giliran mendekat dan saat
-  dipanggil. Isi notifikasi tidak pernah menyebut nama restoran.
-- **Check-in dengan foto**: setelah dipanggil, pelanggan memotret dirinya di
-  restoran sebagai bukti kehadiran.
-- **Riwayat dan ulasan**: lihat antrean sebelumnya dan beri ulasan restoran.
+- **Notifikasi bertahap**: pelanggan diberi tahu saat giliran mendekat, saat
+  dipanggil, saat check-in berhasil, saat meja siap, dan saat kunjungan selesai.
+  Isi notifikasi tidak pernah menyebut nama restoran.
+- **Antrean live di bilah notifikasi**: selama punya tiket aktif, posisi dan
+  hitung mundur check-in tetap terlihat walau aplikasi ditutup.
+- **Check-in dengan foto, batas 10 menit**: setelah dipanggil, pelanggan punya
+  10 menit untuk check-in (memotret dirinya di restoran). Lewat dari itu, tiket
+  **hangus** otomatis. Yang sudah sampai lebih awal boleh check-in kapan saja
+  tanpa kehilangan urutan.
+- **Meja siap**: setelah check-in, pelanggan menunggu sampai staf menandai
+  mejanya siap, lalu diberi tahu untuk menemui staf.
+- **Riwayat dan ulasan**: daftar kunjungan dengan filter (selesai, batal &
+  hangus), halaman detail berisi linimasa lengkap dan ulasan yang pernah
+  diberikan. Setelah kunjungan selesai, aplikasi langsung menawarkan ulasan.
 - **Tahan offline**: tanpa internet, aplikasi tetap menampilkan data terakhir,
   dan aksi yang tertunda dikirim otomatis begitu online lagi.
 - **Dua bahasa** yang bisa dipilih per aplikasi, terpisah dari bahasa sistem.
@@ -63,10 +72,14 @@ Firebase Cloud Messaging.
 **Untuk staf restoran**
 
 - Dashboard per restoran: nomor yang dilayani, nomor berikutnya, dan jumlah
-  menunggu / dipanggil / sedang dilayani.
-- **Call next** untuk memanggil antrean berikutnya dengan satu ketukan.
-- Kelola tiap tiket: **Call**, **Remove**, atau **Complete**.
-- Tinjau foto check-in sebelum tiket dianggap sudah duduk.
+  menunggu / dipanggil / di lokasi.
+- **Call next** untuk memanggil antrean berikutnya dengan satu ketukan. Kalau
+  pelanggan berikutnya sudah check-in lebih awal, mejanya langsung ditandai siap.
+- Antrean dikelompokkan per tahap: **Meja siap**, **Sudah datang**,
+  **Dipanggil** (dengan sisa waktu check-in), dan **Menunggu**.
+- Aksi per tiket sesuai tahap: panggil, tandai sudah datang, meja siap, sudah
+  duduk (selesai), tidak hadir, atau hapus.
+- Tinjau foto check-in pelanggan.
 
 **Pencegahan penyalahgunaan**
 
@@ -74,6 +87,9 @@ Firebase Cloud Messaging.
   database, bukan hanya cek di aplikasi).
 - Jeda 60 detik setelah membatalkan sebelum boleh antre lagi di restoran yang
   sama, untuk mencegah spam join → cancel → join.
+- Jam buka dicek di server, bukan hanya di aplikasi.
+- Foto check-in harus benar-benar terunggah untuk tiket itu; role staf tidak
+  bisa diubah sendiri; ulasan hanya bisa diubah rating dan isinya.
 
 ---
 
@@ -104,7 +120,12 @@ perangkat dengan Android API 27+.
 3. Buka **My Queue**. Status sudah `ALMOST_THERE` dan notifikasi terkirim,
    karena grup di depan kurang dari empat.
 4. Keluar, login sebagai `staff@tacolibre.id`, pilih **Taco Libre**, tekan
-   **Call next**, lalu lihat antrean bergerak.
+   **Call next** sampai giliranmu dipanggil.
+5. Login lagi sebagai `you@example.com`. Tiket berstatus **Giliranmu** dengan
+   hitung mundur 10 menit. Tekan **Check in now** dan ambil foto.
+6. Sebagai staf, tandai tiketmu **Meja siap**, lalu **Sudah duduk**. Aplikasi
+   pelanggan menampilkan "Mejamu sudah siap", lalu layar terima kasih dan
+   ajakan memberi ulasan.
 
 ---
 
@@ -128,9 +149,18 @@ supabase db push   # atau tempel isi supabase/migrations/*.sql ke SQL editor
 | `0006_checkin_photo.sql` | Check-in wajib foto: bucket Storage `checkin-photos` dan policy-nya |
 | `0007_join_queue_locking_and_cooldown.sql` | Row-lock pada `join_queue` dan jeda 60 detik setelah batal |
 | `0008_notifications_cleanup.sql` | `cleanup_old_notifications()` untuk menghapus notifikasi lama |
+| `0009_available_seats.sql` | Kursi kosong: walk-in tanpa antre |
+| `0010_more_restaurants.sql` | Restoran contoh tambahan |
+| `0011_queue_status_table_ready.sql` | Status baru `TABLE_READY` dan `EXPIRED` |
+| `0012_check_in_window_and_table_ready.sql` | Batas check-in 10 menit, check-in lebih awal, meja siap, jam buka di server, verifikasi foto, pengetatan RLS, webhook ber-secret, jadwal pg_cron |
 
-Dua berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
-`concurrency_test.sql`) menguji isolasi RLS dan perilaku locking/cooldown.
+> Aktifkan ekstensi **pg_cron** (Database → Extensions) sebelum menjalankan
+> 0012 agar tiket yang tidak check-in hangus tepat waktu. Tanpa pg_cron aturan
+> tetap berlaku, hanya dieksekusi saat ada aktivitas di antrean restoran itu.
+
+Tiga berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
+`concurrency_test.sql`, `journey_test.sql`) menguji isolasi RLS,
+locking/cooldown, dan seluruh alur dari antre sampai meja siap / hangus.
 Jalankan di SQL editor atau `psql`, bukan bagian dari tes Android.
 
 Lalu isi kredensial di `local.properties` (di-ignore git, tidak pernah
@@ -154,8 +184,8 @@ update users set role = 'STAFF' where id = '<auth user id>';
 ```
 
 Ini satu-satunya cara resmi menambah staf. Tabel `restaurant_staff` tidak punya
-policy INSERT/UPDATE/DELETE sama sekali, jadi tidak ada pengguna yang bisa
-menjadikan dirinya staf lewat aplikasi.
+policy INSERT/UPDATE/DELETE sama sekali, dan kolom `role` tidak bisa diubah
+dari aplikasi, jadi tidak ada pengguna yang bisa menjadikan dirinya staf.
 
 ### 2. Push notification
 
@@ -164,12 +194,24 @@ menjadikan dirinya staf lewat aplikasi.
 cp ~/Downloads/google-services.json app/
 
 supabase functions deploy queue-notifier --no-verify-jwt
-supabase secrets set FCM_PROJECT_ID=... FCM_SERVICE_ACCOUNT_JSON='{...}'
+supabase secrets set QUEUE_NOTIFIER_SECRET=<string acak> \
+    FCM_PROJECT_ID=... FCM_SERVICE_ACCOUNT_JSON='{...}'
 ```
 
-Sebelum FCM disambungkan, `QueueNotificationScheduler` menghitung milestone
-yang sama secara lokal selama aplikasi berjalan. Begitu FCM aktif, push yang
-mengambil alih.
+Lalu di SQL editor (secret yang sama):
+
+```sql
+alter database postgres set app.settings.functions_url =
+    'https://<project-ref>.supabase.co/functions/v1';
+alter database postgres set app.settings.queue_notifier_secret = '<string acak>';
+```
+
+Sebelum FCM disambungkan, notifikasi tetap jalan lewat jalur lokal:
+`QueueTrackingService` (foreground service selama ada tiket aktif) menjaga
+aplikasi tetap memantau antrean walau ditutup dari layar, dan
+`QueueNotificationScheduler` mengirim milestone yang sama. Jalur ini tidak
+bertahan setelah *force stop* atau restart HP; untuk itu FCM yang diperlukan.
+Detail lengkap ada di [docs/BACKEND.md](docs/BACKEND.md#notifications).
 
 ---
 
@@ -185,7 +227,8 @@ Tiga keputusan utama:
 - **Database yang memegang antrean.** Nomor antrean dibuat oleh `join_queue()`,
   bukan klien. Setiap perpindahan status lewat fungsi `SECURITY DEFINER` yang
   memeriksa aturan lagi, sehingga tabel tetap terkunci untuk penulisan
-  langsung. Check-in ditolak kalau belum ada foto.
+  langsung. Check-in ditolak kalau foto belum terunggah atau batas 10 menit
+  sudah lewat.
 - **UI hanya membaca dari Room.** Jaringan hanya menulis ke Room. Kalau request
   gagal, data lama tetap tampil, bukan layar kosong.
 - **Realtime hanya mengirim sinyal, bukan data.** Perubahan di Postgres memicu
@@ -201,7 +244,7 @@ SQL di [docs/BACKEND.md](docs/BACKEND.md).
 **Demo mode bukan jalan pintas.** `DemoBackend` mengimplementasikan interface
 `RemoteDataSource` yang sama dengan Supabase dan menerapkan aturan yang sama
 (nomor dari server, satu antrean aktif, tabel transisi status, foto wajib saat
-check-in). Jadi demo tidak bisa diam-diam menyimpang dari backend asli. Di demo
+check-in, batas waktu check-in, meja siap). Jadi demo tidak bisa diam-diam menyimpang dari backend asli. Di demo
 mode, "foto" check-in hanya berupa penanda, tetapi langkah kameranya tetap
 berjalan sungguhan.
 
@@ -215,7 +258,7 @@ org.umn.ngantriin
 ├── domain/          Model (state machine antrean, QueueMath) dan interface repository
 ├── data/            Room, DataStore, Supabase, demo backend, mapper, repository
 ├── location/        Lokasi dan jarak (urutan terdekat, jarak di detail restoran)
-├── notification/    Layanan FCM, channel, scheduler milestone
+├── notification/    Layanan FCM, antrean live (foreground service), channel, scheduler milestone
 ├── work/            WorkManager: sinkronisasi dan antrean penulisan offline
 ├── navigation/      Rute, NavHost, bottom bar
 ├── di/              AppContainer
@@ -231,7 +274,7 @@ supabase/
 ## Tes
 
 ```bash
-./gradlew :app:testDebugUnitTest          # 41 unit test
+./gradlew :app:testDebugUnitTest          # 51 unit test
 ./gradlew :app:connectedDebugAndroidTest  # 7 instrumented test, butuh perangkat
 ./gradlew :app:lintDebug
 ```

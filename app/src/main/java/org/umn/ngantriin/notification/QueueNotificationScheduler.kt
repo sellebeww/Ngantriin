@@ -5,40 +5,51 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.umn.ngantriin.data.local.dao.NotificationDao
 import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.domain.model.NotificationType
+import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.domain.model.QueueMath
+import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.repository.AuthRepository
 import org.umn.ngantriin.domain.repository.NotificationRepository
 import org.umn.ngantriin.domain.repository.QueueRepository
+import org.umn.ngantriin.domain.repository.RestaurantRepository
 import org.umn.ngantriin.domain.repository.SessionState
+import org.umn.ngantriin.domain.repository.UserPreferencesRepository
+import java.time.Duration
+import java.time.Instant
 
 /**
  * Section 37, local half.
  *
- * Push is the real delivery channel: a Supabase Edge Function watches the
+ * Push is the primary delivery channel: a Supabase Edge Function watches the
  * `queues` table and sends through FCM, which reaches the phone whether or not
  * the app is running. This scheduler covers the case where push is not wired
- * up yet — no google-services.json, or demo mode — by deriving the same
- * milestones from the same queue state while the app is in memory.
+ * up — no google-services.json, or demo mode — by deriving the same milestones
+ * from the same queue state while the process is alive. [QueueTrackingService]
+ * is what keeps the process alive once the app is backgrounded.
  *
  * Both paths write through [NotificationRepository] with the id
- * `"<queueId>:<TYPE>"`, which is the client-side mirror of the
- * `unique (queue_id, type)` constraint. That is what stops a notification
- * firing again every time the position happens to tick.
+ * `"<queueId>:<TYPE>"`, the client-side mirror of the `unique (queue_id, type)`
+ * constraint. That is what stops a notification firing again every time the
+ * position happens to tick.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class QueueNotificationScheduler(
     private val context: Context,
     private val authRepository: AuthRepository,
     private val queueRepository: QueueRepository,
+    private val restaurantRepository: RestaurantRepository,
     private val notificationRepository: NotificationRepository,
     private val notificationDao: NotificationDao,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val preferences: UserPreferencesRepository
 ) {
 
     fun start(scope: CoroutineScope) {
@@ -47,49 +58,78 @@ class QueueNotificationScheduler(
             return
         }
 
+        val userIds = authRepository.sessionState
+            .map { (it as? SessionState.SignedIn)?.user?.id }
+            .distinctUntilChanged()
+
+        // Live milestones: these need the line around the ticket.
         scope.launch {
-            authRepository.sessionState
-                .flatMapLatest { state ->
-                    when (state) {
-                        is SessionState.SignedIn ->
-                            queueRepository.observeActiveQueue(state.user.id)
-                        else -> flowOf(null)
-                    }
-                }
+            userIds
+                .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
                 .distinctUntilChanged()
                 .collect { queue -> queue?.let { notifyMilestone(it) } }
+        }
+
+        // Endings: a finished ticket drops out of the active flow, so watch
+        // the latest ticket instead.
+        scope.launch {
+            userIds
+                .flatMapLatest { id -> id?.let { queueRepository.observeLatestTicket(it) } ?: flowOf(null) }
+                .distinctUntilChanged()
+                .collect { entry -> entry?.let { notifyEnding(it) } }
         }
     }
 
     private suspend fun notifyMilestone(queue: ActiveQueue) {
         val userId = authRepository.currentUserOrNull()?.id ?: return
         val milestone = QueueMath.notificationMilestone(queue.status, queue.peopleAhead) ?: return
-        emit(userId, queue, milestone)
+        emit(QueueNotificationCopy.build(context, userId, queue, milestone))
 
         // Reaching CALLED implies the earlier milestones happened, even if the
         // app was closed when they did. Backfilling keeps the in-app list
         // readable as a history rather than a single orphaned entry.
         if (milestone == NotificationType.CALLED) {
-            emit(userId, queue, NotificationType.RETURN_NOW, silent = true)
-            emit(userId, queue, NotificationType.ALMOST_THERE, silent = true)
+            emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.RETURN_NOW), silent = true)
+            emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.ALMOST_THERE), silent = true)
         }
     }
 
+    private suspend fun notifyEnding(entry: QueueEntry) {
+        val type = when (entry.status) {
+            QueueStatus.COMPLETED -> NotificationType.COMPLETED
+            QueueStatus.EXPIRED -> NotificationType.EXPIRED
+            // Leaving on purpose needs no "your queue was cancelled" ping.
+            QueueStatus.CANCELLED ->
+                if (queueRepository.wasLeftByCustomer(entry.id)) return else NotificationType.CANCELLED
+            else -> return
+        }
+        // Only news if it just happened — a fresh install syncing last week's
+        // history must not light up the tray.
+        val finishedAt = entry.finishedAt ?: return
+        if (Duration.between(finishedAt, Instant.now()) > RECENT) return
+
+        val userId = authRepository.currentUserOrNull()?.id ?: return
+        if (entry.userId != userId) return
+        val window = restaurantRepository.observeRestaurant(entry.restaurantId).first()
+            ?.checkInWindowMinutes ?: QueueMath.DEFAULT_CHECK_IN_WINDOW_MINUTES
+        emit(QueueNotificationCopy.build(context, userId, entry, window, type))
+    }
+
     private suspend fun emit(
-        userId: String,
-        queue: ActiveQueue,
-        type: NotificationType,
+        notification: org.umn.ngantriin.domain.model.AppNotification,
         silent: Boolean = false
     ) {
-        val id = QueueNotificationCopy.idFor(queue.entry.id, type)
-        if (notificationDao.countById(id) > 0) return
-
-        val notification = QueueNotificationCopy.build(context, userId, queue, type)
+        if (notificationDao.countById(notification.id) > 0) return
         notificationRepository.record(notification)
-        if (!silent) notificationHelper.show(notification)
+        // Settings -> Queue notifications: the in-app list still records it,
+        // only the system tray stays quiet.
+        if (!silent && preferences.notificationsEnabled.first()) {
+            notificationHelper.show(notification)
+        }
     }
 
     private companion object {
         const val TAG = "Ngantriin"
+        val RECENT: Duration = Duration.ofMinutes(30)
     }
 }

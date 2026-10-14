@@ -14,6 +14,7 @@ import org.umn.ngantriin.domain.model.QueueStats
 import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.Restaurant
 import org.umn.ngantriin.domain.model.Review
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -23,8 +24,9 @@ import java.util.UUID
  *
  * It is not a shortcut around the real backend. It enforces the same rules the
  * SQL functions do — server-allocated ticket numbers, one active queue per
- * customer, the transition table in section 14, a distance test on check-in —
- * and it pushes change notifications through the same Flow contract Supabase
+ * customer, the transition table in section 14, the check-in window and its
+ * expiry, early check-in going straight to TABLE_READY when called — and it
+ * pushes change notifications through the same Flow contract Supabase
  * Realtime uses. Swapping the two out changes nothing above the data source.
  *
  * State is mirrored into Room so a demo queue survives a restart.
@@ -104,11 +106,13 @@ class DemoBackend(private val database: NgantriinDatabase) {
 
     suspend fun allStats(): List<QueueStats> {
         ensureReady()
+        restaurants.keys.toList().forEach { expireOverdue(it) }
         return restaurants.keys.map { statsFor(it) }
     }
 
     suspend fun stats(restaurantId: String): QueueStats {
         ensureReady()
+        expireOverdue(restaurantId)
         return statsFor(restaurantId)
     }
 
@@ -131,6 +135,7 @@ class DemoBackend(private val database: NgantriinDatabase) {
 
     suspend fun queueFor(restaurantId: String): List<QueueEntry> {
         ensureReady()
+        expireOverdue(restaurantId)
         return queues.values
             .filter { it.restaurantId == restaurantId }
             .sortedBy { it.ticketSequence }
@@ -138,6 +143,7 @@ class DemoBackend(private val database: NgantriinDatabase) {
 
     suspend fun position(queueId: String): QueuePosition {
         ensureReady()
+        queues[queueId]?.let { expireOverdue(it.restaurantId) }
         val entry = queues[queueId] ?: error("QUEUE_NOT_FOUND")
         val restaurant = restaurants.getValue(entry.restaurantId)
         val live = queues.values.filter { it.restaurantId == entry.restaurantId }
@@ -166,8 +172,13 @@ class DemoBackend(private val database: NgantriinDatabase) {
         return reviews.values.firstOrNull { it.queueId == queueId }
     }
 
+    suspend fun reviewsByUser(userId: String): List<Review> {
+        ensureReady()
+        return reviews.values.filter { it.userId == userId }.sortedByDescending { it.createdAt }
+    }
+
     // -------------------------------------------------------------------------
-    // Writes — these mirror 0002_queue_functions.sql
+    // Writes — these mirror 0012_check_in_window_and_table_ready.sql
     // -------------------------------------------------------------------------
 
     suspend fun joinQueue(
@@ -180,6 +191,12 @@ class DemoBackend(private val database: NgantriinDatabase) {
         if (!restaurant.isAcceptingQueue()) error("RESTAURANT_CLOSED")
         if (restaurant.hasAvailableSeats) error("SEATS_AVAILABLE")
         if (queues.values.any { it.userId == userId && it.status.isActive }) error("ALREADY_IN_QUEUE")
+        val recentlyCancelled = queues.values.any {
+            it.userId == userId && it.restaurantId == restaurantId &&
+                it.status == QueueStatus.CANCELLED &&
+                it.cancelledAt?.isAfter(Instant.now().minusSeconds(JOIN_COOLDOWN_SECONDS)) == true
+        }
+        if (recentlyCancelled) error("JOIN_COOLDOWN")
 
         val live = queues.values.filter { it.restaurantId == restaurantId }
         if (QueueMath.waitingCount(live) >= restaurant.queueCapacity) error("QUEUE_FULL")
@@ -208,24 +225,38 @@ class DemoBackend(private val database: NgantriinDatabase) {
     }
 
     suspend fun checkIn(userId: String, queueId: String, photoUrl: String): QueueEntry {
+        if (photoUrl.isBlank()) error("PHOTO_REQUIRED")
         val existing = queue(queueId)
         if (existing.userId != userId) error("QUEUE_NOT_FOUND")
-        if (existing.status != QueueStatus.CALLED) error("QUEUE_NOT_CALLED")
-        if (photoUrl.isBlank()) error("PHOTO_REQUIRED")
+        if (existing.isCheckInOverdue()) error("CHECK_IN_EXPIRED")
+        if (!existing.status.allowsCheckIn) error("CHECK_IN_NOT_ALLOWED")
 
         return transition(existing, QueueStatus.CHECKED_IN, checkInPhotoUrl = photoUrl)
     }
 
     suspend fun callNext(restaurantId: String): QueueEntry {
         ensureReady()
-        val next = queues.values
-            .filter {
-                it.restaurantId == restaurantId &&
-                    (it.status == QueueStatus.WAITING || it.status == QueueStatus.ALMOST_THERE)
-            }
-            .minByOrNull { it.ticketSequence }
+        expireOverdue(restaurantId)
+        val next = QueueMath.nextToCall(queues.values.filter { it.restaurantId == restaurantId })
             ?: error("QUEUE_EMPTY")
-        return transition(next, QueueStatus.CALLED)
+        // Already at the restaurant: nothing to wait for, the table is next.
+        val target = if (next.status == QueueStatus.CHECKED_IN) {
+            QueueStatus.TABLE_READY
+        } else {
+            QueueStatus.CALLED
+        }
+        return transition(next, target)
+    }
+
+    /** Mirrors `expire_overdue_queues`: CALLED past its window -> EXPIRED. */
+    suspend fun expireOverdue(restaurantId: String) {
+        ensureReady()
+        val now = Instant.now()
+        val overdue = queues.values.filter {
+            it.restaurantId == restaurantId && it.status == QueueStatus.CALLED &&
+                it.checkInDeadline?.let { deadline -> !deadline.isAfter(now) } == true
+        }
+        overdue.forEach { transition(it, QueueStatus.EXPIRED) }
     }
 
     suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry =
@@ -242,6 +273,7 @@ class DemoBackend(private val database: NgantriinDatabase) {
         if (entry.userId != userId || entry.status != QueueStatus.COMPLETED) {
             error("REVIEW_NOT_ALLOWED")
         }
+        if (reviews.values.any { it.queueId == queueId }) error("REVIEW_EXISTS")
         val review = Review(
             id = UUID.randomUUID().toString(),
             restaurantId = restaurantId,
@@ -253,19 +285,34 @@ class DemoBackend(private val database: NgantriinDatabase) {
         )
         mutex.withLock {
             reviews[review.id] = review
-            val venue = restaurants.getValue(restaurantId)
-            val venueReviews = reviews.values.filter { it.restaurantId == restaurantId }
-            restaurants[restaurantId] = venue.copy(
-                rating = venueReviews.map { it.rating }.average(),
-                ratingCount = venueReviews.size
-            )
-            database.restaurantDao().upsertRestaurants(
-                listOf(restaurants.getValue(restaurantId).toEntity())
-            )
+            recomputeRating(restaurantId)
             database.reviewDao().upsert(review.toEntity())
         }
         emitChange(restaurantId, setOf(userId))
         return review
+    }
+
+    suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review {
+        ensureReady()
+        val existing = reviews[reviewId] ?: error("REVIEW_NOT_FOUND")
+        val updated = existing.copy(rating = rating.coerceIn(1, 5), comment = comment.trim())
+        mutex.withLock {
+            reviews[reviewId] = updated
+            recomputeRating(existing.restaurantId)
+            database.reviewDao().upsert(updated.toEntity())
+        }
+        emitChange(existing.restaurantId, setOf(existing.userId))
+        return updated
+    }
+
+    private suspend fun recomputeRating(restaurantId: String) {
+        val venue = restaurants.getValue(restaurantId)
+        val venueReviews = reviews.values.filter { it.restaurantId == restaurantId }
+        restaurants[restaurantId] = venue.copy(
+            rating = venueReviews.map { it.rating }.average(),
+            ratingCount = venueReviews.size
+        )
+        database.restaurantDao().upsertRestaurants(listOf(restaurants.getValue(restaurantId).toEntity()))
     }
 
     // -------------------------------------------------------------------------
@@ -281,12 +328,25 @@ class DemoBackend(private val database: NgantriinDatabase) {
             error("ILLEGAL_TRANSITION: ${entry.status} -> $next")
         }
         val now = Instant.now()
+        val window = restaurants[entry.restaurantId]?.checkInWindowMinutes
+            ?: QueueMath.DEFAULT_CHECK_IN_WINDOW_MINUTES
         val updated = entry.copy(
             status = next,
-            calledAt = if (next == QueueStatus.CALLED) now else entry.calledAt,
+            calledAt = when (next) {
+                QueueStatus.CALLED -> now
+                QueueStatus.TABLE_READY -> entry.calledAt ?: now
+                else -> entry.calledAt
+            },
+            checkInDeadline = if (next == QueueStatus.CALLED) {
+                now.plus(Duration.ofMinutes(window.toLong()))
+            } else {
+                entry.checkInDeadline
+            },
             checkedInAt = if (next == QueueStatus.CHECKED_IN) now else entry.checkedInAt,
+            tableReadyAt = if (next == QueueStatus.TABLE_READY) now else entry.tableReadyAt,
             completedAt = if (next == QueueStatus.COMPLETED) now else entry.completedAt,
             cancelledAt = if (next == QueueStatus.CANCELLED) now else entry.cancelledAt,
+            expiredAt = if (next == QueueStatus.EXPIRED) now else entry.expiredAt,
             checkInPhotoUrl = checkInPhotoUrl ?: entry.checkInPhotoUrl
         )
         return mutate(entry.restaurantId, entry.userId) { updated.also { queues[it.id] = it } }
@@ -324,6 +384,10 @@ class DemoBackend(private val database: NgantriinDatabase) {
                 queues[entry.id] = entry.copy(status = QueueStatus.ALMOST_THERE)
             }
         }
+    }
+
+    private companion object {
+        const val JOIN_COOLDOWN_SECONDS = 60L
     }
 
     private fun affectedUsers(restaurantId: String): Set<String> =

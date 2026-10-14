@@ -44,11 +44,13 @@ import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
+import org.umn.ngantriin.ui.components.fullBleed
 import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /** Screen 20 (section 24). */
 @Composable
@@ -133,7 +135,10 @@ fun StaffDashboardScreen(
 
         if (state.managedRestaurants.size > 1) {
             Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .fullBleed(Spacing.screenGutter)
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.screenGutter),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
             ) {
                 state.managedRestaurants.forEach { restaurant ->
@@ -173,7 +178,7 @@ fun StaffDashboardScreen(
                 modifier = Modifier.weight(1f)
             )
             StaffStat(
-                value = "${state.seated.size}",
+                value = "${state.atRestaurant}",
                 label = stringResource(R.string.staff_seated),
                 modifier = Modifier.weight(1f)
             )
@@ -300,7 +305,7 @@ private fun StaffStat(value: String, label: String, modifier: Modifier = Modifie
             )
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.balanced(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )

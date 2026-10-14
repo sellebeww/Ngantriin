@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.R
 import org.umn.ngantriin.domain.model.ActiveQueue
+import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
@@ -90,8 +91,10 @@ fun ActiveQueueBanner(
 
 @Composable
 private fun summaryFor(queue: ActiveQueue): String = when {
-    queue.canCheckIn -> stringResource(R.string.queue_banner_ready_to_check_in)
-    queue.status.name == "CHECKED_IN" -> stringResource(R.string.queue_banner_checked_in)
+    queue.status == QueueStatus.CALLED -> stringResource(R.string.queue_banner_ready_to_check_in)
+    queue.status == QueueStatus.TABLE_READY -> stringResource(R.string.queue_banner_table_ready)
+    queue.status == QueueStatus.CHECKED_IN && queue.entry.hasBeenCalled ->
+        stringResource(R.string.queue_banner_checked_in)
     queue.peopleAhead == 0 -> stringResource(R.string.queue_banner_youre_next)
     else -> stringResource(
         R.string.queue_banner_ahead_and_wait,

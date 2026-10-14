@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.ui.auth.LoginScreen
 import org.umn.ngantriin.ui.auth.RegisterScreen
+import org.umn.ngantriin.ui.history.HistoryDetailScreen
 import org.umn.ngantriin.ui.history.HistoryScreen
 import org.umn.ngantriin.ui.home.HomeScreen
 import org.umn.ngantriin.ui.notifications.NotificationsScreen
@@ -105,7 +106,6 @@ fun NgantriinNavHost(
                 onFindRestaurants = { navController.navigateToTab(Routes.SEARCH) },
                 onViewRestaurant = { navController.navigate(Routes.restaurantDetail(it)) },
                 onCheckIn = { navController.navigate(Routes.checkIn(it)) },
-                onRate = { navController.navigate(Routes.review(it)) },
                 onMessage = showError
             )
         }
@@ -114,7 +114,20 @@ fun NgantriinNavHost(
             HistoryScreen(
                 onFindRestaurants = { navController.navigateToTab(Routes.SEARCH) },
                 onRate = { navController.navigate(Routes.review(it)) },
-                onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) }
+                onOpenVisit = { navController.navigate(Routes.historyDetail(it)) }
+            )
+        }
+
+        composable(
+            route = Routes.HISTORY_DETAIL,
+            arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
+        ) { entry ->
+            HistoryDetailScreen(
+                queueId = entry.arguments?.getString(Routes.ARG_QUEUE_ID).orEmpty(),
+                onBack = { navController.popBackStack() },
+                onRate = { navController.navigate(Routes.review(it)) },
+                onViewRestaurant = { navController.navigate(Routes.restaurantDetail(it)) },
+                onOpenLiveQueue = { navController.navigateToTab(Routes.ACTIVE_QUEUE) }
             )
         }
 
@@ -253,6 +266,13 @@ fun NgantriinNavHost(
  * back button always returns to Home rather than walking the tab history.
  */
 fun NavHostController.navigateToTab(route: String) {
+    // The tab is already on the back stack with something on top of it — the
+    // check-in screen over My Queue, a review over History. Pop back down to
+    // it. Navigating with saveState/restoreState instead would save the whole
+    // popped stack under this tab and restore it right back, so "Done" would
+    // land on the very screen it was pressed on.
+    if (popBackStack(route, inclusive = false)) return
+
     navigate(route) {
         popUpTo(graph.startDestinationId) { saveState = true }
         launchSingleTop = true

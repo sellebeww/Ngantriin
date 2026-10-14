@@ -1,6 +1,7 @@
 package org.umn.ngantriin.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
 import org.umn.ngantriin.di.containerViewModel
@@ -75,7 +77,10 @@ fun LoginScreen(
         ) {
             TextButton(
                 onClick = viewModel::sendPasswordReset,
-                enabled = !state.isSubmitting
+                enabled = !state.isSubmitting,
+                // Drop the button's own right inset so the label ends exactly
+                // where the field above it does.
+                contentPadding = PaddingValues(start = 12.dp, end = 0.dp)
             ) {
                 Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelMedium)
             }

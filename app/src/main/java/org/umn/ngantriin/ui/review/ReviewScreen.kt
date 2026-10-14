@@ -111,7 +111,9 @@ fun ReviewScreen(
                 Text(
                     text = stringResource(R.string.review_how_was_it),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(Spacing.sm))
                 val visitFallback = stringResource(R.string.review_your_visit_fallback)
@@ -127,7 +129,9 @@ fun ReviewScreen(
                         }
                     },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(Spacing.xxl))

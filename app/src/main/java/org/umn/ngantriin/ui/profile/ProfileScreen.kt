@@ -3,6 +3,8 @@ package org.umn.ngantriin.ui.profile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,6 +53,7 @@ import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.Spacing
+import org.umn.ngantriin.ui.theme.balanced
 
 /** Screen 17. */
 @Composable
@@ -190,7 +193,12 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(Spacing.lg))
 
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+        // IntrinsicSize.Max + fillMaxHeight: every tile is as tall as the
+        // tallest, so one that wraps its label doesn't leave the others ragged.
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        ) {
             StatTile(
                 value = "${state.completedVisits}",
                 label = stringResource(R.string.profile_stat_visits),
@@ -261,7 +269,7 @@ fun ProfileScreen(
             } else {
                 stringResource(R.string.profile_footer)
             },
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -274,12 +282,14 @@ fun ProfileScreen(
 @Composable
 private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.secondaryContainer
     ) {
         Column(
-            modifier = Modifier.padding(vertical = Spacing.lg, horizontal = Spacing.md),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = Spacing.lg, horizontal = Spacing.md),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -290,7 +300,7 @@ private fun StatTile(value: String, label: String, modifier: Modifier = Modifier
             Spacer(Modifier.height(Spacing.xxs))
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.balanced(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )

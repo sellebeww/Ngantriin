@@ -165,9 +165,11 @@ class AppContainer(private val context: Context) {
             context = context,
             authRepository = authRepository,
             queueRepository = queueRepository,
+            restaurantRepository = restaurantRepository,
             notificationRepository = notificationRepository,
             notificationDao = database.notificationDao(),
-            notificationHelper = notificationHelper
+            notificationHelper = notificationHelper,
+            preferences = userPreferencesRepository
         )
     }
 }

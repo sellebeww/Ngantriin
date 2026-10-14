@@ -23,7 +23,9 @@ data class Restaurant(
     /** Section 16: how close a customer must be to check in. */
     val checkInRadiusMeters: Int,
     /** Section 44: open tables right now — a walk-in, not a queue. */
-    val availableSeats: Int = 0
+    val availableSeats: Int = 0,
+    /** Section 16: minutes a called customer has to check in before expiry. */
+    val checkInWindowMinutes: Int = QueueMath.DEFAULT_CHECK_IN_WINDOW_MINUTES
 ) {
     val location: GeoPoint get() = GeoPoint(latitude, longitude)
 
@@ -41,7 +43,7 @@ data class Restaurant(
      * schedule. A venue counts as open only when both agree, so staff can shut
      * the queue early without editing their opening hours.
      */
-    fun isAcceptingQueue(now: LocalTime = LocalTime.now()): Boolean {
+    fun isAcceptingQueue(now: LocalTime = LocalTime.now(RESTAURANT_ZONE)): Boolean {
         if (!isOpen) return false
         return if (closingTime > openingTime) {
             now >= openingTime && now < closingTime
@@ -49,6 +51,15 @@ data class Restaurant(
             // Past-midnight closing, e.g. 18:00 - 02:00.
             now >= openingTime || now < closingTime
         }
+    }
+
+    companion object {
+        /**
+         * Opening hours are restaurant-local wall-clock times. Judged in the
+         * venue's zone (restaurants.timezone in SQL) rather than the phone's,
+         * so a traveller's phone agrees with what `join_queue` decides.
+         */
+        val RESTAURANT_ZONE: java.time.ZoneId = java.time.ZoneId.of("Asia/Jakarta")
     }
 }
 

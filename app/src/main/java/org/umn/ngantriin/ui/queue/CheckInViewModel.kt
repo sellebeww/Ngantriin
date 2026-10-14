@@ -87,9 +87,22 @@ class CheckInViewModel(
                 val result = queueRepository.checkIn(queueId, queue.restaurant.id, photo)
             ) {
                 is Outcome.Success -> CheckInStep.Success
-                is Outcome.Failure -> CheckInStep.Failed(result.error)
+                is Outcome.Failure -> {
+                    // The window closed while the photo was uploading: settle
+                    // the expiry now so the queue screen shows it straight away.
+                    if (result.error == AppError.CheckInExpired) {
+                        queueRepository.expireOverdue(queue.restaurant.id)
+                    }
+                    CheckInStep.Failed(result.error)
+                }
             }
         }
+    }
+
+    /** Section 16: the countdown on this screen reached zero. */
+    fun onCheckInWindowClosed() {
+        val restaurantId = uiState.value.queue?.restaurant?.id ?: return
+        viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
     }
 
     fun reset() {

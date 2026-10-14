@@ -94,6 +94,8 @@ class DemoAuthRemoteDataSource(
 
     override suspend fun updatePushToken(userId: String, token: String) = Unit
 
+    override suspend fun updateLocale(userId: String, locale: String) = Unit
+
     private fun nameFrom(email: String) = email.substringBefore('@')
         .split('.', '_', '-')
         .filter { it.isNotBlank() }
@@ -166,6 +168,8 @@ class DemoQueueRemoteDataSource(
     override suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry =
         backend.updateStatus(queueId, status)
 
+    override suspend fun expireOverdue(restaurantId: String) = backend.expireOverdue(restaurantId)
+
     override suspend fun fetchQueue(queueId: String): QueueEntry = backend.queue(queueId)
 
     override suspend fun fetchPosition(queueId: String): QueuePosition = backend.position(queueId)
@@ -201,6 +205,12 @@ class DemoReviewRemoteDataSource(
 
     override suspend fun fetchReviewForQueue(queueId: String): Review? =
         backend.reviewForQueue(queueId)
+
+    override suspend fun fetchUserReviews(userId: String): List<Review> =
+        backend.reviewsByUser(userId)
+
+    override suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review =
+        backend.updateReview(reviewId, rating, comment)
 
     override suspend fun submitReview(
         queueId: String,

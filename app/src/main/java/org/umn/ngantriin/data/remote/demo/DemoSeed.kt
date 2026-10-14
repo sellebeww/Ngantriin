@@ -125,7 +125,7 @@ object DemoSeed {
      * Builds the starting queue for one venue.
      *
      * Waroeng Nusantara lands exactly on the worked example in section 40:
-     * A-020 is at the table, A-021 to A-026 are still in line, so the first
+     * A-020 is being seated, A-021 to A-026 are still in line, so the first
      * ticket you take is A-027 with 6 groups ahead and a ~18 minute estimate.
      */
     fun seedQueue(restaurant: Restaurant): List<QueueEntry> {
@@ -141,7 +141,7 @@ object DemoSeed {
             entries += demoEntry(
                 restaurant = restaurant,
                 sequence = sequence,
-                status = if (isAtTheTable) QueueStatus.CHECKED_IN else QueueStatus.COMPLETED,
+                status = if (isAtTheTable) QueueStatus.TABLE_READY else QueueStatus.COMPLETED,
                 joinedAt = now.minus((served - sequence + waiting + 1) * 4L, ChronoUnit.MINUTES)
             )
         }
@@ -178,8 +178,13 @@ object DemoSeed {
             note = null,
             joinedAt = joinedAt,
             calledAt = if (status != QueueStatus.WAITING) joinedAt.plus(8, ChronoUnit.MINUTES) else null,
-            checkedInAt = if (status == QueueStatus.CHECKED_IN || status == QueueStatus.COMPLETED) {
+            checkedInAt = if (status == QueueStatus.TABLE_READY || status == QueueStatus.COMPLETED) {
                 joinedAt.plus(10, ChronoUnit.MINUTES)
+            } else {
+                null
+            },
+            tableReadyAt = if (status == QueueStatus.TABLE_READY || status == QueueStatus.COMPLETED) {
+                joinedAt.plus(12, ChronoUnit.MINUTES)
             } else {
                 null
             },

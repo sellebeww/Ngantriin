@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.ui.theme.Spacing
@@ -166,5 +168,22 @@ fun BottomAnchoredColumn(
             horizontalAlignment = horizontalAlignment,
             content = content
         )
+    }
+}
+
+/**
+ * Lets a row inside a screen-gutter-padded column run edge to edge, the way a
+ * scrolling chip row should: it is measured [inset] wider on both sides, so
+ * its chips slide off the screen edge instead of being sliced at the gutter.
+ *
+ * Add `.padding(horizontal = inset)` *after* `horizontalScroll` so the first
+ * and last chip still rest on the gutter line when the row is not scrolled.
+ */
+fun Modifier.fullBleed(inset: Dp): Modifier = layout { measurable, constraints ->
+    val extra = inset.roundToPx() * 2
+    val wide = constraints.maxWidth + extra
+    val placeable = measurable.measure(constraints.copy(minWidth = wide, maxWidth = wide))
+    layout(constraints.maxWidth, placeable.height) {
+        placeable.place(-extra / 2, 0)
     }
 }
