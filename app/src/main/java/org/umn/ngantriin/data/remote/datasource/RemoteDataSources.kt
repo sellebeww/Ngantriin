@@ -57,7 +57,7 @@ interface RestaurantRemoteDataSource {
     suspend fun fetchQueueStats(restaurantId: String): QueueStats?
     suspend fun fetchManagedRestaurants(userId: String): List<Restaurant>
 
-    /** Section 36: fires whenever this venue's counters change. */
+    /** Fires whenever this venue's counters change. */
     fun observeQueueStatsChanges(restaurantId: String): Flow<Unit>
 
     /** Fires whenever any venue's counters change, for the discovery list. */
@@ -87,7 +87,7 @@ interface QueueRemoteDataSource {
     suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry
 
     /**
-     * Section 16: marks CALLED tickets past their check-in window as EXPIRED.
+     * Marks CALLED tickets past their check-in window as EXPIRED.
      * The backend also does this on a schedule; calling it just settles a
      * countdown that reached zero without waiting for the next sweep.
      */
@@ -96,7 +96,7 @@ interface QueueRemoteDataSource {
     suspend fun fetchQueue(queueId: String): QueueEntry
 
     /**
-     * Section 23, computed server side. The customer cannot see the tickets in
+     * Computed server side. The customer cannot see the tickets in
      * front of them, so counting the line is the backend's job.
      */
     suspend fun fetchPosition(queueId: String): QueuePosition

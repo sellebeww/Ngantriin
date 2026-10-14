@@ -14,7 +14,7 @@ sealed interface SessionState {
 
 interface AuthRepository {
 
-    /** Single source of truth for navigation gating (section 35). */
+    /** Single source of truth for navigation gating. */
     val sessionState: Flow<SessionState>
 
     /** Snapshot accessor for callers that cannot suspend, e.g. WorkManager. */
@@ -36,7 +36,7 @@ interface AuthRepository {
 
     suspend fun updateProfile(name: String, phone: String?): Outcome<User>
 
-    /** Section 15: stores the device push token against the profile. */
+    /** Stores the device push token against the profile. */
     suspend fun syncPushToken(token: String): Outcome<Unit>
 
     /** Tells the backend which language to write push notifications in. */

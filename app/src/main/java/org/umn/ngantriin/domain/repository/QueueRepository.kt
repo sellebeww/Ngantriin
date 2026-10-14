@@ -11,11 +11,11 @@ interface QueueRepository {
 
     /**
      * The customer's one live ticket, or null. Backed by a Supabase Realtime
-     * subscription (section 13/36) — no polling, no pull-to-refresh.
+     * subscription — no polling, no pull-to-refresh.
      */
     fun observeActiveQueue(userId: String): Flow<ActiveQueue?>
 
-    /** Section 24: every live ticket at a venue, ordered by ticket number. */
+    /** Every live ticket at a venue, ordered by ticket number. */
     fun observeRestaurantQueue(restaurantId: String): Flow<List<QueueEntry>>
 
     /**
@@ -35,7 +35,7 @@ interface QueueRepository {
     suspend fun getQueue(queueId: String): Outcome<QueueEntry>
 
     /**
-     * Section 11. The backend allocates the number; this returns whatever it
+     * The backend allocates the number; this returns whatever it
      * assigned. Fails with [org.umn.ngantriin.core.AppError.AlreadyInQueue]
      * when the customer already holds a live ticket.
      */
@@ -45,7 +45,7 @@ interface QueueRepository {
         note: String?
     ): Outcome<QueueEntry>
 
-    /** Section 18. Any live status -> CANCELLED, never back. */
+    /** Any live status -> CANCELLED, never back. */
     suspend fun leaveQueue(queueId: String): Outcome<QueueEntry>
 
     /**
@@ -55,7 +55,7 @@ interface QueueRepository {
     fun wasLeftByCustomer(queueId: String): Boolean
 
     /**
-     * Section 17. The customer photographs themselves at the restaurant —
+     * The customer photographs themselves at the restaurant —
      * early (WAITING / ALMOST_THERE) or once CALLED, inside the check-in
      * window. The backend verifies the uploaded object exists before it
      * allows CHECKED_IN, so a client can't skip the photo.
@@ -65,14 +65,14 @@ interface QueueRepository {
     /** Turns a stored check-in photo reference into a URL a viewer can load. */
     suspend fun resolveCheckInPhotoUrl(photoUrl: String): Outcome<String>
 
-    /** Section 24: staff calls the longest-waiting ticket. */
+    /** Staff calls the longest-waiting ticket. */
     suspend fun callNext(restaurantId: String): Outcome<QueueEntry>
 
-    /** Section 24: staff moves one ticket along the state machine. */
+    /** Staff moves one ticket along the state machine. */
     suspend fun updateStatus(queueId: String, status: QueueStatus): Outcome<QueueEntry>
 
     /**
-     * Section 16: settle CALLED tickets whose check-in window has run out.
+     * Settle CALLED tickets whose check-in window has run out.
      * Called when a countdown on screen reaches zero, so the UI does not have
      * to wait for the backend's scheduled sweep.
      */

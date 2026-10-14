@@ -47,7 +47,7 @@ data class HistoryUiState(
     val isFilterEmpty: Boolean get() = !isEmpty && items.isEmpty()
 }
 
-/** Section 19. Room backs the list, so history opens instantly and offline. */
+/** Room backs the list, so history opens instantly and offline. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryViewModel(
     private val authRepository: AuthRepository,

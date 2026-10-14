@@ -52,7 +52,7 @@ import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
-/** Screen 20 (section 24). */
+/** Screen 20. */
 @Composable
 fun StaffDashboardScreen(
     onOpenQueue: (String) -> Unit,

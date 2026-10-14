@@ -1,7 +1,7 @@
 package org.umn.ngantriin.domain.model
 
 /**
- * Section 23. The one place that turns a queue into the numbers the product is
+ * The one place that turns a queue into the numbers the product is
  * about. Both the Supabase-backed repository and the demo backend call through
  * here, and every rule mirrors a SQL function in
  * 0012_check_in_window_and_table_ready.sql, so an estimate can never differ
@@ -48,7 +48,7 @@ object QueueMath {
                 .maxByOrNull { it.ticketSequence }
 
     /**
-     * Section 37 thresholds. Returns the milestone a ticket has reached, or
+     * Notification thresholds. Returns the milestone a ticket has reached, or
      * null when it is still too far back to be worth a notification.
      * Mirrors `milestoneFor` in the queue-notifier Edge Function.
      */

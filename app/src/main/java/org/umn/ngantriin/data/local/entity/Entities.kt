@@ -8,7 +8,7 @@ import java.time.Instant
 import java.time.LocalTime
 
 /**
- * Room mirrors of the Supabase tables (section 21). These are cache rows, not
+ * Room mirrors of the Supabase tables. These are cache rows, not
  * a second source of truth: a failed network call never deletes them, it just
  * leaves them stale.
  */
@@ -96,7 +96,7 @@ data class NotificationEntity(
 )
 
 /**
- * Section 21. A write that could not reach the backend is parked here and
+ * A write that could not reach the backend is parked here and
  * replayed by [org.umn.ngantriin.work.SyncWorker] once connectivity returns.
  *
  * Joining a queue is deliberately *not* replayable: a ticket issued ten

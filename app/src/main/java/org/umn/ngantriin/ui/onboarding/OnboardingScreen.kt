@@ -36,7 +36,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Section 6. Three pages that each answer one worry about leaving a queue:
+ * Three pages that each answer one worry about leaving a queue:
  * do I have to stand here, will I know where I am, and will I miss my turn.
  */
 @Composable

@@ -8,7 +8,7 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 /**
- * Sample data for demo mode (sections 39 and 40). Deliberately identical to
+ * Sample data for demo mode. Deliberately identical to
  * supabase/migrations/0004_seed.sql — same ids, same coordinates — so moving
  * to the real backend does not change what you see on screen.
  */
@@ -124,7 +124,7 @@ object DemoSeed {
     /**
      * Builds the starting queue for one venue.
      *
-     * Waroeng Nusantara lands exactly on the worked example in section 40:
+     * Waroeng Nusantara lands exactly on the worked example in QueueMathTest:
      * A-020 is being seated, A-021 to A-026 are still in line, so the first
      * ticket you take is A-027 with 6 groups ahead and a ~18 minute estimate.
      */

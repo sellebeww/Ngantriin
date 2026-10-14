@@ -65,9 +65,9 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Sections 12, 26 and 41 — the screen the whole product exists for.
+ * The screen the whole product exists for.
  *
- * The layout answers the three questions in section 26 top to bottom, in one
+ * The layout answers three questions top to bottom, in one
  * glance: what is my number, how many are ahead, when do I come back.
  */
 @Composable
@@ -220,7 +220,7 @@ private fun ActiveQueueContent(
             }
 
             QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> {
-                // Section 17: already at the restaurant? Check in early and
+                // Already at the restaurant? Check in early and
                 // keep your place.
                 SecondaryButton(
                     text = stringResource(R.string.active_queue_im_here),
@@ -262,7 +262,7 @@ private fun ActiveQueueContent(
 }
 
 /**
- * Section 16: it's this ticket's turn and the check-in window is running.
+ * It's this ticket's turn and the check-in window is running.
  * The countdown is the biggest thing on screen — missing it costs the ticket.
  */
 @Composable
@@ -375,7 +375,7 @@ private fun TableReadyCard(queue: ActiveQueue) {
 }
 
 /**
- * Section 25: the queue number is the single biggest element on the screen,
+ * The queue number is the single biggest element on the screen,
  * with the two numbers that qualify it directly underneath.
  */
 @Composable
@@ -482,7 +482,7 @@ private fun QueueNumberCard(queue: ActiveQueue) {
     }
 }
 
-/** Section 26: says plainly whether the customer can be somewhere else. */
+/** Says plainly whether the customer can be somewhere else. */
 @Composable
 private fun GuidanceCard(queue: ActiveQueue) {
     val statusColors = LocalStatusColors.current

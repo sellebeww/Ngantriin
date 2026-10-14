@@ -60,7 +60,7 @@ import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 import java.time.Instant
 
-/** Section 19: the full story of one visit. */
+/** The full story of one visit. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDetailScreen(

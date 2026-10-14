@@ -15,7 +15,7 @@ import org.umn.ngantriin.domain.model.NotificationType
 import java.time.Instant
 
 /**
- * Section 15. Receives pushes sent by the backend when queue state changes.
+ * Receives pushes sent by the backend when queue state changes.
  *
  * The payload is read from `data`, not `notification`, so the app controls
  * rendering in both the foreground and the background and can persist the

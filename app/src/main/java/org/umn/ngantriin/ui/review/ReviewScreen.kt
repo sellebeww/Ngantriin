@@ -40,7 +40,6 @@ import org.umn.ngantriin.ui.components.dateText
 import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 20. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(

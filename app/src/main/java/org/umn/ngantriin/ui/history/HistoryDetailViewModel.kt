@@ -26,7 +26,7 @@ data class HistoryDetailUiState(
 }
 
 /**
- * Section 19: one visit, end to end — when it was joined, called, checked
+ * One visit, end to end — when it was joined, called, checked
  * in, seated or ended, and what the customer said about it. Served from Room
  * so it opens instantly; refreshed from the backend in the background.
  */

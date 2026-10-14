@@ -180,7 +180,7 @@ fun RatingStars(
     }
 }
 
-/** Section 20. Tap targets are a full 48dp so the stars are easy to hit. */
+/** Tap targets are a full 48dp so the stars are easy to hit. */
 @Composable
 fun RatingInput(
     rating: Int,

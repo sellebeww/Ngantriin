@@ -49,7 +49,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Section 11's confirmation. Its one job is to make the number the backend
+ * The confirmation. Its one job is to make the number the backend
  * just issued unmistakable before the customer walks away.
  */
 @Composable
@@ -182,7 +182,7 @@ fun JoinQueueConfirmationScreen(
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(Spacing.sm))
-        // Section 16: say the one rule that can cost the ticket up front.
+        // Say the one rule that can cost the ticket up front.
         Text(
             text = stringResource(R.string.countdown_hint, queue.restaurant.checkInWindowMinutes),
             style = MaterialTheme.typography.bodySmall.balanced(),

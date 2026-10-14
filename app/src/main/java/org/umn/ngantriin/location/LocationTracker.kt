@@ -18,7 +18,7 @@ import org.umn.ngantriin.domain.repository.UserPreferencesRepository
  * Without this, Home, Search and the restaurant detail screen would each ask
  * for GPS separately and could show three different distances for the same
  * venue. The last good fix is persisted so the first frame after launch
- * already has distances (section 16/38).
+ * already has distances.
  */
 class LocationTracker(
     private val provider: LocationProvider,

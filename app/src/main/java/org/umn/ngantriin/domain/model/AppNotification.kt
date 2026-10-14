@@ -3,7 +3,7 @@ package org.umn.ngantriin.domain.model
 import java.time.Instant
 
 /**
- * Section 37. Every push is persisted with its type so a given milestone can
+ * Every push is persisted with its type so a given milestone can
  * fire at most once per ticket — the `(queue_id, type)` unique index in the
  * schema is what actually enforces that.
  */

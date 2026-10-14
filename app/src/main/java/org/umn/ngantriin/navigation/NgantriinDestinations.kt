@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import org.umn.ngantriin.R
 
 /**
- * Every route in one place (section 43: no route strings scattered through
+ * Every route in one place (no route strings scattered through
  * composables). Routes that take an argument expose a `create(...)` helper so
  * callers cannot build a malformed path.
  */
@@ -64,7 +64,7 @@ object Routes {
     fun staffCustomer(queueId: String) = "staff_customer/$queueId"
 }
 
-/** Section 4. The five customer tabs, in order. */
+/** The five customer tabs, in order. */
 enum class BottomTab(
     val route: String,
     val labelRes: Int,

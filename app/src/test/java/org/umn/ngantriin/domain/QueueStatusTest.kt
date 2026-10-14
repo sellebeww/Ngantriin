@@ -7,7 +7,7 @@ import org.junit.Test
 import org.umn.ngantriin.domain.model.QueueStatus
 
 /**
- * The transition table in section 14, checked exhaustively. This is the rule
+ * The transition table, checked exhaustively. This is the rule
  * the SQL trigger enforces too (`is_valid_queue_transition`), so if these
  * expectations ever change, both have to move together.
  */
@@ -55,7 +55,7 @@ class QueueStatusTest {
 
     @Test
     fun `a cancelled queue can never return to waiting`() {
-        // Section 18 states this explicitly; it is the one rule a customer
+        // This is the one rule a customer
         // would notice immediately if it broke.
         assertFalse(QueueStatus.CANCELLED.canTransitionTo(QueueStatus.WAITING))
     }

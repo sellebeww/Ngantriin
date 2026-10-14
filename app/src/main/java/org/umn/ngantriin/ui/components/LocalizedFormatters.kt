@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
  * stays English-only on purpose — FormattersTest.kt is a plain JVM unit test
  * with no Android resources available to it — so anything the UI actually
  * shows goes through here instead, where `stringResource` picks up whichever
- * language Settings -> Language selected (section 43).
+ * language Settings -> Language selected.
  */
 
 @Composable

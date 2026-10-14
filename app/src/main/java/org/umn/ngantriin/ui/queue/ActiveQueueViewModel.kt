@@ -35,7 +35,7 @@ sealed interface ActiveQueueEvent {
 }
 
 /**
- * Sections 12 and 13. The state here is a straight projection of the
+ * The state here is a straight projection of the
  * repository's realtime flow — there is no polling and no manual refresh,
  * because the queue moving is an event the backend already tells us about.
  */
@@ -83,7 +83,7 @@ class ActiveQueueViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ActiveQueueUiState())
 
     /**
-     * Section 16: the countdown on screen reached zero. Ask the backend to
+     * The countdown on screen reached zero. Ask the backend to
      * settle it now rather than waiting for its scheduled sweep; the ticket
      * then flips to EXPIRED through the normal realtime path.
      */
@@ -92,7 +92,7 @@ class ActiveQueueViewModel(
         viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
     }
 
-    /** Section 18. Only reached after the confirmation dialog. */
+    /** Only reached after the confirmation dialog. */
     fun leaveQueue() {
         val queueId = uiState.value.queue?.entry?.id ?: return
         if (leaving.value) return

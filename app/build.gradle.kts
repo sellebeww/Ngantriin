@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-// Section 31: credentials live in local.properties (git-ignored) or the
+// Credentials live in local.properties (git-ignored) or the
 // environment, never in source. A blank URL is legal — the app then starts in
 // demo mode against the bundled in-memory backend.
 val localProperties = Properties().apply {
@@ -105,7 +105,7 @@ dependencies {
     // --- AndroidX core -------------------------------------------------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    // Per-app language switching (section 43): AppCompatDelegate works without
+    // Per-app language switching: AppCompatDelegate works without
     // MainActivity extending AppCompatActivity, it just needs the library and
     // the manifest wiring below to persist the choice across restarts.
     implementation(libs.androidx.appcompat)

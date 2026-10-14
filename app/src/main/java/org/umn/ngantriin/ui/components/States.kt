@@ -42,7 +42,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Section 30. An empty state always says what is missing and, where there is
+ * An empty state always says what is missing and, where there is
  * one, offers the next thing to do.
  */
 @Composable
@@ -110,7 +110,7 @@ fun FullScreenLoader(modifier: Modifier = Modifier) {
 }
 
 /**
- * Section 29. A shimmering placeholder block. Skeletons mirror the real
+ * A shimmering placeholder block. Skeletons mirror the real
  * layout, so the screen does not jump when the data lands.
  */
 @Composable
@@ -136,7 +136,7 @@ fun SkeletonBox(
     )
 }
 
-/** Section 21. The persistent "we may be showing you stale data" strip. */
+/** The persistent "we may be showing you stale data" strip. */
 @Composable
 fun OfflineBanner(modifier: Modifier = Modifier, message: String) {
     Row(

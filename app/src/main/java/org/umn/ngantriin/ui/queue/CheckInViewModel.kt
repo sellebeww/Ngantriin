@@ -18,7 +18,6 @@ import org.umn.ngantriin.domain.repository.AuthRepository
 import org.umn.ngantriin.domain.repository.QueueRepository
 import org.umn.ngantriin.domain.repository.SessionState
 
-/** Section 17. */
 sealed interface CheckInStep {
     data object Idle : CheckInStep
     data object Uploading : CheckInStep
@@ -73,7 +72,7 @@ class CheckInViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CheckInUiState())
 
     /**
-     * Section 17's verification: the customer photographs themselves at the
+     * Verification: the customer photographs themselves at the
      * restaurant. The backend rejects the transition to CHECKED_IN if the
      * upload's path never reaches it, so a client cannot skip this step.
      */
@@ -99,7 +98,7 @@ class CheckInViewModel(
         }
     }
 
-    /** Section 16: the countdown on this screen reached zero. */
+    /** The countdown on this screen reached zero. */
     fun onCheckInWindowClosed() {
         val restaurantId = uiState.value.queue?.restaurant?.id ?: return
         viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }

@@ -8,7 +8,7 @@ import org.umn.ngantriin.data.local.entity.PendingActionEntity
 import java.time.Instant
 
 /**
- * Section 21. A write that could not reach the backend, parked until
+ * A write that could not reach the backend, parked until
  * connectivity returns.
  *
  * Only actions that stay correct when they arrive late are queued. Joining a

@@ -68,7 +68,6 @@ sealed interface StaffEvent {
     data class Failed(val error: AppError) : StaffEvent
 }
 
-/** Section 24. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class StaffQueueViewModel(
     private val authRepository: AuthRepository,
@@ -103,7 +102,7 @@ class StaffQueueViewModel(
             settled.value = true
         }
 
-        // Section 16: keep the board honest while it's open. The backend's
+        // Keep the board honest while it's open. The backend's
         // own sweep may be minutes away (or absent without pg_cron).
         viewModelScope.launch {
             while (isActive) {
@@ -146,7 +145,7 @@ class StaffQueueViewModel(
         selectedId.value = restaurantId
     }
 
-    /** Section 24: WAITING/ALMOST_THERE -> CALLED for the longest-waiting ticket. */
+    /** WAITING/ALMOST_THERE -> CALLED for the longest-waiting ticket. */
     fun callNext() {
         val restaurantId = selectedId.value ?: return
         if (working.value) return
@@ -195,7 +194,7 @@ class StaffQueueViewModel(
 
     /**
      * Signing out is all this screen has to do: the session flow in
-     * NgantriinApp is what moves the app back to login (section 35).
+     * NgantriinApp is what moves the app back to login.
      */
     fun signOut() {
         viewModelScope.launch { authRepository.signOut() }

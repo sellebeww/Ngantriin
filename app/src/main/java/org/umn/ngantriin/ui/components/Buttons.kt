@@ -24,7 +24,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 
 /**
  * The app's three button weights. Minimum height is 56dp so primary actions
- * clear the 48dp touch target with room to spare (section 42).
+ * clear the 48dp touch target with room to spare.
  */
 
 @Composable

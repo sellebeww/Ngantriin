@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
- * Section 21. Emits whether the device currently has validated internet, so
+ * Emits whether the device currently has validated internet, so
  * the UI can show the offline banner and the repositories can decide between
  * a live call and the cache.
  */

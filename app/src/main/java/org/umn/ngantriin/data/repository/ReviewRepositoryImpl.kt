@@ -54,7 +54,7 @@ class ReviewRepositoryImpl(
         val userId = auth.currentUserId()
             ?: return Outcome.Failure(AppError.SessionExpired)
 
-        // Section 20. The backend enforces this too; checking here just means
+        // The backend enforces this too; checking here just means
         // the user gets a clear message instead of a policy violation.
         val ticket = queueDao.findById(queueId)?.toDomain()
         if (ticket != null && ticket.status != QueueStatus.COMPLETED) {

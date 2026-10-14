@@ -13,7 +13,7 @@ import org.umn.ngantriin.core.Constants
 import java.util.concurrent.TimeUnit
 
 /**
- * Section 21. Both schedules carry a "needs network" constraint, which is what
+ * Both schedules carry a "needs network" constraint, which is what
  * makes the sync automatic — WorkManager wakes the worker when connectivity
  * comes back rather than the app having to watch for it.
  */

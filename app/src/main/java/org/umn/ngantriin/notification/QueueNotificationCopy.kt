@@ -10,7 +10,7 @@ import org.umn.ngantriin.domain.model.QueueMath
 import java.time.Instant
 
 /**
- * Section 15. One place that decides what each notification says, shared by
+ * One place that decides what each notification says, shared by
  * the FCM path, the local scheduler and the live-tracking service so the
  * wording cannot drift apart.
  */
@@ -36,7 +36,7 @@ object QueueNotificationCopy {
      * Notifications are built outside Compose, so this mirrors
      * [org.umn.ngantriin.ui.components.waitTimeText] using [Context.getString]
      * directly instead of `stringResource` — [context] already carries
-     * whichever language Settings -> Language selected (section 43).
+     * whichever language Settings -> Language selected.
      */
     fun waitTimeText(context: Context, minutes: Int): String = when {
         minutes <= 0 -> context.getString(R.string.wait_time_none)
@@ -82,7 +82,7 @@ object QueueNotificationCopy {
     )
 
     /**
-     * Section 28.13 (privacy): a lock screen is a public surface — anyone
+     * 13 (privacy): a lock screen is a public surface — anyone
      * glancing at the phone can read a notification without unlocking it. So
      * nothing built here names the restaurant; that detail only appears once
      * the notification is tapped and the app itself is open.

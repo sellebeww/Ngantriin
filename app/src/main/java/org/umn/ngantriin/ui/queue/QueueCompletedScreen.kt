@@ -28,7 +28,7 @@ import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Screen 13. The hand-off from "you were served" to "tell us how it went"
- * (section 20), reached from a completed ticket in history or a push.
+ *, reached from a completed ticket in history or a push.
  */
 @Composable
 fun QueueCompletedScreen(

@@ -178,7 +178,7 @@ fun QueueSummaryRow(
     modifier: Modifier = Modifier,
     compact: Boolean = false
 ) {
-    // Section 44: seats open beats any queue stat — there's nothing to wait
+    // Seats open beats any queue stat — there's nothing to wait
     // for, so showing "0 waiting / no wait" here would just be noise.
     if (listing.restaurant.hasAvailableSeats) {
         QueueFact(
@@ -329,7 +329,7 @@ fun RestaurantImage(
     }
 }
 
-/** Section 29: the loading shape of [RestaurantCard]. */
+/** The loading shape of [RestaurantCard]. */
 @Composable
 fun RestaurantCardSkeleton(modifier: Modifier = Modifier) {
     Card(

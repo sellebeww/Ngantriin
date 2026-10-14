@@ -1,7 +1,7 @@
 // =============================================================================
 // NGANTRIIN — queue-notifier Edge Function
 //
-// Sections 15 and 37, server side. The `queues_notify` trigger (0012) calls
+// Server side. The `queues_notify` trigger (0012) calls
 // this on every change to `queues`; the function works out which milestone
 // each affected ticket has reached, records it, and pushes it through FCM.
 //
@@ -274,7 +274,7 @@ async function localesFor(userIds: string[]): Promise<Map<string, Locale>> {
 /**
  * Mirrors QueueNotificationCopy so both channels read identically.
  *
- * Section 28.13 (privacy): nothing here names the restaurant. A lock screen
+ * 13 (privacy): nothing here names the restaurant. A lock screen
  * is a public surface, and which venue someone is waiting at is exactly the
  * kind of detail that shouldn't be readable over their shoulder.
  */

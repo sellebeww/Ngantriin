@@ -19,7 +19,7 @@ import org.umn.ngantriin.domain.model.GeoPoint
 import kotlin.coroutines.resume
 
 /**
- * Section 16. The only place in the app that touches Play Services location,
+ * The only place in the app that touches Play Services location,
  * so permission handling and the Android Location type stop at this boundary.
  */
 class LocationProvider(context: Context) {

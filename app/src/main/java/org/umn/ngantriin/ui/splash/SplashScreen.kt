@@ -21,7 +21,7 @@ import org.umn.ngantriin.ui.components.NgantriinLogo
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * Section 5. Shown only while the session is being restored — it is a state,
+ * Shown only while the session is being restored — it is a state,
  * not a timed delay, so it disappears the moment the app knows where to go.
  */
 @Composable

@@ -83,7 +83,7 @@ private val DarkColors = darkColorScheme(
 
 /**
  * Status colours are intentionally outside the Material scheme: they carry
- * product meaning (section 14) rather than a role, and they must stay stable
+ * product meaning rather than a role, and they must stay stable
  * when the scheme changes.
  */
 data class StatusColors(

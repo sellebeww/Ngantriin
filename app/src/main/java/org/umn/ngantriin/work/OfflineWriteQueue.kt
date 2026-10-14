@@ -4,7 +4,7 @@ import android.content.Context
 
 /**
  * Parks a write that could not go out and asks WorkManager to retry it as
- * soon as the device is online again (section 21).
+ * soon as the device is online again.
  */
 class OfflineWriteQueue(
     private val context: Context,

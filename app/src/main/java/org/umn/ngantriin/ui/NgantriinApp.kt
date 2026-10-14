@@ -45,7 +45,7 @@ import org.umn.ngantriin.ui.splash.SplashScreen
 import org.umn.ngantriin.ui.theme.NgantriinTheme
 
 /**
- * Section 35. The session and the onboarding flag decide which area of the app
+ * The session and the onboarding flag decide which area of the app
  * you are in; individual screens never navigate across that boundary
  * themselves. Signing out anywhere therefore lands on login, and signing in
  * lands on the right home for the role.
@@ -133,7 +133,7 @@ fun NgantriinApp(
                     ?: flowOf(null)
             }.collectAsStateWithLifecycle(null)
 
-            // Section 15: a live ticket keeps tracking after the app leaves
+            // A live ticket keeps tracking after the app leaves
             // the screen. Started from here because Android only allows a
             // foreground service to start while the app is visible.
             val liveTicketId = activeQueue?.entry?.id

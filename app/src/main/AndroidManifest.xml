@@ -5,15 +5,15 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
-    <!-- Section 16: nearby discovery and distance sorting (Home/Search/Detail).
+    <!-- Nearby discovery and distance sorting (Home/Search/Detail).
          No longer used for check-in verification — see CAMERA below. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-    <!-- Section 15. Optional: a refusal only silences the system tray. -->
+    <!-- Optional: a refusal only silences the system tray. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <!-- Live queue tracking while the app is in the background (section 15):
+    <!-- Live queue tracking while the app is in the background:
          keeps the queue moving in an ongoing notification and lets the local
          milestone alerts fire without the app on screen. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -55,7 +55,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Section 15: queue pushes sent by the backend. -->
+        <!-- Queue pushes sent by the backend. -->
         <service
                 android:name=".notification.NgantriinMessagingService"
                 android:exported="false">
@@ -64,7 +64,7 @@
             </intent-filter>
         </service>
 
-        <!-- Section 15: the live queue while the customer is away. -->
+        <!-- The live queue while the customer is away. -->
         <service
                 android:name=".notification.QueueTrackingService"
                 android:exported="false"
@@ -85,7 +85,7 @@
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="queue_updates"/>
 
-        <!-- Section 43: lets AppCompatDelegate remember the chosen app
+        <!-- Lets AppCompatDelegate remember the chosen app
              language (Settings -> Language) across process restarts on API
              levels below 33, without a DataStore entry of our own. -->
         <service

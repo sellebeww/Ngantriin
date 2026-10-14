@@ -12,7 +12,7 @@ import org.umn.ngantriin.domain.repository.SessionState
 
 /**
  * Registers this device's push token against the signed-in profile so the
- * backend knows where to send queue updates (section 15).
+ * backend knows where to send queue updates.
  */
 class PushTokenSync(
     private val authRepository: AuthRepository,

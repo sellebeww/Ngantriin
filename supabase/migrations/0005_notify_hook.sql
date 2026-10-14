@@ -1,7 +1,7 @@
 -- =============================================================================
 -- NGANTRIIN — wire queue changes to the notification Edge Function
 --
--- Sections 15 and 37. Every change to `queues` calls queue-notifier, which
+-- Every change to `queues` calls queue-notifier, which
 -- works out which tickets crossed a threshold and pushes to them.
 --
 -- The alternative is a Database Webhook configured in the Supabase dashboard

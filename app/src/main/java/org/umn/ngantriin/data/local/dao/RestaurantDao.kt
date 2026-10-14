@@ -41,7 +41,7 @@ interface RestaurantDao {
     /**
      * Replaces the catalogue after a successful refresh. Rows the backend no
      * longer returns are dropped, but only inside this transaction — a failed
-     * request never reaches here, so the cache survives (section 21).
+     * request never reaches here, so the cache survives.
      */
     @Transaction
     suspend fun replaceCatalogue(

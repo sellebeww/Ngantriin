@@ -31,7 +31,7 @@ import org.umn.ngantriin.domain.model.RestaurantSort
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 9. Filters are staged locally and applied on confirm. */
+/** Filters are staged locally and applied on confirm. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterSheet(
@@ -196,7 +196,7 @@ fun ChoiceChip(
     )
 }
 
-/** Section 9 sort options, rendered as a chip row above the results. */
+/** Sort options, rendered as a chip row above the results. */
 @Composable
 fun SortRow(
     selected: RestaurantSort,

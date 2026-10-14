@@ -121,7 +121,7 @@ as $$
     from local_now;
 $$;
 
--- Section 16: a CALLED ticket that missed its check-in window is gone.
+-- A CALLED ticket that missed its check-in window is gone.
 -- Idempotent and only ever applies the rule, so it is safe for any signed-in
 -- client to trigger (the app does when a countdown reaches zero).
 create or replace function public.expire_overdue_queues(p_restaurant_id uuid default null)

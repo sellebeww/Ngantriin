@@ -28,7 +28,7 @@ import org.umn.ngantriin.R
 import org.umn.ngantriin.location.LocationProvider
 
 /**
- * Section 38. Location is never requested cold: the rationale dialog explains
+ * Location is never requested cold: the rationale dialog explains
  * what it is for, and "Not now" is a first-class answer — the app keeps
  * working without a fix, it just cannot sort restaurants by distance.
  */
@@ -129,7 +129,7 @@ fun LocationRationaleDialog(state: LocationPermissionState) {
 }
 
 /**
- * Section 28.12. Asked once, quietly. A refusal only means the system tray
+ * Asked once, quietly. A refusal only means the system tray
  * stays empty — the in-app notification list still records everything.
  */
 @Composable

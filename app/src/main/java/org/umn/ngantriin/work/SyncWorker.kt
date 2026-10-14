@@ -9,7 +9,7 @@ import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.core.Outcome
 
 /**
- * Section 21. Runs when the device is back online: replays parked writes,
+ * Runs when the device is back online: replays parked writes,
  * then refreshes the caches the UI reads from.
  */
 class SyncWorker(

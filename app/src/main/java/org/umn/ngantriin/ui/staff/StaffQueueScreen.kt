@@ -50,7 +50,7 @@ import org.umn.ngantriin.ui.queue.rememberSecondsLeft
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 21 (section 24). */
+/** Screen 21. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaffQueueScreen(
@@ -274,7 +274,7 @@ private fun StaffQueueRow(
     }
 }
 
-/** The legal next moves for staff, straight out of section 14. */
+/** The legal next moves for staff, straight out of the state machine. */
 private fun QueueEntry.staffActions(): List<Pair<Int, QueueStatus>> = when (status) {
     QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> listOf(
         R.string.staff_action_call to QueueStatus.CALLED,

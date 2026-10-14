@@ -11,11 +11,11 @@ import org.umn.ngantriin.domain.model.QueueMath
 import org.umn.ngantriin.domain.model.QueueStatus
 import java.time.Instant
 
-/** Section 23 and 40, using the worked example from the spec. */
+/** Wait estimates, using a worked example. */
 class QueueMathTest {
 
     /**
-     * The section 40 sample: A-020 is being seated, A-021 to A-026 are still
+     * The worked example: A-020 is being seated, A-021 to A-026 are still
      * in line, and the customer holds A-027.
      */
     private val sampleQueue = buildList {
@@ -154,7 +154,7 @@ class QueueMathTest {
     }
 
     @Test
-    fun `notification milestones fire at the section 37 thresholds`() {
+    fun `notification milestones fire at the defined thresholds`() {
         assertNull(QueueMath.notificationMilestone(QueueStatus.WAITING, peopleAhead = 6))
         assertNull(QueueMath.notificationMilestone(QueueStatus.WAITING, peopleAhead = 4))
         assertEquals(

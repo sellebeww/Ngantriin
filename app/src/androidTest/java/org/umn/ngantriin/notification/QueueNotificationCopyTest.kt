@@ -15,7 +15,7 @@ import java.time.Instant
 import java.time.LocalTime
 
 /**
- * Section 28.13: a lock screen is a public surface, so no notification may
+ * A lock screen is a public surface, so no notification may
  * name the restaurant a customer is queueing at. Needs a real Context (for
  * string resources), hence an instrumented test rather than a plain unit test
  * — mirrors the existing Room tests in this module.

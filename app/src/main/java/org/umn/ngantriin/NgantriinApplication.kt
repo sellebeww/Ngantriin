@@ -21,7 +21,7 @@ class NgantriinApplication : Application() {
         container.pushTokenSync.syncIn(container.applicationScope)
         container.queueNotificationScheduler.start(container.applicationScope)
 
-        // Section 21: catches up anything parked while the device was offline.
+        // Catches up anything parked while the device was offline.
         SyncScheduler.schedulePeriodic(this)
     }
 }

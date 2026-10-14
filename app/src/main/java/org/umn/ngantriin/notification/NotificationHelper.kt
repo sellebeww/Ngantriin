@@ -23,7 +23,7 @@ import org.umn.ngantriin.domain.model.NotificationType
 import org.umn.ngantriin.domain.model.QueueStatus
 
 /**
- * Section 15. Owns the notification channels and turns an [AppNotification]
+ * Owns the notification channels and turns an [AppNotification]
  * into something the system tray can show.
  *
  * Urgency is split across two channels on purpose: "your turn is coming" and
@@ -34,7 +34,7 @@ class NotificationHelper(private val context: Context) {
 
     private val manager = NotificationManagerCompat.from(context)
 
-    /** True once a google-services.json has been wired up (section 15). */
+    /** True once a google-services.json has been wired up. */
     val isPushConfigured: Boolean
         get() = FirebaseApp.getApps(context).isNotEmpty()
 
@@ -78,7 +78,7 @@ class NotificationHelper(private val context: Context) {
 
     /**
      * Posts [notification]. Silently does nothing when the user declined the
-     * permission (section 28.12) — the in-app notification list still has the
+     * permission — the in-app notification list still has the
      * record, so nothing is lost.
      */
     @SuppressLint("MissingPermission")
@@ -106,7 +106,7 @@ class NotificationHelper(private val context: Context) {
             .build()
 
         // One notification per ticket per milestone: the id is stable, so a
-        // repeat of the same event replaces rather than stacks (section 37).
+        // repeat of the same event replaces rather than stacks.
         runCatching { manager.notify(notification.id.hashCode(), built) }
     }
 
@@ -121,7 +121,7 @@ class NotificationHelper(private val context: Context) {
      * The ongoing "live queue" notification held by [QueueTrackingService]:
      * number, what to do now, and a running countdown while the check-in
      * window is open. Like every other notification here it never names the
-     * restaurant (section 28.13).
+     * restaurant.
      */
     fun buildLive(queue: ActiveQueue): Notification {
         val entry = queue.entry

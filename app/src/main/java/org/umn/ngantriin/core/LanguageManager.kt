@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 
 /**
- * Section 43: per-app language, independent of the device's system language.
+ * Per-app language, independent of the device's system language.
  *
  * Talks to the platform's `LocaleManager` directly on API 33+ rather than
  * through `AppCompatDelegate.setApplicationLocales()`: on this project's

@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import org.umn.ngantriin.R
 
 /**
- * Every failure the UI can show, from section 28. Screens render
+ * Every failure the UI can show. Screens render
  * [messageRes] rather than raw exception text, so an error always reads like
  * something a person wrote.
  */
@@ -43,7 +43,7 @@ sealed class AppError(
     /** Check-in attempted before the restaurant called the ticket. */
     data object QueueNotCalled : AppError(R.string.error_queue_not_called)
 
-    /** Section 16: called, but the check-in window ran out. */
+    /** Called, but the check-in window ran out. */
     data object CheckInExpired : AppError(R.string.error_check_in_expired)
 
     /** Check-in attempted from a status that doesn't allow it. */

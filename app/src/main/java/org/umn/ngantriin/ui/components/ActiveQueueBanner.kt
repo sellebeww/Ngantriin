@@ -28,7 +28,7 @@ import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * Section 4. The persistent reminder that a ticket is live: queue number,
+ * The persistent reminder that a ticket is live: queue number,
  * how many groups are left, and one tap back to the full screen.
  */
 @Composable

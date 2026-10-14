@@ -28,7 +28,7 @@ data class ReviewUiState(
     val alreadyReviewed: Boolean = false,
     val error: AppError? = null
 ) {
-    /** Section 20: a rating is required, the written review is optional. */
+    /** A rating is required, the written review is optional. */
     val canSubmit: Boolean
         get() = rating > 0 && !isSubmitting && !submitted &&
             entry?.status == QueueStatus.COMPLETED

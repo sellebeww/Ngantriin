@@ -1,5 +1,5 @@
 -- =============================================================================
--- NGANTRIIN — Sample restaurants (section 39), Gading Serpong area.
+-- NGANTRIIN — Sample restaurants, Gading Serpong area.
 -- Coordinates are real so nearby-distance and check-in radius behave sensibly.
 -- =============================================================================
 

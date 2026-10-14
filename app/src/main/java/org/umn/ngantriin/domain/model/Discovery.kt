@@ -3,7 +3,7 @@ package org.umn.ngantriin.domain.model
 import androidx.annotation.StringRes
 import org.umn.ngantriin.R
 
-/** Section 9 — sorting options offered on the discovery screen. */
+/** Sorting options offered on the discovery screen. */
 enum class RestaurantSort(@param:StringRes val labelRes: Int) {
     NEAREST(R.string.sort_nearest),
     SHORTEST_WAIT(R.string.sort_shortest_wait),
@@ -11,7 +11,7 @@ enum class RestaurantSort(@param:StringRes val labelRes: Int) {
     MOST_POPULAR(R.string.sort_most_popular)
 }
 
-/** Section 9 — the filter set. All fields are optional and combine with AND. */
+/** The filter set. All fields are optional and combine with AND. */
 data class RestaurantFilters(
     val query: String = "",
     val category: String? = null,

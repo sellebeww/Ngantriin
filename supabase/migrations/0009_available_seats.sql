@@ -6,7 +6,7 @@
 -- parties may WAIT in line. While a restaurant has seats open there is no
 -- reason to make anyone queue for it: the client shows an info banner
 -- ("N kursi kosong") instead of the Join Queue button, and joins only become
--- possible again once available_seats drops to 0 (section 44). join_queue()
+-- possible again once available_seats drops to 0. join_queue()
 -- re-checks this itself so a stale client can't bypass the client-side gate.
 -- =============================================================================
 
@@ -44,17 +44,16 @@ begin
         raise exception 'RESTAURANT_NOT_FOUND' using errcode = 'no_data_found';
     end if;
 
-    -- Section 28.1
     if not v_restaurant.is_open then
         raise exception 'RESTAURANT_CLOSED' using errcode = 'check_violation';
     end if;
 
-    -- Section 44: walk in instead, there's nothing to queue for yet.
+    -- Walk in instead, there's nothing to queue for yet.
     if v_restaurant.available_seats > 0 then
         raise exception 'SEATS_AVAILABLE' using errcode = 'check_violation';
     end if;
 
-    -- Section 28.3 / 28.4 — surfaced as a friendly message by the client.
+    -- Surfaced as a friendly message by the client.
     -- (queues_one_active_per_user_idx is the hard backstop if this is ever
     -- bypassed; this check is what turns it into a message instead of a
     -- raw constraint-violation error.)
@@ -66,7 +65,7 @@ begin
         raise exception 'ALREADY_IN_QUEUE' using errcode = 'unique_violation';
     end if;
 
-    -- Section 28.10: a brief cooldown after cancelling, so a customer can't
+    -- A brief cooldown after cancelling, so a customer can't
     -- spam join -> cancel -> join at the same restaurant.
     if exists (
         select 1 from public.queues
@@ -78,7 +77,6 @@ begin
         raise exception 'JOIN_COOLDOWN' using errcode = 'check_violation';
     end if;
 
-    -- Section 28.2
     select count(*) into v_waiting
     from public.queues
     where restaurant_id = p_restaurant_id

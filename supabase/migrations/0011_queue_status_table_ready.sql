@@ -5,7 +5,7 @@
 -- value in the same transaction that added it, and every migration file runs
 -- in one transaction. 0012 is where these values are actually used.
 --
--- The journey this enables (section 14, revised):
+-- The journey this enables:
 --
 --   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
 --

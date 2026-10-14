@@ -44,7 +44,6 @@ import org.umn.ngantriin.ui.components.RestaurantCard
 import org.umn.ngantriin.ui.components.RestaurantCardSkeleton
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 9. */
 @Composable
 fun SearchScreen(
     onRestaurantClick: (String) -> Unit,

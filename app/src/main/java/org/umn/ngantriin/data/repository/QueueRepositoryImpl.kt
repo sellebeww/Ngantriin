@@ -36,7 +36,7 @@ import org.umn.ngantriin.work.OfflineWriteQueue
 import org.umn.ngantriin.work.PendingAction
 
 /**
- * Sections 11-13. Room is the render source and Supabase Realtime is what
+ * Room is the render source and Supabase Realtime is what
  * keeps it current, so the UI has data on the first frame and updates without
  * anyone pulling to refresh.
  */
@@ -186,7 +186,7 @@ class QueueRepositoryImpl(
 
         // Offline: park it rather than cancelling locally. Showing a ticket as
         // cancelled and then having it reappear would break the one promise
-        // section 18 makes — CANCELLED is final.
+        // the state machine makes — CANCELLED is final.
         if (outcome is Outcome.Failure && outcome.error is AppError.Network) {
             offlineWriteQueue.park(PendingAction.LeaveQueue(queueId))
             return Outcome.Failure(AppError.OfflineActionQueued)
@@ -245,7 +245,7 @@ class QueueRepositoryImpl(
     /**
      * Combines a ticket with everything around it. [serverPosition] is
      * authoritative when present; otherwise we fall back to what is cached,
-     * which keeps the screen sensible offline (section 21).
+     * which keeps the screen sensible offline.
      */
     private fun buildActiveQueue(
         entry: QueueEntry,

@@ -11,7 +11,7 @@ interface ReviewRepository {
     suspend fun refreshReviews(restaurantId: String): Outcome<Unit>
 
     /**
-     * Section 20. Creates the review, or updates rating and text if this
+     * Creates the review, or updates rating and text if this
      * visit was already reviewed. Rejected with
      * [org.umn.ngantriin.core.AppError.ReviewNotAllowed] unless the ticket
      * belongs to the caller and is COMPLETED.

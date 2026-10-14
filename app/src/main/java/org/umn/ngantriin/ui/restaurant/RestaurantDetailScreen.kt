@@ -72,7 +72,6 @@ import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Sections 10 and 11. */
 @Composable
 fun RestaurantDetailScreen(
     restaurantId: String,
@@ -287,7 +286,7 @@ private fun DetailHeader(
     }
 }
 
-/** Section 10's queue status card. */
+/** Queue status card. */
 @Composable
 private fun QueueStatusCard(state: RestaurantDetailUiState) {
     val restaurant = state.restaurant ?: return
@@ -430,7 +429,7 @@ private fun JoinQueueBar(
                     )
                 }
 
-                // Section 44: seats are open right now — a walk-in, not a
+                // Seats are open right now — a walk-in, not a
                 // queue. No button here on purpose; there's nothing to tap.
                 state.hasAvailableSeats && state.isOpen -> {
                     Row(

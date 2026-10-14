@@ -28,7 +28,6 @@ import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 7. */
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit,

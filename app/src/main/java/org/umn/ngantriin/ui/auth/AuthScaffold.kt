@@ -33,7 +33,7 @@ import org.umn.ngantriin.ui.components.NgantriinLogo
 import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
-/** Shared chrome for the sign-in and sign-up screens (section 7). */
+/** Shared chrome for the sign-in and sign-up screens. */
 @Composable
 fun AuthScaffold(
     title: String,
@@ -97,7 +97,7 @@ fun AuthScaffold(
 }
 
 /**
- * Section 31. Demo mode does not authenticate anyone, and saying so plainly
+ * Demo mode does not authenticate anyone, and saying so plainly
  * is better than a sign-in form that looks like it checks something.
  */
 @Composable

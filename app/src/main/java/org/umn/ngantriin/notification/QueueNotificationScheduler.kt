@@ -26,7 +26,7 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Section 37, local half.
+ * Local half.
  *
  * Push is the primary delivery channel: a Supabase Edge Function watches the
  * `queues` table and sends through FCM, which reaches the phone whether or not

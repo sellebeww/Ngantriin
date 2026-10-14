@@ -102,7 +102,7 @@ val NgantriinTypography = Typography(
 
 /**
  * The queue number is the single largest element on the active-queue screen
- * (section 25/41), so it gets a style of its own rather than borrowing
+ *, so it gets a style of its own rather than borrowing
  * displayLarge, which is also used for onboarding.
  */
 val QueueNumberStyle = TextStyle(

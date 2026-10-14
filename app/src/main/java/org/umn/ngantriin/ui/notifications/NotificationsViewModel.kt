@@ -24,7 +24,7 @@ data class NotificationsUiState(
     val isEmpty: Boolean get() = !isLoading && notifications.isEmpty()
 }
 
-/** Screen 16. The in-app record of every push the backend sent (section 37). */
+/** Screen 16. The in-app record of every push the backend sent. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotificationsViewModel(
     private val authRepository: AuthRepository,

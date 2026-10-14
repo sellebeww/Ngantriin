@@ -77,7 +77,7 @@ data class ActiveQueue(
     val entry: QueueEntry,
     val restaurant: Restaurant,
     val stats: QueueStats,
-    /** Section 23: groups still in front of this ticket. */
+    /** Groups still in front of this ticket. */
     val peopleAhead: Int,
     val estimatedWaitMinutes: Int
 ) {
@@ -88,7 +88,7 @@ data class ActiveQueue(
     val status: QueueStatus get() = entry.status
 
     /**
-     * Section 17: the customer can check in as soon as they're at the
+     * The customer can check in as soon as they're at the
      * restaurant — early, or once called and still inside the window.
      */
     val canCheckIn: Boolean
@@ -97,14 +97,14 @@ data class ActiveQueue(
     /** It's this ticket's turn and the clock is running. */
     val isCheckInCountdown: Boolean get() = entry.status == QueueStatus.CALLED
 
-    /** Section 18: any live ticket can be given up. */
+    /** Any live ticket can be given up. */
     val canLeave: Boolean get() = entry.status.isActive
 
     /** Position and wait only mean something until the restaurant calls you. */
     val showsLinePosition: Boolean get() = entry.isWaitingToBeCalled
 }
 
-/** A past ticket, as rendered by the history screen (section 19). */
+/** A past ticket, as rendered by the history screen. */
 data class QueueHistoryItem(
     val entry: QueueEntry,
     val restaurantName: String,

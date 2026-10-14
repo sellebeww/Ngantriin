@@ -49,13 +49,13 @@ data class RestaurantDetailUiState(
     val hasQueueHere: Boolean
         get() = activeQueue != null && activeQueue.restaurant.id == restaurant?.id
 
-    /** Section 28.3: one active queue, anywhere. */
+    /** One active queue, anywhere. */
     val hasQueueElsewhere: Boolean
         get() = activeQueue != null && activeQueue.restaurant.id != restaurant?.id
 
     val isOpen: Boolean get() = restaurant?.isAcceptingQueue() == true
 
-    /** Section 44: seats are open right now, nothing to queue for yet. */
+    /** Seats are open right now, nothing to queue for yet. */
     val hasAvailableSeats: Boolean get() = restaurant?.hasAvailableSeats == true
 
     val isQueueFull: Boolean
@@ -143,7 +143,7 @@ class RestaurantDetailViewModel(
     }
 
     /**
-     * Section 11. The ticket number comes back from the backend; the screen
+     * The ticket number comes back from the backend; the screen
      * only forwards the id it was given.
      */
     fun joinQueue() {

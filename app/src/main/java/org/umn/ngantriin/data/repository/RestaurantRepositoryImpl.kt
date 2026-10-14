@@ -28,7 +28,7 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Cache-first (section 21). Room is what the UI renders; the network only ever
+ * Cache-first. Room is what the UI renders; the network only ever
  * writes into Room. A failed request leaves the previous rows exactly where
  * they were, so going offline degrades to stale data rather than an empty
  * screen.
@@ -64,7 +64,7 @@ class RestaurantRepositoryImpl(
 
         launch {
             refreshCatalogueIfStale()
-            // Section 36: counters stay live without the user pulling to refresh.
+            // Counters stay live without the user pulling to refresh.
             remote.observeAllQueueStatsChanges()
                 .onStart { emit(Unit) }
                 .collect { refreshStatsOnly() }
@@ -138,7 +138,7 @@ class RestaurantRepositoryImpl(
         }.onFailure { Log.i(TAG, "Stats refresh failed for $restaurantId", it) }
     }
 
-    /** Section 9. Filters are AND-combined; an unset filter is simply skipped. */
+    /** Filters are AND-combined; an unset filter is simply skipped. */
     private fun List<RestaurantListing>.filtered(
         filters: RestaurantFilters
     ): List<RestaurantListing> {

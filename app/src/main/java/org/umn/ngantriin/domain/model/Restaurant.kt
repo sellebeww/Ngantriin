@@ -16,20 +16,20 @@ data class Restaurant(
     val openingTime: LocalTime,
     val closingTime: LocalTime,
     val isOpen: Boolean,
-    /** Section 23: the multiplier behind every wait estimate. */
+    /** The multiplier behind every wait estimate. */
     val averageServiceMinutes: Int,
     val queuePrefix: String,
     val queueCapacity: Int,
-    /** Section 16: how close a customer must be to check in. */
+    /** How close a customer must be to check in. */
     val checkInRadiusMeters: Int,
-    /** Section 44: open tables right now — a walk-in, not a queue. */
+    /** Open tables right now — a walk-in, not a queue. */
     val availableSeats: Int = 0,
-    /** Section 16: minutes a called customer has to check in before expiry. */
+    /** Minutes a called customer has to check in before expiry. */
     val checkInWindowMinutes: Int = QueueMath.DEFAULT_CHECK_IN_WINDOW_MINUTES
 ) {
     val location: GeoPoint get() = GeoPoint(latitude, longitude)
 
-    /** Section 44: seats are open, so there's nothing to queue for yet. */
+    /** Seats are open, so there's nothing to queue for yet. */
     val hasAvailableSeats: Boolean get() = availableSeats > 0
 
     /** "10:00 - 22:00" */
@@ -66,7 +66,7 @@ data class Restaurant(
 /**
  * A restaurant as it appears in a list: the venue itself plus the two facts
  * that make this app worth opening — how long the line is and how far away it
- * is. Distance is null until a location fix is available (section 38).
+ * is. Distance is null until a location fix is available.
  */
 data class RestaurantListing(
     val restaurant: Restaurant,

@@ -52,7 +52,7 @@ class SupabaseReviewRemoteDataSource(
     /**
      * The insert is allowed only by the `reviews_insert_completed_only` policy,
      * which re-checks that the ticket is the caller's and is COMPLETED
-     * (section 20). No client-side guard can be bypassed by skipping the UI.
+     *. No client-side guard can be bypassed by skipping the UI.
      */
     override suspend fun submitReview(
         queueId: String,

@@ -1,7 +1,7 @@
 package org.umn.ngantriin.domain.model
 
 /**
- * The queue state machine (section 14). These names match the `queue_status`
+ * The queue state machine. These names match the `queue_status`
  * Postgres enum one-for-one — that is the whole point of having an enum here
  * rather than passing raw strings around.
  *

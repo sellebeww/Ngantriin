@@ -6,7 +6,7 @@ import org.junit.Test
 import org.umn.ngantriin.domain.model.Restaurant
 import java.time.LocalTime
 
-/** Section 28.1: whether a venue is taking queues right now. */
+/** Whether a venue is taking queues right now. */
 class RestaurantOpeningTest {
 
     @Test

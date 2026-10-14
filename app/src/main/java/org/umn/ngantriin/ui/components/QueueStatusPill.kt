@@ -33,7 +33,7 @@ import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * Section 42: every status carries an icon and a word, so the state is still
+ * Every status carries an icon and a word, so the state is still
  * readable if the colour is not.
  */
 @Composable

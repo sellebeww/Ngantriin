@@ -1,15 +1,15 @@
 -- =============================================================================
 -- NGANTRIIN — Queue state machine (server side)
 --
--- Section 11 / 44: queue numbers are allocated by the database, never by the
+-- Queue numbers are allocated by the database, never by the
 -- client. Every transition below is a single atomic statement, so two phones
 -- pressing "Join Queue" at the same instant can never receive the same number.
 -- =============================================================================
 
--- Section 14, the only legal transitions:
+-- The only legal transitions:
 --   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> COMPLETED
 --   WAITING | ALMOST_THERE | CALLED -> CANCELLED
---   (CANCELLED and COMPLETED are terminal — section 18)
+--   (CANCELLED and COMPLETED are terminal)
 create or replace function public.is_valid_queue_transition(
     p_from queue_status,
     p_to   queue_status
@@ -71,12 +71,11 @@ begin
         raise exception 'RESTAURANT_NOT_FOUND' using errcode = 'no_data_found';
     end if;
 
-    -- Section 28.1
     if not v_restaurant.is_open then
         raise exception 'RESTAURANT_CLOSED' using errcode = 'check_violation';
     end if;
 
-    -- Section 28.3 / 28.4 — surfaced as a friendly message by the client.
+    -- Surfaced as a friendly message by the client.
     if exists (
         select 1 from public.queues
         where user_id = v_user
@@ -85,7 +84,6 @@ begin
         raise exception 'ALREADY_IN_QUEUE' using errcode = 'unique_violation';
     end if;
 
-    -- Section 28.2
     select count(*) into v_waiting
     from public.queues
     where restaurant_id = p_restaurant_id
@@ -125,7 +123,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- cancel_queue — customer leaves the queue (section 18)
+-- cancel_queue — customer leaves the queue
 -- -----------------------------------------------------------------------------
 create or replace function public.cancel_queue(p_queue_id uuid)
 returns public.queues
@@ -150,7 +148,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- check_in — GPS-verified arrival (sections 16 / 17)
+-- check_in — GPS-verified arrival
 --
 -- The distance is recomputed here from the restaurant row, so a client that
 -- lies about its distance still cannot check in from the other side of town.
@@ -201,7 +199,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Staff transitions (section 24)
+-- Staff transitions
 -- -----------------------------------------------------------------------------
 create or replace function public.is_restaurant_staff(p_restaurant_id uuid)
 returns boolean
@@ -214,7 +212,7 @@ as $$
 $$;
 
 -- Calls the longest-waiting ticket. Any ticket already CALLED but never checked
--- in is left alone; staff resolve it explicitly (section 28.9).
+-- in is left alone; staff resolve it explicitly.
 create or replace function public.call_next(p_restaurant_id uuid)
 returns public.queues
 language plpgsql
@@ -279,7 +277,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Position + wait estimate (section 23), computed server side so the phone and
+-- Position + wait estimate, computed server side so the phone and
 -- the dashboard can never disagree.
 -- -----------------------------------------------------------------------------
 create or replace function public.queue_position(p_queue_id uuid)
@@ -316,7 +314,7 @@ as $$
     left join public.queue_stats s on s.restaurant_id = t.restaurant_id;
 $$;
 
--- Promotes tickets that are now near the front (section 37). Called by the
+-- Promotes tickets that are now near the front. Called by the
 -- Edge Function after every queue change; safe to run repeatedly.
 create or replace function public.promote_almost_there(p_restaurant_id uuid)
 returns setof public.queues

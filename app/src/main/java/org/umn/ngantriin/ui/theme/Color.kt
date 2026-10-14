@@ -25,8 +25,8 @@ val SurfaceWhite = Color(0xFFFFFFFF)
 val OrangeAccent = Color(0xFFA74608)
 val OrangeAccentContainer = Color(0xFFFFEDD9)
 
-// Queue status ramp — section 14. Each of these is always paired with an icon
-// and a text label so colour is never the only signal (section 42).
+// Queue status ramp. Each of these is always paired with an icon
+// and a text label so colour is never the only signal.
 val StatusWaiting = Color(0xFFB2740B)
 val StatusWaitingContainer = Color(0xFFFFF0D2)
 val StatusAlmostThere = Color(0xFFC2410C)

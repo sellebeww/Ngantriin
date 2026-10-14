@@ -28,7 +28,7 @@ import org.umn.ngantriin.core.Constants
 import org.umn.ngantriin.domain.repository.SessionState
 
 /**
- * Section 15, the "you can leave" promise when there is no push.
+ * The "you can leave" promise when there is no push.
  *
  * While a ticket is live this foreground service keeps the process — and so
  * the Realtime subscription and [QueueNotificationScheduler] — alive after the

@@ -83,7 +83,7 @@ create table if not exists public.restaurants (
     opening_time            time    not null default '10:00',
     closing_time            time    not null default '22:00',
     is_open                 boolean not null default true,
-    -- Queue configuration (section 23: estimate = avg service time x people ahead)
+    -- Queue configuration (estimate = avg service time x people ahead)
     average_service_minutes integer not null default 3,
     queue_prefix            text    not null default 'A',
     queue_capacity          integer not null default 50,
@@ -127,7 +127,7 @@ create index if not exists queues_restaurant_active_idx
     on public.queues (restaurant_id, ticket_sequence)
     where status in ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN');
 
--- Section 28.3/28.4: one active queue per customer, enforced by the database
+-- One active queue per customer, enforced by the database
 -- rather than by a client-side check.
 create unique index if not exists queues_one_active_per_user_idx
     on public.queues (user_id)
@@ -265,7 +265,7 @@ create table if not exists public.notifications (
     type       notification_type not null,
     is_read    boolean           not null default false,
     created_at timestamptz       not null default now(),
-    -- Section 37: guarantees a given milestone fires at most once per ticket.
+    -- Guarantees a given milestone fires at most once per ticket.
     unique (queue_id, type)
 );
 

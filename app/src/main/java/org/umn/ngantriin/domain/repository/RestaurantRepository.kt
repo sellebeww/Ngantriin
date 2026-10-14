@@ -14,7 +14,7 @@ interface RestaurantRepository {
      * Cache-first stream of restaurants matching [filters], with distances
      * resolved against [origin] when a location fix exists.
      *
-     * The flow emits whatever is cached immediately (section 21) and again
+     * The flow emits whatever is cached immediately and again
      * whenever a refresh or a realtime stats change lands, so the screen never
      * shows a blank list while the network is slow.
      */
@@ -28,7 +28,7 @@ interface RestaurantRepository {
 
     fun observeRestaurant(restaurantId: String): Flow<Restaurant?>
 
-    /** Section 36: live queue counters for one venue. */
+    /** Live queue counters for one venue. */
     fun observeQueueStats(restaurantId: String): Flow<QueueStats?>
 
     suspend fun refreshRestaurant(restaurantId: String): Outcome<Restaurant>
@@ -36,6 +36,6 @@ interface RestaurantRepository {
     /** The distinct categories present in the catalogue, for the filter sheet. */
     fun observeCategories(): Flow<List<String>>
 
-    /** Section 24: the venues this staff account is allowed to manage. */
+    /** The venues this staff account is allowed to manage. */
     suspend fun managedRestaurants(userId: String): Outcome<List<Restaurant>>
 }

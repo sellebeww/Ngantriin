@@ -17,6 +17,6 @@ object Spacing {
     /** Horizontal gutter used by every full-width screen. */
     val screenGutter = 20.dp
 
-    /** Minimum touch target (section 42). */
+    /** Minimum touch target. */
     val touchTarget = 48.dp
 }

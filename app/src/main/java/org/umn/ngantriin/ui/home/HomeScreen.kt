@@ -58,7 +58,6 @@ import org.umn.ngantriin.ui.components.greetingText
 import org.umn.ngantriin.ui.components.rememberLocationPermissionState
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 8. */
 @Composable
 fun HomeScreen(
     onRestaurantClick: (String) -> Unit,

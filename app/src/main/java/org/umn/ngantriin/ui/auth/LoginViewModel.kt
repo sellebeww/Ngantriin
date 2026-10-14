@@ -46,7 +46,7 @@ class LoginViewModel(
 
     /**
      * Navigation is not triggered from here: the session flow is the single
-     * source of truth for where the app should be (section 35), so a
+     * source of truth for where the app should be, so a
      * successful sign-in simply lets that flow move the user.
      */
     fun signIn() {

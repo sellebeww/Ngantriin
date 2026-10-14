@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.umn.ngantriin.R
 
-/** Section 6. Copy and illustration for each onboarding page. */
+/** Copy and illustration for each onboarding page. */
 enum class OnboardingPage(
     @param:StringRes val titleRes: Int,
     @param:StringRes val descriptionRes: Int

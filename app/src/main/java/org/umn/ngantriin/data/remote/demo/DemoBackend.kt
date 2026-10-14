@@ -24,7 +24,7 @@ import java.util.UUID
  *
  * It is not a shortcut around the real backend. It enforces the same rules the
  * SQL functions do — server-allocated ticket numbers, one active queue per
- * customer, the transition table in section 14, the check-in window and its
+ * customer, the queue transition table, the check-in window and its
  * expiry, early check-in going straight to TABLE_READY when called — and it
  * pushes change notifications through the same Flow contract Supabase
  * Realtime uses. Swapping the two out changes nothing above the data source.
@@ -375,7 +375,7 @@ class DemoBackend(private val database: NgantriinDatabase) {
         return result
     }
 
-    /** Section 37: tickets near the front move to ALMOST_THERE on their own. */
+    /** Tickets near the front move to ALMOST_THERE on their own. */
     private fun promoteAlmostThere(restaurantId: String) {
         val live = queues.values.filter { it.restaurantId == restaurantId }
         live.filter { it.status == QueueStatus.WAITING }.forEach { entry ->

@@ -1,5 +1,5 @@
 -- =============================================================================
--- NGANTRIIN — Row Level Security (section 31)
+-- NGANTRIIN — Row Level Security
 --
 -- Rule of thumb: the client may read what it needs to render a screen and
 -- nothing more. Every write that changes queue state goes through a SECURITY
@@ -68,7 +68,7 @@ drop policy if exists reviews_select_all on public.reviews;
 create policy reviews_select_all on public.reviews
     for select to authenticated, anon using (true);
 
--- Section 20: a review requires a COMPLETED queue that belongs to the author.
+-- A review requires a COMPLETED queue that belongs to the author.
 drop policy if exists reviews_insert_completed_only on public.reviews;
 create policy reviews_insert_completed_only on public.reviews
     for insert with check (
@@ -96,7 +96,7 @@ create policy notifications_update_own on public.notifications
     for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- =============================================================================
--- Realtime (section 36): the client subscribes to queues and queue_stats.
+-- Realtime: the client subscribes to queues and queue_stats.
 -- RLS above is still applied to realtime payloads.
 -- =============================================================================
 alter publication supabase_realtime add table public.queues;

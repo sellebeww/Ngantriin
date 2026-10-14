@@ -105,7 +105,7 @@ fun InfoRow(
     }
 }
 
-/** Section 18. Destructive actions always ask first. */
+/** Destructive actions always ask first. */
 @Composable
 fun ConfirmDialog(
     title: String,
@@ -143,7 +143,7 @@ fun ConfirmDialog(
 }
 
 /**
- * Section 42. A full-height column that keeps its trailing content — in
+ * A full-height column that keeps its trailing content — in
  * practice the screen's main button — against the bottom edge, but scrolls
  * rather than pushing it out of reach when everything does not fit: a short
  * phone, a large font scale, or an open keyboard.

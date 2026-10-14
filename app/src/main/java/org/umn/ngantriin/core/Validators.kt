@@ -7,7 +7,7 @@ import org.umn.ngantriin.R
  * Form rules, kept out of the ViewModels so they can be unit tested. Returns
  * a `@StringRes` id rather than raw text — mirroring [AppError] — so the
  * screen resolves it through `stringResource()` and picks up whichever
- * language Settings -> Language selected (section 43).
+ * language Settings -> Language selected.
  */
 object Validators {
 

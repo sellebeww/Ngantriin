@@ -53,7 +53,7 @@ import org.umn.ngantriin.ui.components.dateTimeText
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 22 (section 24): the full history of one ticket. */
+/** Screen 22: the full history of one ticket. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaffCustomerDetailScreen(

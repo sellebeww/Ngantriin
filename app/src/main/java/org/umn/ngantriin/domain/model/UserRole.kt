@@ -1,6 +1,6 @@
 package org.umn.ngantriin.domain.model
 
-/** Section 3. Drives the post-login destination (section 35). */
+/** Drives the post-login destination. */
 enum class UserRole {
     CUSTOMER,
     STAFF;

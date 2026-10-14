@@ -9,7 +9,7 @@ interface UserPreferencesRepository {
     val onboardingCompleted: Flow<Boolean>
     suspend fun setOnboardingCompleted(completed: Boolean)
 
-    /** Section 38: whether the location rationale has already been shown. */
+    /** Whether the location rationale has already been shown. */
     val locationRationaleShown: Flow<Boolean>
     suspend fun setLocationRationaleShown(shown: Boolean)
 

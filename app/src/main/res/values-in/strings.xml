@@ -2,14 +2,14 @@
     <string name="app_name">Ngantriin</string>
     <string name="app_tagline">Good Food • Less Wait • Happier You</string>
 
-    <!-- Bottom navigation (section 4) -->
+    <!-- Bottom navigation -->
     <string name="nav_home">Beranda</string>
     <string name="nav_search">Cari</string>
     <string name="nav_queue">Antrean Saya</string>
     <string name="nav_history">Riwayat</string>
     <string name="nav_profile">Profil</string>
 
-    <!-- Queue status labels (section 14) -->
+    <!-- Queue status labels -->
     <string name="status_waiting">Menunggu</string>
     <string name="status_almost_there">Segera tiba giliran</string>
     <string name="status_called">Giliranmu!</string>
@@ -17,13 +17,13 @@
     <string name="status_completed">Selesai</string>
     <string name="status_cancelled">Dibatalkan</string>
 
-    <!-- Notification channels (section 15) -->
+    <!-- Notification channels -->
     <string name="channel_queue_updates_name">Update antrean</string>
     <string name="channel_queue_updates_description">Perubahan posisi selama kamu menunggu.</string>
     <string name="channel_queue_called_name">Giliranmu</string>
     <string name="channel_queue_called_description">Dikirim begitu restoran memanggil nomormu.</string>
 
-    <!-- Push notification copy (section 15) -->
+    <!-- Push notification copy -->
     <string name="push_almost_there_title">Giliranmu sebentar lagi</string>
     <plurals name="push_almost_there_body">
         <item quantity="other">Tinggal %1$d grup lagi di depanmu. Estimasi tunggu: %2$s.</item>
@@ -40,7 +40,7 @@
     <string name="push_cancelled_body">Tiketmu sudah tidak aktif.</string>
     <string name="push_queue_update_title">Update antrean</string>
 
-    <!-- Errors (section 28) -->
+    <!-- Errors -->
     <string name="error_network">Tidak ada koneksi internet. Periksa jaringanmu dan coba lagi.</string>
     <string name="error_server">Ada masalah di sistem kami. Silakan coba lagi.</string>
     <string name="error_session_expired">Sesimu telah berakhir. Silakan masuk kembali.</string>
@@ -49,7 +49,7 @@
     <string name="error_queue_full">Antrean ini sudah penuh. Coba lagi sebentar lagi.</string>
     <string name="error_seats_available">Restoran ini masih ada kursi kosong — tidak perlu antre, langsung datang saja.</string>
 
-    <!-- Section 44: "kursi kosong" walk-in availability -->
+    <!-- "kursi kosong" walk-in availability -->
     <plurals name="seats_available_title">
         <item quantity="other">%1$d kursi kosong tersedia</item>
     </plurals>
@@ -57,7 +57,7 @@
     <string name="seats_available_badge">Kursi kosong</string>
     <string name="seats_available_count">%1$d kosong</string>
 
-    <!-- Localized equivalents of core/Formatters.kt (section 43) -->
+    <!-- Localized equivalents of core/Formatters.kt -->
     <string name="distance_unknown">—</string>
     <string name="distance_meters">%1$d m</string>
     <string name="distance_km">%1$.1f km</string>
@@ -419,7 +419,7 @@
     <string name="error_offline_action_queued">Kamu sedang offline. Kami akan selesaikan begitu kamu online lagi.</string>
     <string name="error_unknown">Terjadi kesalahan tak terduga. Silakan coba lagi.</string>
 
-    <!-- Content descriptions (section 42) -->
+    <!-- Content descriptions -->
     <string name="cd_notifications">Notifikasi</string>
     <string name="cd_back">Kembali</string>
     <string name="cd_restaurant_photo">Foto %1$s</string>

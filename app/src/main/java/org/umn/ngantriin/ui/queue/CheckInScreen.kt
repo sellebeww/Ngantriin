@@ -67,7 +67,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 import java.io.File
 
-/** Sections 16 and 17: the customer photographs themselves at the restaurant. */
+/** The customer photographs themselves at the restaurant. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckInScreen(

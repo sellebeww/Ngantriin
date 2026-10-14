@@ -27,7 +27,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Section 41's progress section: where the restaurant is now, where this
+ * Progress section: where the restaurant is now, where this
  * ticket sits, and how much of the gap has closed.
  */
 @Composable

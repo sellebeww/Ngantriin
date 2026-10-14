@@ -37,7 +37,7 @@ import org.umn.ngantriin.ui.staff.StaffDashboardScreen
 import org.umn.ngantriin.ui.staff.StaffQueueScreen
 
 /**
- * Section 35. One graph for the whole app; which area you land in is decided
+ * One graph for the whole app; which area you land in is decided
  * by the session (see NgantriinApp), not by each screen navigating manually.
  */
 @Composable

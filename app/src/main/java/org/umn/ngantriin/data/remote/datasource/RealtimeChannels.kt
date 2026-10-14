@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 /**
- * Section 36. Subscribes to Postgres changes and emits a bare tick per change.
+ * Subscribes to Postgres changes and emits a bare tick per change.
  *
  * Deltas are deliberately discarded: the repository re-reads the rows it cares
  * about on every tick. That costs one small query but means a dropped,

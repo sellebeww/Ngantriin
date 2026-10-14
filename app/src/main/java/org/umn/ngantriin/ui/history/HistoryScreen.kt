@@ -48,7 +48,6 @@ import org.umn.ngantriin.ui.components.dateTimeText
 import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Section 19. */
 @Composable
 fun HistoryScreen(
     onFindRestaurants: () -> Unit,
@@ -157,7 +156,7 @@ private fun HistoryCard(
     modifier: Modifier = Modifier
 ) {
     val entry = item.entry
-    // Section 20: only a completed visit can be reviewed, and only once.
+    // Only a completed visit can be reviewed, and only once.
     val canRate = entry.status == QueueStatus.COMPLETED && !item.hasReview
 
     Surface(

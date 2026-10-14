@@ -12,7 +12,7 @@ import org.umn.ngantriin.BuildConfig
 
 /**
  * Builds the Supabase client from the credentials in local.properties
- * (section 31). Returns null when they are absent, which is the signal the
+ *. Returns null when they are absent, which is the signal the
  * DI container uses to fall back to the demo backend.
  */
 object SupabaseClientFactory {
