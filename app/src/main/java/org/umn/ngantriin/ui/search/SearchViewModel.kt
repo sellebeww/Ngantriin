@@ -21,6 +21,7 @@ import org.umn.ngantriin.domain.model.RestaurantFilters
 import org.umn.ngantriin.domain.model.RestaurantListing
 import org.umn.ngantriin.domain.model.RestaurantSort
 import org.umn.ngantriin.domain.repository.RestaurantRepository
+import org.umn.ngantriin.domain.repository.UserPreferencesRepository
 import org.umn.ngantriin.location.LocationTracker
 
 data class SearchUiState(
@@ -28,12 +29,14 @@ data class SearchUiState(
     val filters: RestaurantFilters = RestaurantFilters(),
     val results: List<RestaurantListing> = emptyList(),
     val categories: List<String> = emptyList(),
+    val favoriteIds: Set<String> = emptySet(),
+    val favoritesOnly: Boolean = false,
     val isLoading: Boolean = true,
     val isOffline: Boolean = false,
     val hasLocation: Boolean = false
 ) {
     val isEmpty: Boolean get() = !isLoading && results.isEmpty()
-    val activeFilterCount: Int get() = filters.activeFilterCount
+    val activeFilterCount: Int get() = filters.activeFilterCount + if (favoritesOnly) 1 else 0
 }
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -41,6 +44,7 @@ class SearchViewModel(
     private val restaurantRepository: RestaurantRepository,
     private val locationTracker: LocationTracker,
     connectivityObserver: ConnectivityObserver,
+    private val preferences: UserPreferencesRepository,
     initialQuery: String = ""
 ) : ViewModel() {
 
@@ -50,6 +54,7 @@ class SearchViewModel(
 
     private val filters = MutableStateFlow(RestaurantFilters(query = initialQuery))
     private val firstLoadDone = MutableStateFlow(false)
+    private val favoritesOnly = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -75,19 +80,26 @@ class SearchViewModel(
         query,
         filters,
         results,
-        restaurantRepository.observeCategories(),
+        combine(
+            restaurantRepository.observeCategories(),
+            preferences.favoriteRestaurantIds,
+            favoritesOnly
+        ) { categories, ids, only -> Triple(categories, ids, only) },
         combine(
             connectivityObserver.online,
             locationTracker.location.map { it != null },
             firstLoadDone
         ) { online, hasLocation, loaded -> Triple(online, hasLocation, loaded) }
-    ) { text, activeFilters, listings, categories, environment ->
+    ) { text, activeFilters, listings, catalogue, environment ->
+        val (categories, favoriteIds, onlyFavorites) = catalogue
         val (online, hasLocation, loaded) = environment
         SearchUiState(
             query = text,
             filters = activeFilters,
-            results = listings,
+            results = if (onlyFavorites) listings.filter { it.id in favoriteIds } else listings,
             categories = categories,
+            favoriteIds = favoriteIds,
+            favoritesOnly = onlyFavorites,
             isLoading = listings.isEmpty() && !loaded,
             isOffline = !online,
             hasLocation = hasLocation
@@ -96,6 +108,14 @@ class SearchViewModel(
 
     fun onQueryChange(value: String) {
         query.value = value
+    }
+
+    fun toggleFavorite(restaurantId: String) {
+        viewModelScope.launch { preferences.toggleFavoriteRestaurant(restaurantId) }
+    }
+
+    fun onFavoritesOnlyChange(enabled: Boolean) {
+        favoritesOnly.value = enabled
     }
 
     fun clearQuery() {
@@ -114,6 +134,7 @@ class SearchViewModel(
     }
 
     fun clearFilters() {
+        favoritesOnly.value = false
         filters.update { RestaurantFilters(query = it.query, sort = it.sort) }
     }
 }

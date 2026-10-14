@@ -53,7 +53,8 @@ fun SearchScreen(
         SearchViewModel(
             restaurantRepository = container.restaurantRepository,
             locationTracker = container.locationTracker,
-            connectivityObserver = container.connectivityObserver
+            connectivityObserver = container.connectivityObserver,
+            preferences = container.userPreferencesRepository
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -138,7 +139,9 @@ fun SearchScreen(
 
         SortRow(
             selected = state.filters.sort,
-            onSelect = viewModel::onSortChange
+            onSelect = viewModel::onSortChange,
+            favoritesOnly = state.favoritesOnly,
+            onFavoritesOnlyChange = viewModel::onFavoritesOnlyChange
         )
 
         Spacer(Modifier.height(Spacing.md))
@@ -188,7 +191,13 @@ fun SearchScreen(
                         icon = Icons.Outlined.SearchOff,
                         title = stringResource(R.string.search_empty_title),
                         message = if (state.activeFilterCount > 0) {
-                            stringResource(R.string.search_empty_with_filters)
+                            stringResource(
+                                if (state.favoritesOnly && state.filters.activeFilterCount == 0) {
+                                    R.string.search_empty_favorites
+                                } else {
+                                    R.string.search_empty_with_filters
+                                }
+                            )
                         } else {
                             stringResource(R.string.search_empty_no_filters)
                         },
@@ -202,7 +211,9 @@ fun SearchScreen(
                     RestaurantCard(
                         listing = listing,
                         onClick = { onRestaurantClick(listing.id) },
-                        modifier = Modifier.padding(vertical = Spacing.sm)
+                        modifier = Modifier.animateItem().padding(vertical = Spacing.sm),
+                        isFavorite = listing.id in state.favoriteIds,
+                        onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
                     )
                 }
             }

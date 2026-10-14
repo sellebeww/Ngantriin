@@ -20,11 +20,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.TableRestaurant
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -240,6 +244,33 @@ private fun ActiveQueueContent(
                 onClick = { onViewRestaurant(queue.restaurant.id) },
                 icon = Icons.Filled.Storefront
             )
+        }
+
+        if (queue.showsLinePosition) {
+            val context = LocalContext.current
+            val shareText = stringResource(
+                R.string.active_queue_share_text,
+                queue.queueNumber,
+                queue.restaurant.name,
+                queue.peopleAhead
+            )
+            val shareTitle = stringResource(R.string.active_queue_share)
+            Spacer(Modifier.height(Spacing.sm))
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                TextButton(
+                    onClick = {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                        }
+                        context.startActivity(Intent.createChooser(send, shareTitle))
+                    }
+                ) {
+                    Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(Spacing.sm))
+                    Text(shareTitle, style = MaterialTheme.typography.labelMedium)
+                }
+            }
         }
 
         if (queue.canLeave) {

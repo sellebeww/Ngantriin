@@ -42,7 +42,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +56,7 @@ import org.umn.ngantriin.di.containerViewModel
 import org.umn.ngantriin.domain.model.Restaurant
 import org.umn.ngantriin.domain.model.Review
 import org.umn.ngantriin.ui.components.FullScreenLoader
+import org.umn.ngantriin.ui.components.FavoriteButton
 import org.umn.ngantriin.ui.components.InfoRow
 import org.umn.ngantriin.ui.components.OpenClosedBadge
 import org.umn.ngantriin.ui.components.PrimaryButton
@@ -88,7 +88,8 @@ fun RestaurantDetailScreen(
             queueRepository = container.queueRepository,
             reviewRepository = container.reviewRepository,
             authRepository = container.authRepository,
-            locationTracker = container.locationTracker
+            locationTracker = container.locationTracker,
+            preferences = container.userPreferencesRepository
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -115,7 +116,15 @@ fun RestaurantDetailScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 140.dp)
         ) {
-            item { DetailHeader(restaurant, state.distanceMeters, onBack) }
+            item {
+                DetailHeader(
+                    restaurant = restaurant,
+                    distanceMeters = state.distanceMeters,
+                    isFavorite = state.isFavorite,
+                    onToggleFavorite = viewModel::toggleFavorite,
+                    onBack = onBack
+                )
+            }
 
             item {
                 Column(Modifier.padding(horizontal = Spacing.screenGutter)) {
@@ -221,6 +230,8 @@ fun RestaurantDetailScreen(
 private fun DetailHeader(
     restaurant: Restaurant,
     distanceMeters: Double?,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onBack: () -> Unit
 ) {
     Box {
@@ -234,14 +245,20 @@ private fun DetailHeader(
             onClick = onBack,
             modifier = Modifier
                 .padding(Spacing.sm)
-                .background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f), RoundedCornerShape(50))
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.cd_back),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
+
+        FavoriteButton(
+            isFavorite = isFavorite,
+            onToggle = onToggleFavorite,
+            modifier = Modifier.align(Alignment.TopEnd).padding(Spacing.sm)
+        )
 
         Surface(
             modifier = Modifier

@@ -17,11 +17,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,9 +35,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
@@ -41,6 +50,7 @@ import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.di.containerViewModel
 import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.domain.model.QueueStatus
+import org.umn.ngantriin.ui.components.ConfirmDialog
 import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.SectionHeader
@@ -70,10 +80,30 @@ fun StaffQueueScreen(
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    var search by remember { mutableStateOf("") }
+    // Removing someone from the line cannot be undone (CANCELLED is terminal),
+    // so a stray tap on "Remove" or "No-show" asks first.
+    var pendingCancel by remember { mutableStateOf<QueueEntry?>(null) }
+
     LaunchedEffect(viewModel) {
         viewModel.eventFlow.collect { event ->
             if (event is StaffEvent.Failed) onMessage(event.error)
         }
+    }
+
+    pendingCancel?.let { entry ->
+        ConfirmDialog(
+            title = stringResource(R.string.staff_cancel_title, entry.queueNumber),
+            message = stringResource(R.string.staff_cancel_message),
+            confirmLabel = stringResource(R.string.staff_cancel_confirm),
+            dismissLabel = stringResource(R.string.staff_cancel_keep),
+            destructive = true,
+            onConfirm = {
+                pendingCancel = null
+                viewModel.updateStatus(entry.id, QueueStatus.CANCELLED)
+            },
+            onDismiss = { pendingCancel = null }
+        )
     }
 
     Scaffold(
@@ -116,6 +146,10 @@ fun StaffQueueScreen(
             return@Scaffold
         }
 
+        val needle = search.trim()
+        fun List<QueueEntry>.matching() =
+            if (needle.isEmpty()) this else filter { it.queueNumber.contains(needle, ignoreCase = true) }
+
         val calledTitle = stringResource(R.string.staff_section_called)
         val calledSubtitle = stringResource(R.string.staff_section_called_subtitle)
         val arrivedTitle = stringResource(R.string.staff_section_arrived)
@@ -134,13 +168,53 @@ fun StaffQueueScreen(
                 bottom = Spacing.xxxl
             )
         ) {
+            if (state.entries.size > SEARCH_THRESHOLD || needle.isNotEmpty()) {
+                item(key = "search") {
+                    Spacer(Modifier.height(Spacing.sm))
+                    OutlinedTextField(
+                        value = search,
+                        onValueChange = { search = it },
+                        placeholder = { Text(stringResource(R.string.staff_search_placeholder)) },
+                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (search.isNotEmpty()) {
+                                IconButton(onClick = { search = "" }) {
+                                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.cd_clear_search))
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            val sections = listOf(
+                Triple(tableReadyTitle, tableReadySubtitle, state.tableReady.matching()),
+                Triple(arrivedTitle, arrivedSubtitle, state.arrived.matching()),
+                Triple(calledTitle, calledSubtitle, state.called.matching()),
+                Triple(waitingTitle, waitingSubtitle, state.waiting.matching())
+            )
+            if (needle.isNotEmpty() && sections.all { it.third.isEmpty() }) {
+                item(key = "no-match") {
+                    Text(
+                        text = stringResource(R.string.staff_search_no_match, needle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = Spacing.xl)
+                    )
+                }
+            }
+
             // Ordered by urgency: who is standing at the host right now first.
-            listOf(
-                Triple(tableReadyTitle, tableReadySubtitle, state.tableReady),
-                Triple(arrivedTitle, arrivedSubtitle, state.arrived),
-                Triple(calledTitle, calledSubtitle, state.called),
-                Triple(waitingTitle, waitingSubtitle, state.waiting)
-            ).forEach { (title, subtitle, entries) ->
+            sections.forEach { (title, subtitle, entries) ->
                 queueSection(
                     title = title,
                     subtitle = subtitle,
@@ -148,13 +222,22 @@ fun StaffQueueScreen(
                     entries = entries,
                     isWorking = state.isWorking,
                     onOpenCustomer = onOpenCustomer,
-                    onUpdateStatus = viewModel::updateStatus,
+                    onUpdateStatus = { id, status ->
+                        if (status == QueueStatus.CANCELLED) {
+                            pendingCancel = state.entries.firstOrNull { it.id == id }
+                        } else {
+                            viewModel.updateStatus(id, status)
+                        }
+                    },
                     onCountdownFinished = viewModel::onCheckInWindowClosed
                 )
             }
         }
     }
 }
+
+/** Below this many live tickets the whole line fits on screen; no search needed. */
+private const val SEARCH_THRESHOLD = 6
 
 private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
     title: String,
@@ -184,7 +267,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
             onClick = { onOpenCustomer(entry.id) },
             onUpdateStatus = { status -> onUpdateStatus(entry.id, status) },
             onCountdownFinished = onCountdownFinished,
-            modifier = Modifier.padding(vertical = Spacing.xs)
+            modifier = Modifier.animateItem().padding(vertical = Spacing.xs)
         )
     }
 }

@@ -49,7 +49,9 @@ import org.umn.ngantriin.ui.theme.Spacing
 fun RestaurantCard(
     listing: RestaurantListing,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     val restaurant = listing.restaurant
     Card(
@@ -70,12 +72,22 @@ fun RestaurantCard(
                     modifier = Modifier.size(88.dp).clip(MaterialTheme.shapes.medium)
                 )
                 Column(Modifier.weight(1f)) {
-                    Text(
-                        text = restaurant.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = restaurant.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (onToggleFavorite != null) {
+                            FavoriteButton(
+                                isFavorite = isFavorite,
+                                onToggle = onToggleFavorite,
+                                overPhoto = false
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(Spacing.xs))
                     Text(
                         text = restaurant.category,
@@ -113,7 +125,9 @@ fun RestaurantCard(
 fun RestaurantCardCompact(
     listing: RestaurantListing,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     val restaurant = listing.restaurant
 
@@ -136,6 +150,13 @@ fun RestaurantCardCompact(
                     open = restaurant.isAcceptingQueue(),
                     modifier = Modifier.align(Alignment.TopStart).padding(Spacing.md)
                 )
+                if (onToggleFavorite != null) {
+                    FavoriteButton(
+                        isFavorite = isFavorite,
+                        onToggle = onToggleFavorite,
+                        modifier = Modifier.align(Alignment.TopEnd).padding(Spacing.sm)
+                    )
+                }
             }
             Column(Modifier.padding(Spacing.lg)) {
                 Text(

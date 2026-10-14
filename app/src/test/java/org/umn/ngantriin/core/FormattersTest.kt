@@ -12,6 +12,8 @@ class FormattersTest {
         assertEquals("850 m", Formatters.distance(850.0))
         assertEquals("1.4 km", Formatters.distance(1_420.0))
         assertEquals("—", Formatters.distance(null))
+        assertEquals("100+ km", Formatters.distance(14_004_200.0))
+        assertEquals("99.9 km", Formatters.distance(99_900.0))
     }
 
     @Test

@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import org.umn.ngantriin.R
+import org.umn.ngantriin.core.Formatters
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -23,6 +24,8 @@ import kotlin.math.roundToInt
 fun distanceText(meters: Double?): String = when {
     meters == null -> stringResource(R.string.distance_unknown)
     meters < 1_000 -> stringResource(R.string.distance_meters, meters.roundToInt())
+    // A fix on another continent (or a mock location) is not a useful number.
+    meters >= Formatters.FAR_DISTANCE_METERS -> stringResource(R.string.distance_far)
     else -> stringResource(R.string.distance_km, meters / 1_000)
 }
 

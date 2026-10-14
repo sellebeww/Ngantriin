@@ -27,6 +27,7 @@ import org.umn.ngantriin.domain.repository.QueueRepository
 import org.umn.ngantriin.domain.repository.RestaurantRepository
 import org.umn.ngantriin.domain.repository.ReviewRepository
 import org.umn.ngantriin.domain.repository.SessionState
+import org.umn.ngantriin.domain.repository.UserPreferencesRepository
 import org.umn.ngantriin.location.LocationTracker
 
 data class RestaurantDetailUiState(
@@ -36,6 +37,7 @@ data class RestaurantDetailUiState(
     val reviews: List<Review> = emptyList(),
     val distanceMeters: Double? = null,
     val activeQueue: ActiveQueue? = null,
+    val isFavorite: Boolean = false,
     val partySize: Int = 1,
     val isJoining: Boolean = false
 ) {
@@ -78,7 +80,8 @@ class RestaurantDetailViewModel(
     private val queueRepository: QueueRepository,
     reviewRepository: ReviewRepository,
     authRepository: AuthRepository,
-    locationTracker: LocationTracker
+    locationTracker: LocationTracker,
+    private val preferences: UserPreferencesRepository
 ) : ViewModel() {
 
     private val partySize = MutableStateFlow(1)
@@ -106,11 +109,12 @@ class RestaurantDetailViewModel(
         restaurantRepository.observeRestaurant(restaurantId),
         restaurantRepository.observeQueueStats(restaurantId),
         reviewRepository.observeReviews(restaurantId),
-        activeQueue,
+        combine(activeQueue, preferences.favoriteRestaurantIds) { queue, ids -> queue to ids },
         combine(locationTracker.location, partySize, joining, loaded) { location, size, busy, done ->
             Environment(location, size, busy, done)
         }
-    ) { restaurant, stats, reviews, queue, environment ->
+    ) { restaurant, stats, reviews, queueAndFavorites, environment ->
+        val (queue, favorites) = queueAndFavorites
         RestaurantDetailUiState(
             isLoading = restaurant == null && !environment.loaded,
             restaurant = restaurant,
@@ -122,6 +126,7 @@ class RestaurantDetailViewModel(
                 null
             },
             activeQueue = queue,
+            isFavorite = restaurantId in favorites,
             partySize = environment.partySize,
             isJoining = environment.joining
         )
@@ -163,6 +168,10 @@ class RestaurantDetailViewModel(
                 is Outcome.Failure -> events.send(RestaurantDetailEvent.Failed(outcome.error))
             }
         }
+    }
+
+    fun toggleFavorite() {
+        viewModelScope.launch { preferences.toggleFavoriteRestaurant(restaurantId) }
     }
 
     fun retry() {

@@ -13,10 +13,14 @@ object Formatters {
     private val dateFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
 
-    /** "850 m" below a kilometre, "1.4 km" above it, "—" when unknown. */
+    /** Past this, an exact distance stops being useful ("14004.2 km"). */
+    const val FAR_DISTANCE_METERS = 100_000.0
+
+    /** "850 m" below a kilometre, "1.4 km" above it, "100+ km" when far, "—" when unknown. */
     fun distance(meters: Double?): String = when {
         meters == null -> "—"
         meters < 1_000 -> "${meters.roundToInt()} m"
+        meters >= FAR_DISTANCE_METERS -> "100+ km"
         else -> String.format(Locale.ENGLISH, "%.1f km", meters / 1_000)
     }
 

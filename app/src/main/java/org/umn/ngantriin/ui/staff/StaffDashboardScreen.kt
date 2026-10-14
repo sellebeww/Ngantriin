@@ -1,5 +1,12 @@
 package org.umn.ngantriin.ui.staff
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -44,7 +52,9 @@ import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
+import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.ui.components.fullBleed
+import org.umn.ngantriin.ui.components.relativeText
 import org.umn.ngantriin.ui.components.waitTimeText
 import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.LocalStatusColors
@@ -101,6 +111,7 @@ fun StaffDashboardScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = Spacing.screenGutter)
+            .animateContentSize()
     ) {
         Spacer(Modifier.height(Spacing.lg))
 
@@ -213,7 +224,76 @@ fun StaffDashboardScreen(
             enabled = state.selectedRestaurant != null
         )
 
+        if (state.waiting.isNotEmpty()) {
+            Spacer(Modifier.height(Spacing.xxl))
+            Text(
+                text = stringResource(R.string.staff_upcoming_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(Spacing.sm))
+            state.waiting.take(UPCOMING_PREVIEW).forEachIndexed { index, entry ->
+                UpcomingRow(index = index + 1, entry = entry)
+                Spacer(Modifier.height(Spacing.sm))
+            }
+            val more = state.waiting.size - UPCOMING_PREVIEW
+            if (more > 0) {
+                Text(
+                    text = stringResource(R.string.staff_upcoming_more, more),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
         Spacer(Modifier.height(Spacing.xxxl))
+    }
+}
+
+private const val UPCOMING_PREVIEW = 3
+
+/** One line of the "up next" preview: who is next and how long they've waited. */
+@Composable
+private fun UpcomingRow(index: Int, entry: QueueEntry) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$index",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.width(24.dp)
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = entry.queueNumber,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        R.string.staff_party_joined,
+                        entry.partySize,
+                        relativeText(entry.joinedAt)
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (entry.checkedInEarly) {
+                Text(
+                    text = stringResource(R.string.staff_badge_early),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = LocalStatusColors.current.checkedIn
+                )
+            }
+        }
     }
 }
 
@@ -298,11 +378,20 @@ private fun StaffStat(value: String, label: String, modifier: Modifier = Modifie
             modifier = Modifier.padding(vertical = Spacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            AnimatedContent(
+                targetState = value,
+                transitionSpec = {
+                    (slideInVertically { it / 2 } + fadeIn()) togetherWith
+                        (slideOutVertically { -it / 2 } + fadeOut())
+                },
+                label = "staffStat"
+            ) { shown ->
+                Text(
+                    text = shown,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall.balanced(),

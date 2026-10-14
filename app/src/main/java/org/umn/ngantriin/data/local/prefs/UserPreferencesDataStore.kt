@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -28,6 +29,8 @@ class UserPreferencesDataStore(context: Context) : UserPreferencesRepository {
         val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
         val lastLatitude = doublePreferencesKey("last_latitude")
         val lastLongitude = doublePreferencesKey("last_longitude")
+
+        val favoriteRestaurants = stringSetPreferencesKey("favorite_restaurants")
 
         // Demo-mode session, see DemoAuthRemoteDataSource.
         val demoUserId = stringPreferencesKey("demo_user_id")
@@ -72,6 +75,17 @@ class UserPreferencesDataStore(context: Context) : UserPreferencesRepository {
         store.edit {
             it[Keys.lastLatitude] = point.latitude
             it[Keys.lastLongitude] = point.longitude
+        }
+    }
+
+    override val favoriteRestaurantIds: Flow<Set<String>> =
+        preferences.map { it[Keys.favoriteRestaurants] ?: emptySet() }
+
+    override suspend fun toggleFavoriteRestaurant(restaurantId: String) {
+        store.edit {
+            val current = it[Keys.favoriteRestaurants] ?: emptySet()
+            it[Keys.favoriteRestaurants] =
+                if (restaurantId in current) current - restaurantId else current + restaurantId
         }
     }
 

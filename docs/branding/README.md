@@ -36,7 +36,7 @@ It scales without extra image files or a network request.
 ## Verification
 
 Screenshots in `docs/screenshots/` were taken on an emulator against the local
-demo backend. For the current build, lint and test status run
+sample backend. For the current build, lint and test status run
 `./gradlew :app:testDebugUnitTest :app:lintDebug`; the numbers are not repeated
 here so they cannot go stale. The existing system splash reference is
 [splash-preview.png](splash-preview.png).

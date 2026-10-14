@@ -24,6 +24,7 @@ import org.umn.ngantriin.domain.repository.NotificationRepository
 import org.umn.ngantriin.domain.repository.QueueRepository
 import org.umn.ngantriin.domain.repository.RestaurantRepository
 import org.umn.ngantriin.domain.repository.SessionState
+import org.umn.ngantriin.domain.repository.UserPreferencesRepository
 import org.umn.ngantriin.location.LocationTracker
 import java.time.LocalTime
 
@@ -35,6 +36,7 @@ data class HomeUiState(
     val isRefreshing: Boolean = false,
     val nearby: List<RestaurantListing> = emptyList(),
     val all: List<RestaurantListing> = emptyList(),
+    val favoriteIds: Set<String> = emptySet(),
     val activeQueue: ActiveQueue? = null,
     val unreadNotifications: Int = 0,
     val isOffline: Boolean = false,
@@ -42,6 +44,9 @@ data class HomeUiState(
     val locationGranted: Boolean = false
 ) {
     val isEmpty: Boolean get() = !isLoading && all.isEmpty()
+
+    /** Starred restaurants, in the list's current (nearest-first) order. */
+    val favorites: List<RestaurantListing> get() = all.filter { it.id in favoriteIds }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,7 +56,8 @@ class HomeViewModel(
     queueRepository: QueueRepository,
     notificationRepository: NotificationRepository,
     private val locationTracker: LocationTracker,
-    connectivityObserver: ConnectivityObserver
+    connectivityObserver: ConnectivityObserver,
+    private val preferences: UserPreferencesRepository
 ) : ViewModel() {
 
     private val refreshing = MutableStateFlow(false)
@@ -98,7 +104,7 @@ class HomeViewModel(
         session,
         listings,
         activeQueue,
-        unread,
+        combine(unread, preferences.favoriteRestaurantIds) { count, ids -> count to ids },
         combine(
             locationTracker.location,
             locationTracker.permissionGranted,
@@ -108,7 +114,8 @@ class HomeViewModel(
         ) { location, granted, online, isRefreshing, loaded ->
             Environment(location, granted, online, isRefreshing, loaded)
         }
-    ) { sessionState, restaurants, queue, unreadCount, environment ->
+    ) { sessionState, restaurants, queue, unreadAndFavorites, environment ->
+        val (unreadCount, favoriteIds) = unreadAndFavorites
         HomeUiState(
             greetingHour = LocalTime.now().hour,
             userName = (sessionState as? SessionState.SignedIn)?.user?.displayName.orEmpty(),
@@ -116,6 +123,7 @@ class HomeViewModel(
             isRefreshing = environment.isRefreshing,
             nearby = restaurants.nearby(environment.location),
             all = restaurants,
+            favoriteIds = favoriteIds,
             activeQueue = queue,
             unreadNotifications = unreadCount,
             isOffline = !environment.online,
@@ -140,6 +148,10 @@ class HomeViewModel(
             restaurantRepository.refreshRestaurants()
             refreshing.update { false }
         }
+    }
+
+    fun toggleFavorite(restaurantId: String) {
+        viewModelScope.launch { preferences.toggleFavoriteRestaurant(restaurantId) }
     }
 
     fun onLocationPermissionResult(granted: Boolean) {

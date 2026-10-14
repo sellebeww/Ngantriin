@@ -19,4 +19,8 @@ interface UserPreferencesRepository {
     /** Last good fix, so the first frame after launch can already show distances. */
     val lastKnownLocation: Flow<GeoPoint?>
     suspend fun setLastKnownLocation(point: GeoPoint)
+
+    /** Restaurants the customer starred. Device-local, like the other settings. */
+    val favoriteRestaurantIds: Flow<Set<String>>
+    suspend fun toggleFavoriteRestaurant(restaurantId: String)
 }

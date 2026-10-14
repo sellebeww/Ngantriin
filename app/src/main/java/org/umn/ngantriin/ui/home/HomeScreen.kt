@@ -73,7 +73,8 @@ fun HomeScreen(
             queueRepository = container.queueRepository,
             notificationRepository = container.notificationRepository,
             locationTracker = container.locationTracker,
-            connectivityObserver = container.connectivityObserver
+            connectivityObserver = container.connectivityObserver,
+            preferences = container.userPreferencesRepository
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -178,11 +179,35 @@ fun HomeScreen(
                         items(state.nearby, key = { it.id }) { listing ->
                             RestaurantCardCompact(
                                 listing = listing,
-                                onClick = { onRestaurantClick(listing.id) }
+                                onClick = { onRestaurantClick(listing.id) },
+                                isFavorite = listing.id in state.favoriteIds,
+                                onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
                             )
                         }
                     }
                     Spacer(Modifier.height(Spacing.xxl))
+                    if (state.favorites.isNotEmpty()) {
+                        SectionHeader(
+                            title = stringResource(R.string.home_favorites),
+                            subtitle = stringResource(R.string.home_favorites_subtitle),
+                            modifier = Modifier.padding(horizontal = Spacing.screenGutter)
+                        )
+                        Spacer(Modifier.height(Spacing.md))
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = Spacing.screenGutter),
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+                        ) {
+                            items(state.favorites, key = { "fav-" + it.id }) { listing ->
+                                RestaurantCardCompact(
+                                    listing = listing,
+                                    onClick = { onRestaurantClick(listing.id) },
+                                    isFavorite = true,
+                                    onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(Spacing.xxl))
+                    }
                     SectionHeader(
                         title = stringResource(R.string.home_all_restaurants),
                         subtitle = stringResource(R.string.home_all_restaurants_subtitle),
@@ -197,10 +222,12 @@ fun HomeScreen(
                     RestaurantCard(
                         listing = listing,
                         onClick = { onRestaurantClick(listing.id) },
-                        modifier = Modifier.padding(
+                        modifier = Modifier.animateItem().padding(
                             horizontal = Spacing.screenGutter,
                             vertical = Spacing.sm
-                        )
+                        ),
+                        isFavorite = listing.id in state.favoriteIds,
+                        onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
                     )
                 }
             }

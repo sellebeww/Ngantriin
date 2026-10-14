@@ -5,7 +5,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_search">Search</string>
-    <string name="nav_queue">My Queue</string>
+    <string name="nav_queue">Queue</string>
     <string name="nav_history">History</string>
     <string name="nav_profile">Profile</string>
 
@@ -193,8 +193,8 @@
     <string name="auth_email_label">Email</string>
     <string name="auth_email_placeholder">you@example.com</string>
     <string name="auth_password_label">Password</string>
-    <string name="auth_demo_mode_title">Demo mode</string>
-    <string name="auth_demo_mode_body">Explore with sample data. Any email works; passwords are not verified in demo mode.</string>
+    <string name="auth_demo_mode_title">Sample mode</string>
+    <string name="auth_demo_mode_body">Explore with sample data. Any email works; passwords are not verified in sample mode.</string>
 
     <!-- Login screen -->
     <string name="login_title">Welcome back</string>
@@ -333,7 +333,7 @@
     <string name="profile_sign_out">Sign out</string>
     <string name="profile_sign_out_title">Sign out?</string>
     <string name="profile_sign_out_message">You\'ll need to sign in again to see your queue and history.</string>
-    <string name="profile_footer_demo">Ngantriin • demo mode (no backend configured)</string>
+    <string name="profile_footer_demo">Ngantriin • sample mode (no backend configured)</string>
     <string name="profile_footer">Ngantriin</string>
 
     <!-- History screen -->
@@ -459,7 +459,7 @@
     <string name="settings_location_subtitle_blocked">Blocked for Ngantriin. Opens system settings.</string>
     <string name="settings_location_subtitle_default">Turn on to sort restaurants by distance.</string>
     <string name="settings_backend">Backend</string>
-    <string name="settings_backend_demo">Demo mode — sample data on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
+    <string name="settings_backend_demo">Sample mode — the data lives only on this device. Add SUPABASE_URL and SUPABASE_ANON_KEY to local.properties to connect a real project.</string>
     <string name="settings_backend_connected">Connected to Supabase.</string>
     <string name="settings_version">Ngantriin • version 1.0</string>
 
@@ -543,4 +543,25 @@
     <string name="staff_table_ready_label">Table ready</string>
     <string name="staff_deadline_label">Check-in deadline</string>
     <string name="history_wait_not_recorded_short">Not recorded</string>
+
+    <!-- Favorites -->
+    <string name="home_favorites">Your favorites</string>
+    <string name="home_favorites_subtitle">Restaurants you starred, with the live wait</string>
+    <string name="filter_favorites_only">Favorites</string>
+    <string name="search_empty_favorites">You haven\'t starred anything yet. Tap the heart on a restaurant to save it here.</string>
+    <string name="cd_favorite_add">Add to favorites</string>
+    <string name="cd_favorite_remove">Remove from favorites</string>
+
+    <!-- Staff: safer queue handling -->
+    <string name="staff_cancel_title">Remove %1$s from the queue?</string>
+    <string name="staff_cancel_message">This ends their ticket and can\'t be undone. The customer is notified.</string>
+    <string name="staff_cancel_confirm">Remove ticket</string>
+    <string name="staff_cancel_keep">Keep</string>
+    <string name="staff_search_placeholder">Find a ticket number…</string>
+    <string name="staff_search_no_match">No ticket matches \"%1$s\".</string>
+    <string name="distance_far">100+ km</string>
+    <string name="staff_upcoming_title">Up next in line</string>
+    <string name="staff_upcoming_more">+%1$d more waiting</string>
+    <string name="active_queue_share">Share my queue</string>
+    <string name="active_queue_share_text">I\'m in line at %2$s with ticket %1$s — %3$d groups ahead of me. Queued with Ngantriin.</string>
 </resources>

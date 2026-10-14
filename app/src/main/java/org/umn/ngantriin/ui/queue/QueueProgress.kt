@@ -1,6 +1,12 @@
 package org.umn.ngantriin.ui.queue
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -154,15 +160,25 @@ fun QueueStat(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.xxs)
     ) {
-        Text(
-            text = value,
-            style = if (emphasise) {
-                MaterialTheme.typography.headlineMedium
-            } else {
-                MaterialTheme.typography.headlineSmall
+        // The line only ever moves forward, so a new value rolls in from below.
+        AnimatedContent(
+            targetState = value,
+            transitionSpec = {
+                (slideInVertically(tween(260)) { it / 2 } + fadeIn(tween(260))) togetherWith
+                    (slideOutVertically(tween(200)) { -it / 2 } + fadeOut(tween(120)))
             },
-            color = MaterialTheme.colorScheme.onSurface
-        )
+            label = "queueStat"
+        ) { shown ->
+            Text(
+                text = shown,
+                style = if (emphasise) {
+                    MaterialTheme.typography.headlineMedium
+                } else {
+                    MaterialTheme.typography.headlineSmall
+                },
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall.balanced(),

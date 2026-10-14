@@ -201,7 +201,9 @@ fun ChoiceChip(
 fun SortRow(
     selected: RestaurantSort,
     onSelect: (RestaurantSort) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    favoritesOnly: Boolean = false,
+    onFavoritesOnlyChange: ((Boolean) -> Unit)? = null
 ) {
     // Scroll first, gutter padding second: the padding becomes content padding,
     // so chips run off the screen edge instead of being cut at the gutter.
@@ -211,6 +213,13 @@ fun SortRow(
             .padding(horizontal = Spacing.screenGutter),
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
     ) {
+        if (onFavoritesOnlyChange != null) {
+            ChoiceChip(
+                label = stringResource(R.string.filter_favorites_only),
+                selected = favoritesOnly,
+                onClick = { onFavoritesOnlyChange(!favoritesOnly) }
+            )
+        }
         RestaurantSort.entries.forEach { sort ->
             ChoiceChip(
                 label = stringResource(sort.labelRes),

@@ -55,14 +55,14 @@ have to change with it.
 | --- | --- | --- |
 | Queue number (`A-027`) | `join_queue()` reserves it under a row lock on `queue_stats` | Two phones tapping at the same instant cannot receive the same number |
 | People ahead | `queue_position()`, a `SECURITY DEFINER` function | RLS hides other customers' rows, so the client genuinely cannot count the line itself |
-| Estimated wait | `average_service_minutes × people ahead` | One formula, in `QueueMath`, called by both the client and the demo backend |
+| Estimated wait | `average_service_minutes × people ahead` | One formula, in `QueueMath`, called by both the client and the local sample backend |
 | Waiting count | `queue_stats`, maintained by an `AFTER` trigger on `queues` | Public and cheap, so the discovery list can show it for every venue at once |
 | Check-in verification | `check_in_queue()` requires the photo object to exist under `{restaurant}/{ticket}/` in Storage | A client cannot force `CHECKED_IN` with an invented path |
 | Check-in countdown | `queues.check_in_deadline`, set by the server when the ticket is CALLED | The phone's clock is only used to *display* it; expiry is decided by the database |
 
 When the server-computed position is unavailable — offline, or a request in
 flight — `QueueRepositoryImpl.fallbackPeopleAhead` degrades in two steps: count
-the cached tickets ahead if any are visible (staff and demo mode can see them),
+the cached tickets ahead if any are visible (staff and sample mode can see them),
 otherwise derive from the counters, bounded by the number still waiting. The
 screen stays sensible rather than blank or wrong.
 

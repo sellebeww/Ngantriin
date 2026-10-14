@@ -17,27 +17,53 @@ Firebase Cloud Messaging.
 
 ### Pelanggan
 
-| Onboarding | Login | Beranda |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/02-onboarding.png" width="220"> | <img src="docs/screenshots/04-login.png" width="220"> | <img src="docs/screenshots/05-home.png" width="220"> |
-| Pengenalan singkat cara kerja aplikasi | Masuk atau buat akun | Restoran terdekat dan panjang antrean langsung |
+<table width="100%">
+<tr>
+<th width="33%">Onboarding</th>
+<th width="33%">Login</th>
+<th width="33%">Beranda</th>
+</tr>
+<tr align="center">
+<td><img src="docs/screenshots/02-onboarding.png" width="220" height="489"></td>
+<td><img src="docs/screenshots/04-login.png" width="220" height="489"></td>
+<td><img src="docs/screenshots/05-home.png" width="220" height="489"></td>
+</tr>
+<tr align="center">
+<td>Pengenalan singkat cara kerja aplikasi</td>
+<td>Masuk atau buat akun</td>
+<td>Restoran terdekat dan panjang antrean langsung</td>
+</tr>
+</table>
 
 | Pencarian | Detail Restoran | Berhasil Antre |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/06-search.png" width="220"> | <img src="docs/screenshots/07-detail.png" width="220"> | <img src="docs/screenshots/08-join.png" width="220"> |
+| <img src="docs/screenshots/06-search.png" width="220" height="489"> | <img src="docs/screenshots/07-detail.png" width="220" height="489"> | <img src="docs/screenshots/08-join.png" width="220" height="489"> |
 | Cari dan urutkan restoran | Info antrean, jam buka, jumlah orang | Nomor antrean dan estimasi tunggu |
 
 | Antrean Saya | Notifikasi | Profil |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/09-my-queue.png" width="220"> | <img src="docs/screenshots/10-notifications.png" width="220"> | <img src="docs/screenshots/11-profile.png" width="220"> |
+| <img src="docs/screenshots/09-my-queue.png" width="220" height="489"> | <img src="docs/screenshots/10-notifications.png" width="220" height="489"> | <img src="docs/screenshots/11-profile.png" width="220" height="489"> |
 | Posisi dan progres antrean real-time | Pemberitahuan giliran sudah dekat | Statistik dan pengaturan akun |
+
+<div align="center">
+
+| Favorit di Beranda | Cari Favorit |
+| :---: | :---: |
+| <img src="docs/screenshots/14-favorit.png" width="220" height="489"> | <img src="docs/screenshots/15-cari-favorit.png" width="220" height="489"> |
+| Restoran yang ditandai muncul sendiri di Beranda | Satu ketukan untuk menyaring favorit |
+
+</div>
 
 ### Staf Restoran
 
+<div align="center">
+
 | Dashboard | Kelola Antrean |
 | :---: | :---: |
-| <img src="docs/screenshots/12-staff-dashboard.png" width="220"> | <img src="docs/screenshots/13-staff-kelola.png" width="220"> |
-| Nomor yang sedang dilayani, tombol **Call next** | Panggil, hapus, atau selesaikan tiap tiket |
+| <img src="docs/screenshots/12-staff-dashboard.png" width="220" height="489"> | <img src="docs/screenshots/13-staff-kelola.png" width="220" height="489"> |
+| Nomor yang dilayani, tombol **Panggil berikutnya**, dan pratinjau antrean | Cari nomor tiket, lalu panggil, tandai, atau keluarkan tiap tiket |
+
+</div>
 
 ---
 
@@ -47,6 +73,9 @@ Firebase Cloud Messaging.
 
 - **Temukan restoran**: daftar terdekat berdasarkan lokasi, pencarian, dan
   urutan berdasarkan jarak, antrean tersingkat, atau rating tertinggi.
+- **Favorit**: ketuk ikon hati pada restoran mana pun. Restoran favorit muncul
+  di bagian **Favoritmu** pada Beranda, dan bisa disaring lewat chip
+  **Favorit** di halaman Cari. Tersimpan di perangkat, tidak perlu akun.
 - **Antrean transparan**: jumlah grup yang menunggu, estimasi waktu tunggu,
   status buka/tutup, dan nomor yang sedang dilayani.
 - **Ambil antrean dari HP**: pilih jumlah orang, nomor antrean dibuat oleh
@@ -65,6 +94,12 @@ Firebase Cloud Messaging.
 - **Riwayat dan ulasan**: daftar kunjungan dengan filter (selesai, batal &
   hangus), halaman detail berisi linimasa lengkap dan ulasan yang pernah
   diberikan. Setelah kunjungan selesai, aplikasi langsung menawarkan ulasan.
+- **Bagikan antrean**: kirim nomor tiket dan jumlah grup di depanmu ke teman
+  lewat menu bagikan Android.
+- **Animasi halus**: transisi antarlayar yang singkat, hati favorit yang
+  "berdenyut" saat diketuk, angka antrean yang bergulir saat berubah, dan
+  daftar yang bergeser lembut saat ada tiket atau restoran masuk dan keluar.
+  Mengikuti pengaturan animasi sistem Android.
 - **Tahan offline**: tanpa internet, aplikasi tetap menampilkan data terakhir,
   dan aksi yang tertunda dikirim otomatis begitu online lagi.
 - **Dua bahasa** yang bisa dipilih per aplikasi, terpisah dari bahasa sistem.
@@ -79,6 +114,11 @@ Firebase Cloud Messaging.
   **Dipanggil** (dengan sisa waktu check-in), dan **Menunggu**.
 - Aksi per tiket sesuai tahap: panggil, tandai sudah datang, meja siap, sudah
   duduk (selesai), tidak hadir, atau hapus.
+- **Pratinjau antrean** di dashboard: tiga tiket berikutnya beserta ukuran
+  rombongan dan berapa lama mereka menunggu, tanpa membuka halaman kelola.
+- **Cari nomor tiket** di halaman kelola (muncul saat antrean cukup panjang).
+- **Konfirmasi sebelum mengeluarkan tiket**: tombol *Hapus* dan *Tidak hadir*
+  meminta persetujuan dulu, karena tiket yang dibatalkan tidak bisa kembali.
 - Tinjau foto check-in pelanggan.
 
 **Pencegahan penyalahgunaan**
@@ -99,12 +139,12 @@ Firebase Cloud Messaging.
 ./gradlew :app:installDebug
 ```
 
-Tanpa kredensial apa pun, aplikasi otomatis berjalan di **demo mode**: backend
-lokal di dalam aplikasi dengan enam restoran contoh di Gading Serpong, lengkap
+Tanpa kredensial apa pun, aplikasi otomatis berjalan di **mode contoh**:
+backend lokal di dalam aplikasi dengan enam restoran di Gading Serpong, lengkap
 dengan antrean yang hidup di masing-masing restoran. Semua layar, perpindahan
 status, dan notifikasi bisa dicoba.
 
-> Demo mode **tidak memverifikasi login**. Email apa pun bisa masuk dan
+> Mode contoh **tidak memverifikasi login**. Email apa pun bisa masuk dan
 > password tidak disimpan maupun dicek. Email berawalan `staff` (contoh
 > `staff@tacolibre.id`) masuk sebagai **STAFF** dan membuka dashboard
 > restoran.
@@ -182,7 +222,7 @@ SUPABASE_ANON_KEY=your-anon-key
 ```
 
 CI bisa memakai environment variable dengan nama yang sama. Setelah rebuild,
-demo mode otomatis mati.
+mode contoh otomatis mati.
 
 Untuk menjadikan akun sebagai staf, tambahkan baris di `restaurant_staff`:
 
@@ -257,12 +297,12 @@ semuanya dengan `by lazy`.
 Detail lengkap ada di [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) dan kontrak
 SQL di [docs/BACKEND.md](docs/BACKEND.md).
 
-**Demo mode bukan jalan pintas.** `DemoBackend` mengimplementasikan interface
-`RemoteDataSource` yang sama dengan Supabase dan menerapkan aturan yang sama
-(nomor dari server, satu antrean aktif, tabel transisi status, foto wajib saat
-check-in, batas waktu check-in, meja siap). Jadi demo tidak bisa diam-diam menyimpang dari backend asli. Di demo
-mode, "foto" check-in hanya berupa penanda, tetapi langkah kameranya tetap
-berjalan sungguhan.
+**Mode contoh bukan jalan pintas.** Backend lokalnya mengimplementasikan
+interface `RemoteDataSource` yang sama dengan Supabase dan menerapkan aturan
+yang sama (nomor dari server, satu antrean aktif, tabel transisi status, foto
+wajib saat check-in, batas waktu check-in, meja siap). Jadi perilakunya tidak
+bisa diam-diam menyimpang dari backend asli. Di mode contoh, "foto" check-in
+hanya berupa penanda, tetapi langkah kameranya tetap berjalan sungguhan.
 
 ---
 
@@ -272,7 +312,7 @@ berjalan sungguhan.
 org.umn.ngantriin
 ├── core/            Tipe hasil, error, formatter, konektivitas, bahasa
 ├── domain/          Model (state machine antrean, QueueMath) dan interface repository
-├── data/            Room, DataStore, Supabase, demo backend, mapper, repository
+├── data/            Room, DataStore, Supabase, backend lokal, mapper, repository
 ├── location/        Lokasi dan jarak (urutan terdekat, jarak di detail restoran)
 ├── notification/    Layanan FCM, antrean live (foreground service), channel, scheduler milestone
 ├── work/            WorkManager: sinkronisasi dan antrean penulisan offline
@@ -307,7 +347,7 @@ RELEASE_KEY_PASSWORD=...
 
 CI (`.github/workflows/ci.yml`) menjalankan unit test, lint, build debug,
 build rilis, dan tes SQL pada setiap push dan pull request, tanpa kredensial
-apa pun (demo mode).
+apa pun (mode contoh).
 
 ---
 

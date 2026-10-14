@@ -5,7 +5,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Beranda</string>
     <string name="nav_search">Cari</string>
-    <string name="nav_queue">Antrean Saya</string>
+    <string name="nav_queue">Antrean</string>
     <string name="nav_history">Riwayat</string>
     <string name="nav_profile">Profil</string>
 
@@ -61,7 +61,7 @@
     <string name="distance_unknown">—</string>
     <string name="distance_meters">%1$d m</string>
     <string name="distance_km">%1$.1f km</string>
-    <string name="wait_time_none">Tidak perlu menunggu</string>
+    <string name="wait_time_none">Langsung</string>
     <string name="wait_time_minutes">~%1$d mnt</string>
     <string name="wait_time_hours">~%1$d jam</string>
     <string name="wait_time_hours_minutes">~%1$d jam %2$d mnt</string>
@@ -184,8 +184,8 @@
     <string name="auth_email_label">Email</string>
     <string name="auth_email_placeholder">kamu@contoh.com</string>
     <string name="auth_password_label">Kata Sandi</string>
-    <string name="auth_demo_mode_title">Mode demo</string>
-    <string name="auth_demo_mode_body">Jelajahi aplikasi dengan data contoh. Email apa pun bisa digunakan; kata sandi tidak diverifikasi di mode demo.</string>
+    <string name="auth_demo_mode_title">Mode contoh</string>
+    <string name="auth_demo_mode_body">Jelajahi aplikasi dengan data contoh. Email apa pun bisa digunakan; kata sandi tidak diverifikasi di mode contoh.</string>
 
     <!-- Login screen -->
     <string name="login_title">Selamat datang kembali</string>
@@ -322,7 +322,7 @@
     <string name="profile_sign_out">Keluar</string>
     <string name="profile_sign_out_title">Keluar akun?</string>
     <string name="profile_sign_out_message">Kamu perlu masuk lagi untuk melihat antrean dan riwayatmu.</string>
-    <string name="profile_footer_demo">Ngantriin • mode demo (backend belum diatur)</string>
+    <string name="profile_footer_demo">Ngantriin • mode contoh (backend belum diatur)</string>
     <string name="profile_footer">Ngantriin</string>
 
     <!-- History screen -->
@@ -445,7 +445,7 @@
     <string name="settings_location_subtitle_blocked">Diblokir untuk Ngantriin. Akan membuka pengaturan sistem.</string>
     <string name="settings_location_subtitle_default">Aktifkan untuk mengurutkan restoran berdasarkan jarak.</string>
     <string name="settings_backend">Backend</string>
-    <string name="settings_backend_demo">Mode demo — data contoh di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
+    <string name="settings_backend_demo">Mode contoh — datanya hanya ada di perangkat ini. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY ke local.properties untuk menyambungkan proyek asli.</string>
     <string name="settings_backend_connected">Tersambung ke Supabase.</string>
     <string name="settings_version">Ngantriin • versi 1.0</string>
 
@@ -529,4 +529,25 @@
     <string name="staff_table_ready_label">Meja siap</string>
     <string name="staff_deadline_label">Batas check-in</string>
     <string name="history_wait_not_recorded_short">Tidak tercatat</string>
+
+    <!-- Favorit -->
+    <string name="home_favorites">Favoritmu</string>
+    <string name="home_favorites_subtitle">Restoran yang kamu tandai, lengkap dengan antrean terkini</string>
+    <string name="filter_favorites_only">Favorit</string>
+    <string name="search_empty_favorites">Belum ada restoran favorit. Ketuk ikon hati pada restoran untuk menyimpannya di sini.</string>
+    <string name="cd_favorite_add">Tambahkan ke favorit</string>
+    <string name="cd_favorite_remove">Hapus dari favorit</string>
+
+    <!-- Staf: penanganan antrean lebih aman -->
+    <string name="staff_cancel_title">Keluarkan %1$s dari antrean?</string>
+    <string name="staff_cancel_message">Tiket ini akan berakhir dan tidak bisa dikembalikan. Pelanggan akan diberi tahu.</string>
+    <string name="staff_cancel_confirm">Keluarkan tiket</string>
+    <string name="staff_cancel_keep">Batal</string>
+    <string name="staff_search_placeholder">Cari nomor tiket…</string>
+    <string name="staff_search_no_match">Tidak ada tiket yang cocok dengan \"%1$s\".</string>
+    <string name="distance_far">100+ km</string>
+    <string name="staff_upcoming_title">Berikutnya dalam antrean</string>
+    <string name="staff_upcoming_more">+%1$d lagi menunggu</string>
+    <string name="active_queue_share">Bagikan antreanku</string>
+    <string name="active_queue_share_text">Aku lagi antre di %2$s dengan nomor %1$s — masih ada %3$d grup di depanku. Antre lewat Ngantriin.</string>
 </resources>

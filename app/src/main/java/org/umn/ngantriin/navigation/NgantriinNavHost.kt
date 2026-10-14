@@ -1,5 +1,10 @@
 package org.umn.ngantriin.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,7 +71,14 @@ fun NgantriinNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
+        // Short, quiet transitions: a fade with a small drift in the direction
+        // of travel, so moving between screens reads as movement without
+        // making anyone wait for it.
+        enterTransition = { fadeIn(tween(240)) + slideInHorizontally(tween(240)) { it / 12 } },
+        exitTransition = { fadeOut(tween(140)) },
+        popEnterTransition = { fadeIn(tween(240)) },
+        popExitTransition = { fadeOut(tween(140)) + slideOutHorizontally(tween(240)) { it / 12 } }
     ) {
         composable(Routes.SPLASH) { SplashScreen() }
 
@@ -168,8 +180,17 @@ fun NgantriinNavHost(
         ) { entry ->
             JoinQueueConfirmationScreen(
                 queueId = entry.arguments?.getString(Routes.ARG_QUEUE_ID).orEmpty(),
-                onViewMyQueue = { navController.navigateToTab(Routes.ACTIVE_QUEUE) },
-                onBackToHome = { navController.navigateToTab(Routes.HOME) }
+                // Close the confirmation first. Left on the stack it would be saved
+                // with the tab it sits on and come back the next time that tab
+                // is selected, as if the customer had just joined again.
+                onViewMyQueue = {
+                    navController.popBackStack()
+                    navController.navigateToTab(Routes.ACTIVE_QUEUE)
+                },
+                onBackToHome = {
+                    navController.popBackStack()
+                    navController.navigateToTab(Routes.HOME)
+                }
             )
         }
 
