@@ -55,7 +55,4 @@ interface RestaurantDao {
 
     @Query("DELETE FROM restaurants WHERE id NOT IN (:keepIds)")
     suspend fun deleteMissing(keepIds: List<String>)
-
-    @Query("SELECT MAX(cachedAt) FROM restaurants")
-    suspend fun lastCachedAt(): Long?
 }

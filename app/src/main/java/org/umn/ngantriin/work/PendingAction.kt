@@ -54,8 +54,6 @@ class PendingActionQueue(private val dao: PendingActionDao) {
         )
     }
 
-    suspend fun pendingCount(): Int = dao.count()
-
     /**
      * Replays everything in order. [handler] returns true when the action is
      * settled — either it succeeded, or it failed in a way that replaying

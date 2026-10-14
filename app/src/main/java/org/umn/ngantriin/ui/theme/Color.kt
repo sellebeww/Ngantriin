@@ -14,7 +14,6 @@ val Saffron20 = Color(0xFF71330A)
 // Warm neutral surfaces and readable text.
 val Ink900 = Color(0xFF2D241E)
 val Ink800 = Color(0xFF382B22)
-val Ink700 = Color(0xFF514238)
 val Ink500 = Color(0xFF75675C)
 val Ink300 = Color(0xFFBEAA99)
 val Ink200 = Color(0xFFE6DACE)
@@ -46,7 +45,5 @@ val StatusExpired = Color(0xFF57534E)
 val StatusExpiredContainer = Color(0xFFECE9E6)
 
 // Feedback
-val SuccessGreen = Color(0xFF0B7A3E)
-val WarningAmber = Color(0xFFB2740B)
 val ErrorRed = Color(0xFFB3261E)
 val OfflineSlate = Color(0xFF4B5563)

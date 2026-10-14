@@ -9,8 +9,6 @@ sealed interface Outcome<out T> {
     data class Failure(val error: AppError) : Outcome<Nothing>
 
     val dataOrNull: T? get() = (this as? Success)?.data
-    val errorOrNull: AppError? get() = (this as? Failure)?.error
-    val isSuccess: Boolean get() = this is Success
 }
 
 inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> = when (this) {
@@ -25,6 +23,3 @@ inline fun <T> Outcome<T>.onSuccess(action: (T) -> Unit): Outcome<T> = apply {
 inline fun <T> Outcome<T>.onFailure(action: (AppError) -> Unit): Outcome<T> = apply {
     if (this is Outcome.Failure) action(error)
 }
-
-fun <T> T.asSuccess(): Outcome<T> = Outcome.Success(this)
-fun AppError.asFailure(): Outcome<Nothing> = Outcome.Failure(this)

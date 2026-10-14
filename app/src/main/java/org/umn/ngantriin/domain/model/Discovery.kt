@@ -35,6 +35,4 @@ data class RestaurantFilters(
             minRating,
             true.takeIf { openNowOnly }
         ).size
-
-    val isDefault: Boolean get() = activeFilterCount == 0 && sort == RestaurantSort.NEAREST
 }

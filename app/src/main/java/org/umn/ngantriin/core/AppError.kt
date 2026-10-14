@@ -23,9 +23,6 @@ sealed class AppError(
 
     data object InvalidCredentials : AppError(R.string.error_invalid_credentials)
 
-    data class SignUpRejected(val detail: String) :
-        AppError(R.string.error_signup_rejected, listOf(detail))
-
     /** 28.1 */
     data object RestaurantClosed : AppError(R.string.error_restaurant_closed)
 

@@ -396,6 +396,14 @@ function timingSafeEqual(a: string, b: string): boolean {
  * Sends a data-only FCM message. Data-only (rather than `notification`) is
  * deliberate: NgantriinMessagingService renders it, so the app controls the
  * channel, the icon, the language and whether it persists the event first.
+ *
+ * Failure handling:
+ *   * 429 / 5xx / network error: retried with backoff (the notification row
+ *     is already stored, so the in-app list is right even if every try fails).
+ *   * 401: the cached OAuth token was rejected; drop it and retry once.
+ *   * UNREGISTERED / NOT_FOUND: the app was uninstalled or its data cleared;
+ *     the token is cleared so no more pushes are spent on it.
+ *   * Anything else (bad config, bad payload) is logged and not retried.
  */
 async function push(userId: string, data: Record<string, string>) {
   const { data: profile } = await supabase
@@ -407,37 +415,84 @@ async function push(userId: string, data: Record<string, string>) {
   const token = profile?.fcm_token;
   if (!token) return;
 
-  const accessToken = await googleAccessToken();
-  if (!accessToken) return;
-
   const projectId = Deno.env.get("FCM_PROJECT_ID");
-  const response = await fetch(
-    `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: {
-          token,
-          data: { ...data, user_id: userId },
-          android: { priority: "HIGH" },
-        },
-      }),
-    },
-  );
+  if (!projectId) {
+    console.error("FCM_PROJECT_ID is not configured; push skipped");
+    return;
+  }
 
-  // A token FCM no longer recognises (app uninstalled, data cleared) is
-  // dropped so we stop paying for a push that can never arrive.
-  if (response.status === 404 || response.status === 400) {
-    const detail = await response.text();
-    if (detail.includes("UNREGISTERED") || detail.includes("registration-token-not-registered")) {
-      await supabase.from("users").update({ fcm_token: null }).eq("id", userId);
+  const body = JSON.stringify({
+    message: {
+      token,
+      data: { ...data, user_id: userId },
+      android: { priority: "HIGH" },
+    },
+  });
+
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const accessToken = await googleAccessToken();
+    if (!accessToken) {
+      console.error("FCM access token unavailable; push skipped");
+      return;
     }
+
+    let response: Response;
+    try {
+      response = await fetch(
+        `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body,
+        },
+      );
+    } catch (error) {
+      console.error(`FCM request failed (attempt ${attempt})`, error);
+      if (attempt < maxAttempts) await sleep(backoffMs(attempt));
+      continue;
+    }
+
+    if (response.ok) return;
+
+    const detail = await response.text();
+
+    if (response.status === 401) {
+      cachedToken = null;
+      continue;
+    }
+
+    if (isUnregistered(response.status, detail)) {
+      await supabase
+        .from("users")
+        .update({ fcm_token: null })
+        .eq("id", userId)
+        .eq("fcm_token", token);
+      return;
+    }
+
+    if (response.status === 429 || response.status >= 500) {
+      console.error(`FCM ${response.status} (attempt ${attempt}): ${detail}`);
+      if (attempt < maxAttempts) await sleep(backoffMs(attempt));
+      continue;
+    }
+
+    console.error(`FCM rejected the message (${response.status}): ${detail}`);
+    return;
   }
 }
+
+function isUnregistered(status: number, detail: string): boolean {
+  if (status !== 404 && status !== 400) return false;
+  return detail.includes("UNREGISTERED") ||
+    detail.includes("registration-token-not-registered");
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const backoffMs = (attempt: number) => 300 * 2 ** (attempt - 1);
 
 /** Service-account JWT exchanged for an OAuth token, cached for its lifetime. */
 let cachedToken: { value: string; expiresAt: number } | null = null;
@@ -449,7 +504,13 @@ async function googleAccessToken(): Promise<string | null> {
 
   const raw = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON");
   if (!raw) return null;
-  const account = JSON.parse(raw);
+  let account;
+  try {
+    account = JSON.parse(raw);
+  } catch {
+    console.error("FCM_SERVICE_ACCOUNT_JSON is not valid JSON");
+    return null;
+  }
 
   const now = Math.floor(Date.now() / 1000);
   const claims = {
@@ -500,7 +561,10 @@ async function googleAccessToken(): Promise<string | null> {
     }),
   });
 
-  if (!response.ok) return null;
+  if (!response.ok) {
+    console.error(`Google token exchange failed (${response.status})`);
+    return null;
+  }
   const json = await response.json();
   cachedToken = {
     value: json.access_token,

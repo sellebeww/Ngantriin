@@ -35,12 +35,8 @@ It scales without extra image files or a network request.
 
 ## Verification
 
-- `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --offline`
-  completed with JDK 17: 41 unit tests passed; lint reported 0 errors and 16 warnings.
-- Checked discovery, search, restaurant details, joining a queue, the active ticket,
-  profile, notifications, onboarding, sign-in, and staff screens in a separate
-  emulator installation using the local demo backend.
-- Checked Indonesian and English copy, light and dark themes, and 130% font sizing
-  on the home and search screens.
-- Updated the screenshots in `docs/screenshots/`. The existing system splash
-  reference is [splash-preview.png](splash-preview.png).
+Screenshots in `docs/screenshots/` were taken on an emulator against the local
+demo backend. For the current build, lint and test status run
+`./gradlew :app:testDebugUnitTest :app:lintDebug`; the numbers are not repeated
+here so they cannot go stale. The existing system splash reference is
+[splash-preview.png](splash-preview.png).

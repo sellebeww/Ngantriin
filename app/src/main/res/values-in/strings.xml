@@ -45,7 +45,6 @@
     <string name="error_server">Ada masalah di sistem kami. Silakan coba lagi.</string>
     <string name="error_session_expired">Sesimu telah berakhir. Silakan masuk kembali.</string>
     <string name="error_invalid_credentials">Email atau kata sandi salah.</string>
-    <string name="error_signup_rejected">Gagal membuat akun: %1$s</string>
     <string name="error_restaurant_closed">Restoran ini sedang tutup.</string>
     <string name="error_queue_full">Antrean ini sudah penuh. Coba lagi sebentar lagi.</string>
     <string name="error_seats_available">Restoran ini masih ada kursi kosong — tidak perlu antre, langsung datang saja.</string>

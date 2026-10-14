@@ -46,7 +46,6 @@
     <string name="error_server">Something went wrong on our side. Please try again.</string>
     <string name="error_session_expired">Your session expired. Please sign in again.</string>
     <string name="error_invalid_credentials">Wrong email or password.</string>
-    <string name="error_signup_rejected">Could not create your account: %1$s</string>
     <string name="error_restaurant_closed">This restaurant is closed right now.</string>
     <string name="error_queue_full">This queue is full. Try again a little later.</string>
     <string name="error_seats_available">This restaurant has open seats right now — no need to queue, just walk in.</string>

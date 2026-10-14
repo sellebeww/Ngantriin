@@ -27,9 +27,7 @@ data class ActiveQueueUiState(
     val queue: ActiveQueue? = null,
     val isOffline: Boolean = false,
     val isLeaving: Boolean = false
-) {
-    val hasQueue: Boolean get() = queue != null
-}
+)
 
 sealed interface ActiveQueueEvent {
     data object Left : ActiveQueueEvent

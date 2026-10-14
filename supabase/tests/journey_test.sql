@@ -12,8 +12,7 @@
 -- `set local role authenticated` + `request.jwt.claims`, and `reset role`
 -- returns to the superuser to arrange fixtures.
 --
--- NOT EXECUTED IN THIS SANDBOX (no psql / Supabase CLI available where it was
--- written). Please run it before trusting it.
+-- Run automatically by scripts/sql-tests.sh against a throwaway Postgres.
 -- =============================================================================
 
 begin;

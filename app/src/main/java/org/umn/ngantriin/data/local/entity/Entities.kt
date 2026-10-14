@@ -119,10 +119,3 @@ data class QueueHistoryRow(
     val restaurantImageUrl: String?,
     val hasReview: Boolean
 )
-
-/** A live ticket joined with its venue and counters, for the active-queue flow. */
-data class ActiveQueueRow(
-    @Embedded val queue: QueueEntryEntity,
-    @Embedded(prefix = "r_") val restaurant: RestaurantEntity?,
-    @Embedded(prefix = "s_") val stats: QueueStatsEntity?
-)

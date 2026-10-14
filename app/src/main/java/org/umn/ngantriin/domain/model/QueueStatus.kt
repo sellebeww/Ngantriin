@@ -41,10 +41,6 @@ enum class QueueStatus {
         get() = this == WAITING || this == ALMOST_THERE || this == CALLED ||
             this == CHECKED_IN || this == TABLE_READY
 
-    /** Terminal states never transition again (section 18). */
-    val isTerminal: Boolean
-        get() = this == COMPLETED || this == CANCELLED || this == EXPIRED
-
     /** Still holds a place in line in front of later tickets. */
     val isInLine: Boolean
         get() = this == WAITING || this == ALMOST_THERE || this == CALLED || this == CHECKED_IN
@@ -56,10 +52,6 @@ enum class QueueStatus {
     /** The customer is physically at the restaurant. */
     val isAtRestaurant: Boolean
         get() = this == CHECKED_IN || this == TABLE_READY
-
-    /** True once the customer must be physically at the restaurant. */
-    val requiresPresence: Boolean
-        get() = this == CALLED || isAtRestaurant
 
     /**
      * Mirrors `is_valid_queue_transition` in 0012_check_in_window_and_table_ready.sql.

@@ -14,9 +14,6 @@ data class GeoPoint(
     companion object {
         private const val EARTH_RADIUS_METERS = 6_371_000.0
 
-        /** Gading Serpong, used only as a map centre when GPS is unavailable. */
-        val GADING_SERPONG = GeoPoint(-6.2412, 106.6256)
-
         /**
          * Great-circle distance in metres (haversine). Accurate to well under
          * a metre at city scale, which is all a check-in radius needs.

@@ -94,6 +94,8 @@ class DemoAuthRemoteDataSource(
 
     override suspend fun updatePushToken(userId: String, token: String) = Unit
 
+    override suspend fun clearPushToken(userId: String) = Unit
+
     override suspend fun updateLocale(userId: String, locale: String) = Unit
 
     private fun nameFrom(email: String) = email.substringBefore('@')

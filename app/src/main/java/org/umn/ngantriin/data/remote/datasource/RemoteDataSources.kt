@@ -43,6 +43,9 @@ interface AuthRemoteDataSource {
     suspend fun updateProfile(userId: String, name: String, phone: String?): User
     suspend fun updatePushToken(userId: String, token: String)
 
+    /** Detaches this account from the device so its pushes stop arriving here. */
+    suspend fun clearPushToken(userId: String)
+
     /** Language the server writes push notifications in ("id" or "en"). */
     suspend fun updateLocale(userId: String, locale: String)
 }

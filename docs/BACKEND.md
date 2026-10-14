@@ -62,7 +62,7 @@ wait for.
 
 | Table | Purpose |
 | --- | --- |
-| `users` | App profile mirroring `auth.users`; holds `role`, `fcm_token`, `locale` |
+| `users` | App profile mirroring `auth.users`; holds `role`, `fcm_token`, `locale`. `fcm_token` is unique (0013): registering a token on one account clears it from any other |
 | `restaurants` | Venue, coordinates, opening hours (`timezone`), queue configuration |
 | `restaurant_staff` | Which accounts may manage which venues |
 | `queues` | One row per customer group per visit, with a timestamp per stage |

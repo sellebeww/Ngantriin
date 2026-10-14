@@ -94,8 +94,4 @@ class LoginViewModel(
             }
         }
     }
-
-    fun dismissMessages() {
-        _uiState.update { it.copy(error = null, resetEmailSent = null) }
-    }
 }

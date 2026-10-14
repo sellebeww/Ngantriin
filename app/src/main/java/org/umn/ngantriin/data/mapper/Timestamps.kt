@@ -32,4 +32,3 @@ internal fun parseTime(value: String?, fallback: LocalTime): LocalTime {
     return runCatching { LocalTime.parse(value) }.getOrDefault(fallback)
 }
 
-internal fun Instant.toIsoString(): String = OffsetDateTime.ofInstant(this, ZoneOffset.UTC).toString()

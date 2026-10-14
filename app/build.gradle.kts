@@ -31,8 +31,10 @@ android {
         applicationId = "org.umn.ngantriin"
         minSdk = 27
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // CI can bump these without editing the file:
+        //   ./gradlew assembleRelease -PversionCode=7 -PversionName=1.1.0
+        versionCode = (project.findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -40,13 +42,35 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secret("SUPABASE_ANON_KEY")}\"")
     }
 
+    // Release signing comes from local.properties or the environment, never
+    // from the repository. Without all four values the release build is simply
+    // left unsigned (assembleRelease still works; sign it yourself afterwards).
+    val releaseKeystore = secret("RELEASE_KEYSTORE_FILE")
+    val hasReleaseSigning = releaseKeystore.isNotEmpty() &&
+        secret("RELEASE_KEYSTORE_PASSWORD").isNotEmpty() &&
+        secret("RELEASE_KEY_ALIAS").isNotEmpty() &&
+        secret("RELEASE_KEY_PASSWORD").isNotEmpty()
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            create("release") {
+                storeFile = rootProject.file(releaseKeystore)
+                storePassword = secret("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = secret("RELEASE_KEY_ALIAS")
+                keyPassword = secret("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

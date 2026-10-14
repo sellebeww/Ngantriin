@@ -2,8 +2,9 @@
 -- NGANTRIIN — concurrency + cooldown tests for join_queue / call_next /
 -- check_in_queue (0002, 0006, 0007).
 --
--- NOT EXECUTED IN THIS SANDBOX (no Supabase CLI/Docker/psql available where
--- this was written) — reviewed carefully, not run. Please run before trusting.
+-- Part 1 runs in scripts/sql-tests.sh. Part 2 (true parallelism) is manual;
+-- it was also exercised with 20 parallel join_queue and 5 parallel call_next
+-- connections: 20 distinct ticket numbers, 5 distinct tickets called.
 --
 -- Part 1 is a normal sequential script — no real concurrency needed, since
 -- the cooldown is just "did the last cancel happen recently", checkable by

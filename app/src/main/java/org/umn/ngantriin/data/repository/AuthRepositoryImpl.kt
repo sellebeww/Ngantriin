@@ -61,6 +61,10 @@ class AuthRepositoryImpl(
         }
 
     override suspend fun signOut(): Outcome<Unit> = runCatchingOutcome {
+        // Best effort, and before the session goes away: without it this
+        // phone keeps receiving the previous account's queue pushes. The
+        // 0013 trigger covers the case where the call never gets through.
+        remote.currentUserId()?.let { id -> runCatching { remote.clearPushToken(id) } }
         remote.signOut()
         cachedUser.value = null
         // Explicitly signing out is the one time it is right to drop the

@@ -153,15 +153,25 @@ supabase db push   # atau tempel isi supabase/migrations/*.sql ke SQL editor
 | `0010_more_restaurants.sql` | Restoran contoh tambahan |
 | `0011_queue_status_table_ready.sql` | Status baru `TABLE_READY` dan `EXPIRED` |
 | `0012_check_in_window_and_table_ready.sql` | Batas check-in 10 menit, check-in lebih awal, meja siap, jam buka di server, verifikasi foto, pengetatan RLS, webhook ber-secret, jadwal pg_cron |
+| `0013_fcm_token_hygiene.sql` | Satu token perangkat hanya milik satu akun: trigger + unique index, agar push akun lama tidak jatuh ke HP yang sudah dipakai akun lain |
 
 > Aktifkan ekstensi **pg_cron** (Database → Extensions) sebelum menjalankan
 > 0012 agar tiket yang tidak check-in hangus tepat waktu. Tanpa pg_cron aturan
 > tetap berlaku, hanya dieksekusi saat ada aktivitas di antrean restoran itu.
 
-Tiga berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
-`concurrency_test.sql`, `journey_test.sql`) menguji isolasi RLS,
-locking/cooldown, dan seluruh alur dari antre sampai meja siap / hangus.
-Jalankan di SQL editor atau `psql`, bukan bagian dari tes Android.
+Empat berkas tes SQL di `supabase/tests/` (`rls_test.sql`,
+`concurrency_test.sql`, `journey_test.sql`, `fcm_token_test.sql`) menguji
+isolasi RLS, locking/cooldown, seluruh alur dari antre sampai meja siap /
+hangus, dan kepemilikan token FCM. Cara termudah menjalankannya (butuh Docker):
+
+```bash
+./scripts/sql-tests.sh   # Postgres sekali pakai, tidak menyentuh project Supabase
+```
+
+Skrip itu menerapkan semua migrasi ke image `supabase/postgres` lokal lalu
+menjalankan keempat tes, dan juga dipakai CI. Berkas `ci_bootstrap.sql` hanya
+menambal bagian yang di Supabase hosted disediakan layanan lain (tabel Storage,
+`auth.uid()` versi baru); jangan dijalankan ke project sungguhan.
 
 Lalu isi kredensial di `local.properties` (di-ignore git, tidak pernah
 di-commit):
@@ -205,6 +215,12 @@ alter database postgres set app.settings.functions_url =
     'https://<project-ref>.supabase.co/functions/v1';
 alter database postgres set app.settings.queue_notifier_secret = '<string acak>';
 ```
+
+Perilaku token: aplikasi mendaftarkan token saat login dan saat Firebase
+menggantinya, serta menghapusnya dari profil saat logout. Edge Function mencoba
+ulang pada 429/5xx dan error jaringan, membuang token yang dilaporkan
+`UNREGISTERED`, dan mencatat error lain ke log fungsi. FCM belum teruji ujung
+ke ujung tanpa `google-services.json` dan service account milik Anda sendiri.
 
 Sebelum FCM disambungkan, notifikasi tetap jalan lewat jalur lokal:
 `QueueTrackingService` (foreground service selama ada tiket aktif) menjaga
@@ -271,10 +287,34 @@ supabase/
 
 ---
 
+## Build Rilis
+
+```bash
+./gradlew :app:assembleRelease -PversionCode=2 -PversionName=1.0.1
+```
+
+Build rilis memakai R8 (minify + shrink resource). Tanpa keystore hasilnya
+`app-release-unsigned.apk`. Untuk menandatangani, isi empat nilai ini di
+`local.properties` atau environment (jangan di-commit; `*.jks`, `*.keystore`
+dan `local.properties` sudah di-ignore):
+
+```properties
+RELEASE_KEYSTORE_FILE=../keystore/ngantriin.jks   # relatif terhadap root repo
+RELEASE_KEYSTORE_PASSWORD=...
+RELEASE_KEY_ALIAS=...
+RELEASE_KEY_PASSWORD=...
+```
+
+CI (`.github/workflows/ci.yml`) menjalankan unit test, lint, build debug,
+build rilis, dan tes SQL pada setiap push dan pull request, tanpa kredensial
+apa pun (demo mode).
+
+---
+
 ## Tes
 
 ```bash
-./gradlew :app:testDebugUnitTest          # 51 unit test
+./gradlew :app:testDebugUnitTest          # 56 unit test
 ./gradlew :app:connectedDebugAndroidTest  # 7 instrumented test, butuh perangkat
 ./gradlew :app:lintDebug
 ```

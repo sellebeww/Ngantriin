@@ -93,6 +93,13 @@ class SupabaseAuthRemoteDataSource(
         }
     }
 
+    override suspend fun clearPushToken(userId: String) {
+        // The client JSON omits nulls, so a DTO cannot carry an explicit null.
+        client.from("users").update({ set<String?>("fcm_token", null) }) {
+            filter { eq("id", userId) }
+        }
+    }
+
     override suspend fun updateLocale(userId: String, locale: String) {
         client.from("users").update(LocaleUpdateDto(locale)) {
             filter { eq("id", userId) }

@@ -15,9 +15,6 @@ interface PendingActionDao {
     @Query("SELECT * FROM pending_actions ORDER BY createdAt")
     suspend fun all(): List<PendingActionEntity>
 
-    @Query("SELECT COUNT(*) FROM pending_actions")
-    suspend fun count(): Int
-
     @Delete
     suspend fun delete(action: PendingActionEntity)
 

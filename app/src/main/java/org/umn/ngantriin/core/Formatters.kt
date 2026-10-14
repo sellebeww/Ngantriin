@@ -12,7 +12,6 @@ object Formatters {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
-    private val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy • HH:mm", Locale.ENGLISH)
 
     /** "850 m" below a kilometre, "1.4 km" above it, "—" when unknown. */
     fun distance(meters: Double?): String = when {
@@ -29,13 +28,6 @@ object Formatters {
         else -> "~${minutes / 60} hr ${minutes % 60} min"
     }
 
-    /** Compact variant for dense cards: "18 min". */
-    fun waitTimeShort(minutes: Int): String = when {
-        minutes <= 0 -> "No wait"
-        minutes < 60 -> "$minutes min"
-        else -> "${minutes / 60}h ${minutes % 60}m"
-    }
-
     fun groups(count: Int): String = if (count == 1) "1 group" else "$count groups"
 
     fun rating(value: Double): String = String.format(Locale.ENGLISH, "%.1f", value)
@@ -45,9 +37,6 @@ object Formatters {
 
     fun time(instant: Instant): String =
         timeFormatter.format(instant.atZone(ZoneId.systemDefault()))
-
-    fun dateTime(instant: Instant): String =
-        dateTimeFormatter.format(instant.atZone(ZoneId.systemDefault()))
 
     /** "just now" / "12 min ago" / "3 hr ago" / "21 Sep 2026". */
     fun relative(instant: Instant, now: Instant = Instant.now()): String {
