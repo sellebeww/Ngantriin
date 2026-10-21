@@ -50,7 +50,8 @@ fun FavoriteButton(
         }
     }
     val tint by animateColorAsState(
-        targetValue = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+        // Saffron, not red: red is kept for cancellation and time running out.
+        targetValue = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "favoriteTint"
     )
 
