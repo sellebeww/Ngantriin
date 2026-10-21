@@ -1,30 +1,22 @@
 package org.umn.ngantriin.ui.queue
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import org.umn.ngantriin.R
+import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.components.BottomAnchoredColumn
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
-import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
-import org.umn.ngantriin.ui.theme.balanced
 
 /**
  * Screen 13. The hand-off from "you were served" to "tell us how it went"
@@ -37,48 +29,29 @@ fun QueueCompletedScreen(
     onViewHistory: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val statusColors = LocalStatusColors.current
-
-    BottomAnchoredColumn(
-        modifier = modifier.padding(horizontal = Spacing.screenGutter),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Centred in the space above the button; weighted slightly high, which
-        // is where the eye expects the middle of a success screen to be.
-        Spacer(Modifier.weight(0.8f))
-
-        Box(
-            modifier = Modifier
-                .size(88.dp)
-                .background(statusColors.completedContainer, RoundedCornerShape(50)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.EmojiEvents,
-                contentDescription = null,
-                tint = statusColors.completed,
-                modifier = Modifier.size(44.dp)
-            )
-        }
-
-        Spacer(Modifier.height(Spacing.xl))
-
+    BottomAnchoredColumn(modifier = modifier.padding(horizontal = Spacing.screenGutter)) {
+        Spacer(Modifier.weight(0.6f))
+        StubTicket(
+            status = QueueStatus.COMPLETED,
+            tilted = true,
+            modifier = Modifier.fillMaxWidth(0.6f)
+        )
+        Spacer(Modifier.height(Spacing.xxl))
         Text(
             text = stringResource(R.string.completed_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
+            modifier = Modifier.semantics { heading() }
         )
         Spacer(Modifier.height(Spacing.sm))
         Text(
             text = stringResource(R.string.completed_body),
-            style = MaterialTheme.typography.bodyLarge.balanced(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(Modifier.weight(1.2f))
-
+        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(Spacing.xl))
         PrimaryButton(
             text = stringResource(R.string.active_queue_rate_experience),
             onClick = { onRate(queueId) }

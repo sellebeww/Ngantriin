@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,22 +16,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Camera
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,20 +38,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.umn.ngantriin.R
 import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.di.containerViewModel
+import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.components.BottomAnchoredColumn
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.PrimaryButton
@@ -62,10 +65,8 @@ import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.LocalStatusColors
-import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
-import java.io.File
 
 /** The customer photographs themselves at the restaurant. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -199,30 +200,13 @@ fun CheckInScreen(
                 val currentPhotoUri = photoUri
 
                 if (currentPhotoUri == null) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(Spacing.xxl),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = queue.restaurant.name,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(Spacing.md))
-                            Text(
-                                text = queue.queueNumber,
-                                style = QueueNumberStyle,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(Modifier.height(Spacing.lg))
-                            QueueStatusPill(queue.status)
-                        }
-                    }
+                    // The ticket the staff will look for, as it appears on
+                    // the ticket tab.
+                    StubTicket(
+                        status = queue.status,
+                        number = queue.queueNumber,
+                        caption = queue.restaurant.name
+                    )
                 } else {
                     // With a photo on screen the ticket shrinks to one line, so
                     // the photo and the Submit button both fit above the fold.
@@ -374,47 +358,33 @@ private fun CheckedInState(
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val statusColors = LocalStatusColors.current
+    val haptics = LocalHapticFeedback.current
+    LaunchedEffect(Unit) { haptics.performHapticFeedback(HapticFeedbackType.Confirm) }
 
-    BottomAnchoredColumn(
-        modifier = modifier.padding(horizontal = Spacing.screenGutter),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Centred in the space above the button; weighted slightly high, which
-        // is where the eye expects the middle of a success screen to be.
-        Spacer(Modifier.weight(0.8f))
-
-        Box(
-            modifier = Modifier
-                .size(88.dp)
-                .background(statusColors.checkedInContainer, RoundedCornerShape(50)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = statusColors.checkedIn,
-                modifier = Modifier.size(44.dp)
-            )
-        }
-
-        Spacer(Modifier.height(Spacing.xl))
-
+    BottomAnchoredColumn(modifier = modifier.padding(horizontal = Spacing.screenGutter)) {
+        Spacer(Modifier.weight(0.6f))
+        StubTicket(
+            status = QueueStatus.CHECKED_IN,
+            number = queueNumber,
+            tilted = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        Spacer(Modifier.height(Spacing.xxl))
         Text(
             text = stringResource(R.string.checkin_success_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
+            modifier = Modifier.semantics { heading() }
         )
         Spacer(Modifier.height(Spacing.sm))
         Text(
             text = stringResource(R.string.checkin_success_body, queueNumber, restaurantName),
-            style = MaterialTheme.typography.bodyLarge.balanced(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(Modifier.weight(1.2f))
+        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(Spacing.xl))
         PrimaryButton(text = stringResource(R.string.action_done), onClick = onDone)
         Spacer(Modifier.height(Spacing.xxl))
     }
