@@ -88,6 +88,7 @@ fun RegisterScreen(
             label = stringResource(R.string.register_confirm_password_label),
             errorText = state.confirmPasswordError?.let { stringResource(it) },
             imeAction = ImeAction.Done,
+            onImeAction = { if (state.canSubmit) viewModel.register() },
             enabled = !state.isSubmitting
         )
 

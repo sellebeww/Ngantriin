@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockOpen
@@ -16,8 +17,8 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -95,7 +96,10 @@ fun NgantriinPasswordField(
     modifier: Modifier = Modifier,
     errorText: String? = null,
     imeAction: ImeAction = ImeAction.Next,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    // The form's last field submits from the keyboard, so a button the
+    // keyboard happens to cover is never in the way.
+    onImeAction: (() -> Unit)? = null
 ) {
     var visible by remember { mutableStateOf(false) }
 
@@ -125,6 +129,7 @@ fun NgantriinPasswordField(
                 keyboardType = KeyboardType.Password,
                 imeAction = imeAction
             ),
+            keyboardActions = KeyboardActions(onDone = onImeAction?.let { action -> { action() } }),
             trailingIcon = {
                 IconButton(onClick = { visible = !visible }) {
                     Icon(

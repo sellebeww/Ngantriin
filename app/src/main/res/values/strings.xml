@@ -167,8 +167,6 @@
     <string name="location_rationale_dismiss">Not now</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_skip">Skip</string>
-    <string name="onboarding_next">Next</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_stop_waiting_title">Stop Waiting in Line</string>
     <string name="onboarding_stop_waiting_description">Take your restaurant queue digitally and spend your waiting time doing something else.</string>
@@ -176,8 +174,6 @@
     <string name="onboarding_track_queue_description">See your queue position and estimated waiting time in real-time.</string>
     <string name="onboarding_come_back_title">Come Back When It\'s Your Turn</string>
     <string name="onboarding_come_back_description">Get notified when your turn is near and check in when you return.</string>
-    <string name="onboarding_illustration_your_turn">It\'s your turn!</string>
-    <string name="onboarding_illustration_being_called">%1$s is being called</string>
 
     <!-- Form validation (core/Validators.kt) -->
     <string name="validation_email_required">Email is required</string>

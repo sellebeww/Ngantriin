@@ -15,9 +15,11 @@ OUT = ROOT / "app" / "src" / "main" / "res" / "drawable-nodpi"
 
 PAPER = (0xFF, 0xFA, 0xF4)  # token Paper
 
-# name: (master file, crop box as fractions l, t, r, b, output width px)
+# name: (master file, crop box as fractions l, t, r, b, output width px, edge)
+# edge "all": floats on the page; "bottom": full-bleed, fades into the page below.
 ASSETS = {
-    "empty_ticket_stools": ("empty-ticket-stools-master.png", (0.0, 0.16, 1.0, 1.0), 840),
+    "empty_ticket_stools": ("empty-ticket-stools-master.png", (0.0, 0.16, 1.0, 1.0), 840, "all"),
+    "firstrun_table": ("firstrun-table-master.png", (0.0, 0.22, 1.0, 0.92), 1080, "bottom"),
 }
 
 
@@ -47,19 +49,32 @@ def feather_into_paper(im: Image.Image, border: float = 0.05) -> Image.Image:
     return canvas.resize((w, h), Image.LANCZOS)
 
 
+def fade_bottom_into_paper(im: Image.Image, fade: float = 0.22) -> Image.Image:
+    """Full-bleed art: sides run off the screen, the bottom melts into Paper
+    so the text below sits on the same sheet."""
+    w, h = im.size
+    start = int(h * (1 - fade))
+    mask = Image.new("L", (w, h), 255)
+    draw = ImageDraw.Draw(mask)
+    for y in range(start, h):
+        draw.line((0, y, w, y), fill=round(255 * (h - y) / (h - start)))
+    return Image.composite(im, Image.new("RGB", (w, h), PAPER), mask)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, (master, (l, t, r, b), width) in ASSETS.items():
+    for name, (master, (l, t, r, b), width, edge) in ASSETS.items():
         im = Image.open(SRC / master).convert("RGB")
         im = grade_to_paper(im)
         w, h = im.size
         im = im.crop((round(l * w), round(t * h), round(r * w), round(b * h)))
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
-        im = feather_into_paper(im)
+        im = feather_into_paper(im) if edge == "all" else fade_bottom_into_paper(im)
         out = OUT / f"{name}.webp"
         # No metadata is written; quality tuned against the 150 KB budget.
         im.save(out, "WEBP", quality=72, method=6)
-        assert out.stat().st_size <= 150_000, f"{out.name} over budget: {out.stat().st_size}"
+        budget = 250_000 if edge == "bottom" else 150_000  # full-bleed hero vs. spot art
+        assert out.stat().st_size <= budget, f"{out.name} over budget: {out.stat().st_size}"
         print(f"{out.relative_to(ROOT)} {im.size[0]}x{im.size[1]} {out.stat().st_size // 1024} KB")
 
 

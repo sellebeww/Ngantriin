@@ -1,171 +1,111 @@
 package org.umn.ngantriin.ui.onboarding
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.umn.ngantriin.R
+import org.umn.ngantriin.ui.components.NgantriinLogo
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.theme.Spacing
-import org.umn.ngantriin.ui.theme.balanced
+
+/** The three steps, in the order a visit happens. */
+private val Steps = listOf(
+    R.string.onboarding_stop_waiting_title to R.string.onboarding_stop_waiting_description,
+    R.string.onboarding_track_queue_title to R.string.onboarding_track_queue_description,
+    R.string.onboarding_come_back_title to R.string.onboarding_come_back_description
+)
 
 /**
- * Three pages that each answer one worry about leaving a queue:
- * do I have to stand here, will I know where I am, and will I miss my turn.
+ * One screen, not a carousel: a table waiting for you, then the whole idea in
+ * three numbered steps you can read at once, then the way in. Nothing to
+ * swipe through and nothing to skip.
  */
 @Composable
 fun OnboardingScreen(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pages = OnboardingPage.entries
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-    val scope = rememberCoroutineScope()
-    val isLastPage = pagerState.currentPage == pages.lastIndex
-
-    Scaffold(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.background
-    ) { padding ->
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        // The art gives way on short screens so the steps and button stay up.
+        val artHeight = maxHeight * 0.38f
         Column(
-            modifier = Modifier
+            Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.sm),
-                horizontalArrangement = Arrangement.End
-            ) {
-                // On the last page there is nothing left to skip, so the
-                // button goes away rather than sitting there greyed out.
-                if (!isLastPage) {
-                    TextButton(onClick = onFinished) {
-                        Text(stringResource(R.string.onboarding_skip), style = MaterialTheme.typography.labelLarge)
-                    }
-                } else {
-                    Spacer(Modifier.height(Spacing.xxl))
-                }
-            }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { index ->
-                OnboardingPageContent(pages[index])
-            }
-
-            Row(
+            Image(
+                painter = painterResource(R.drawable.firstrun_table),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                // Crop from the empty paper at the top; the bottom fade is
+                // what joins the art to the page and must survive.
+                alignment = Alignment.BottomCenter,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Spacing.screenGutter),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                pages.indices.forEach { index ->
-                    val selected = index == pagerState.currentPage
-                    val width by animateDpAsState(
-                        targetValue = if (selected) 24.dp else 8.dp,
-                        label = "dot-width"
-                    )
-                    val color by animateColorAsState(
-                        targetValue = if (selected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.outline
-                        },
-                        label = "dot-color"
-                    )
-                    Box(
-                        Modifier
-                            .padding(horizontal = Spacing.xs)
-                            .height(8.dp)
-                            .width(width)
-                            .background(color, RoundedCornerShape(50))
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(Spacing.xxl))
-
-            PrimaryButton(
-                text = if (isLastPage) {
-                    stringResource(R.string.onboarding_get_started)
-                } else {
-                    stringResource(R.string.onboarding_next)
-                },
-                onClick = {
-                    if (isLastPage) {
-                        onFinished()
-                    } else {
-                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = Spacing.screenGutter)
+                    .heightIn(max = artHeight)
             )
-
-            Spacer(Modifier.height(Spacing.xxxl))
+            Column(Modifier.padding(horizontal = Spacing.screenGutter)) {
+                // The official logo, as supplied, rather than a slogan headline.
+                NgantriinLogo(Modifier.height(96.dp))
+                Spacer(Modifier.height(Spacing.xl))
+                Steps.forEachIndexed { index, (title, body) ->
+                    Step(number = index + 1, title = stringResource(title), body = stringResource(body))
+                    if (index < Steps.lastIndex) Spacer(Modifier.height(Spacing.lg))
+                }
+                Spacer(Modifier.height(Spacing.xxl))
+                PrimaryButton(text = stringResource(R.string.onboarding_get_started), onClick = onFinished)
+                Spacer(Modifier.height(Spacing.xl))
+            }
         }
     }
 }
 
 @Composable
-private fun OnboardingPageContent(page: OnboardingPage) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = Spacing.xxl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+private fun Step(number: Int, title: String, body: String) {
+    Row(
+        modifier = Modifier.semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth().height(300.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            page.Illustration(Modifier.size(260.dp))
+        Text(
+            text = "$number",
+            style = MaterialTheme.typography.displayMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.width(32.dp)
+        )
+        Column(Modifier.padding(top = Spacing.xs)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = body,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-
-        Spacer(Modifier.height(Spacing.xxxl))
-
-        Text(
-            text = stringResource(page.titleRes),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(Spacing.md))
-
-        Text(
-            text = stringResource(page.descriptionRes),
-            style = MaterialTheme.typography.bodyLarge.balanced(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
     }
 }

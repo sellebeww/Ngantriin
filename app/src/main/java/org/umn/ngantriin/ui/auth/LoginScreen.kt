@@ -67,6 +67,7 @@ fun LoginScreen(
             label = stringResource(R.string.auth_password_label),
             errorText = state.passwordError?.let { stringResource(it) },
             imeAction = ImeAction.Done,
+            onImeAction = { if (state.canSubmit) viewModel.signIn() },
             enabled = !state.isSubmitting
         )
 

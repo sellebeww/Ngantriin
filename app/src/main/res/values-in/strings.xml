@@ -158,8 +158,6 @@
     <string name="location_rationale_dismiss">Nanti saja</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_skip">Lewati</string>
-    <string name="onboarding_next">Lanjut</string>
     <string name="onboarding_get_started">Mulai</string>
     <string name="onboarding_stop_waiting_title">Berhenti Mengantre</string>
     <string name="onboarding_stop_waiting_description">Ambil antrean restoranmu secara digital dan habiskan waktu tunggu untuk hal lain.</string>
@@ -167,8 +165,6 @@
     <string name="onboarding_track_queue_description">Lihat posisi antrean dan estimasi waktu tunggu secara real-time.</string>
     <string name="onboarding_come_back_title">Kembali Saat Giliranmu Tiba</string>
     <string name="onboarding_come_back_description">Dapatkan notifikasi saat giliranmu dekat dan check-in saat kamu kembali.</string>
-    <string name="onboarding_illustration_your_turn">Giliranmu!</string>
-    <string name="onboarding_illustration_being_called">%1$s sedang dipanggil</string>
 
     <!-- Form validation (core/Validators.kt) -->
     <string name="validation_email_required">Email wajib diisi</string>

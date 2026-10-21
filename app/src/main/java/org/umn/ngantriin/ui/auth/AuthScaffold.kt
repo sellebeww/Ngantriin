@@ -106,7 +106,7 @@ fun DemoModeNotice(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.secondaryContainer,
+                MaterialTheme.colorScheme.surfaceContainer,
                 MaterialTheme.shapes.medium
             )
             .padding(Spacing.md),
@@ -115,20 +115,20 @@ fun DemoModeNotice(modifier: Modifier = Modifier) {
         Icon(
             imageVector = Icons.Filled.Science,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
         Column {
             Text(
                 text = stringResource(R.string.auth_demo_mode_title),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(Modifier.height(Spacing.xxs))
             Text(
                 text = stringResource(R.string.auth_demo_mode_body),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

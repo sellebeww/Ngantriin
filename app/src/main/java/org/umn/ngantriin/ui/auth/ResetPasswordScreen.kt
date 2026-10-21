@@ -51,6 +51,7 @@ fun ResetPasswordScreen(modifier: Modifier = Modifier) {
             label = stringResource(R.string.register_confirm_password_label),
             errorText = state.confirmPasswordError?.let { stringResource(it) },
             imeAction = ImeAction.Done,
+            onImeAction = { if (state.canSubmit) viewModel.submit() },
             enabled = !state.isSubmitting
         )
 
