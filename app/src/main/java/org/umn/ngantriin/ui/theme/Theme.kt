@@ -116,7 +116,8 @@ data class StatusColors(
     val offline: Color
 )
 
-private val LightStatusColors = StatusColors(
+/** Also used on the ticket in both themes: it is printed on light paper. */
+val PaperStatusColors = StatusColors(
     waiting = Ink500, waitingContainer = Ink100,
     almostThere = Saffron50, almostThereContainer = Saffron90,
     called = Saffron40, calledContainer = Saffron90,
@@ -171,7 +172,7 @@ private val DarkTicketColors = TicketColors(
     slot = Color(0xFF0E0B09)
 )
 
-val LocalStatusColors = staticCompositionLocalOf { LightStatusColors }
+val LocalStatusColors = staticCompositionLocalOf { PaperStatusColors }
 val LocalTicketColors = staticCompositionLocalOf { LightTicketColors }
 
 @Composable
@@ -184,7 +185,7 @@ fun NgantriinTheme(
     val colorScheme = if (darkTheme) DarkColors else LightColors
 
     CompositionLocalProvider(
-        LocalStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors,
+        LocalStatusColors provides if (darkTheme) DarkStatusColors else PaperStatusColors,
         LocalTicketColors provides if (darkTheme) DarkTicketColors else LightTicketColors
     ) {
         MaterialTheme(

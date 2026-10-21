@@ -38,7 +38,7 @@ fun NgantriinBottomBar(
                     icon = {
                         // A live ticket is flagged on the tab itself, so
                         // it is visible from anywhere in the app.
-                        if (tab == BottomTab.QUEUE && hasActiveQueue) {
+                        if (tab == BottomTab.QUEUE && hasActiveQueue && !selected) {
                             BadgedBox(badge = { Badge() }) {
                                 Icon(
                                     imageVector = if (selected) tab.selectedIcon else tab.icon,
@@ -55,7 +55,7 @@ fun NgantriinBottomBar(
                     label = {
                         Text(
                             text = stringResource(tab.labelRes),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     // No pill indicator: the filled icon and ink label carry

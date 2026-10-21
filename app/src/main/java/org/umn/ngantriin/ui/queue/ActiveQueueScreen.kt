@@ -3,8 +3,11 @@ package org.umn.ngantriin.ui.queue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -223,11 +226,12 @@ private fun ActiveQueueContent(
         Spacer(Modifier.height(Spacing.lg))
 
         // Share and leave sit last and apart: neither is something to hit by
-        // accident on the way to the main button.
-        Row(
+        // accident on the way to the main button. They wrap onto two lines at
+        // large font sizes instead of squeezing.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            itemVerticalAlignment = Alignment.CenterVertically
         ) {
             if (queue.showsLinePosition) {
                 val context = LocalContext.current
@@ -251,8 +255,6 @@ private fun ActiveQueueContent(
                     Spacer(Modifier.width(Spacing.sm))
                     Text(shareTitle, style = MaterialTheme.typography.labelLarge)
                 }
-            } else {
-                Spacer(Modifier)
             }
 
             if (queue.canLeave) {
@@ -322,40 +324,45 @@ private fun NoTicket(onFindRestaurants: () -> Unit) {
     } else {
         Modifier
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.screenGutter)
-    ) {
-        Image(
-            painter = painterResource(R.drawable.empty_ticket_stools),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // The art gives way on short screens so the button stays on screen.
+        val artHeight = maxHeight * 0.42f
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 360.dp)
-                .then(sheet)
-        )
-        Spacer(Modifier.height(Spacing.xl))
-        Text(
-            text = stringResource(R.string.active_queue_empty_title),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.semantics { heading() }
-        )
-        Spacer(Modifier.height(Spacing.sm))
-        Text(
-            text = stringResource(R.string.active_queue_empty_message),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.weight(1f, fill = false))
-        Spacer(Modifier.height(Spacing.xxl))
-        PrimaryButton(
-            text = stringResource(R.string.active_queue_find_restaurant),
-            onClick = onFindRestaurants
-        )
-        Spacer(Modifier.height(Spacing.xxl))
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.screenGutter)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.empty_ticket_stools),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                // Sized to the art itself so the dark-theme sheet's corners
+                // land on the paper, not on empty space around it.
+                modifier = Modifier
+                    .heightIn(max = artHeight)
+                    .aspectRatio(840f / 882f, matchHeightConstraintsFirst = true)
+                    .then(sheet)
+            )
+            Spacer(Modifier.height(Spacing.xl))
+            Text(
+                text = stringResource(R.string.active_queue_empty_title),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
+            )
+            Spacer(Modifier.height(Spacing.sm))
+            Text(
+                text = stringResource(R.string.active_queue_empty_message),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(Spacing.xl))
+            PrimaryButton(
+                text = stringResource(R.string.active_queue_find_restaurant),
+                onClick = onFindRestaurants
+            )
+            Spacer(Modifier.height(Spacing.xxl))
+        }
     }
 }

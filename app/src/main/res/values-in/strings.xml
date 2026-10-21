@@ -3,8 +3,6 @@
     <string name="app_tagline">Good Food • Less Wait • Happier You</string>
 
     <!-- Bottom navigation -->
-    <string name="nav_home">Beranda</string>
-    <string name="nav_search">Cari</string>
     <string name="nav_queue">Antrean</string>
     <string name="nav_history">Riwayat</string>
     <string name="nav_profile">Profil</string>
@@ -268,7 +266,6 @@
     <string name="active_queue_empty_message">Saat kamu bergabung ke antrean restoran, nomor dan waktu tunggumu akan muncul di sini.</string>
     <string name="active_queue_find_restaurant">Cari restoran</string>
     <string name="active_queue_your_queue">ANTREANMU</string>
-    <string name="active_queue_progress">PROGRES ANTREAN</string>
     <string name="active_queue_check_in_now">Check-in sekarang</string>
     <string name="active_queue_view_restaurant">Lihat restoran</string>
     <string name="active_queue_rate_experience">Beri nilai pengalamanmu</string>
@@ -312,9 +309,6 @@
 
     <!-- Queue progress track -->
     <string name="progress_now_serving">SEDANG DILAYANI</string>
-    <string name="progress_you">KAMU</string>
-    <string name="progress_youre_next">Kamu berikutnya</string>
-    <string name="progress_to_go">%1$d lagi</string>
 
     <!-- Profile screen -->
     <string name="profile_title">Profil</string>
@@ -497,12 +491,6 @@
     <string name="countdown_hint">Antreanmu hangus jika tidak check-in dalam %1$d menit setelah dipanggil.</string>
     <string name="table_ready_title">Mejamu sudah siap!</string>
     <string name="waiting_for_table_title">Menunggu meja</string>
-    <string name="journey_in_line">Antre</string>
-    <string name="journey_near">Dekat</string>
-    <string name="journey_check_in">Check-in</string>
-    <string name="journey_table">Meja</string>
-    <string name="journey_done">Selesai</string>
-    <string name="cd_journey">Langkah %1$d dari %2$d: %3$s</string>
     <string name="checkin_heading_called">Giliranmu — ayo check-in</string>
     <string name="checkin_heading_early">Sudah di restoran?</string>
     <string name="checkin_early_note">Check-in lebih awal tidak mengubah posisimu. Saat nomormu tiba, mejamu langsung disiapkan.</string>

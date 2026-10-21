@@ -3,8 +3,6 @@
     <string name="app_tagline">Good Food • Less Wait • Happier You</string>
 
     <!-- Bottom navigation -->
-    <string name="nav_home">Home</string>
-    <string name="nav_search">Search</string>
     <string name="nav_queue">Queue</string>
     <string name="nav_history">History</string>
     <string name="nav_profile">Profile</string>
@@ -278,7 +276,6 @@
     <string name="active_queue_empty_message">When you join a restaurant queue, your number and waiting time show up here.</string>
     <string name="active_queue_find_restaurant">Find a restaurant</string>
     <string name="active_queue_your_queue">YOUR QUEUE</string>
-    <string name="active_queue_progress">QUEUE PROGRESS</string>
     <string name="active_queue_check_in_now">Check in now</string>
     <string name="active_queue_view_restaurant">View restaurant</string>
     <string name="active_queue_rate_experience">Rate your experience</string>
@@ -323,9 +320,6 @@
 
     <!-- Queue progress track -->
     <string name="progress_now_serving">NOW SERVING</string>
-    <string name="progress_you">YOU</string>
-    <string name="progress_youre_next">You\'re next in line</string>
-    <string name="progress_to_go">%1$d to go</string>
 
     <!-- Profile screen -->
     <string name="profile_title">Profile</string>
@@ -511,12 +505,6 @@
     <string name="countdown_hint">Your ticket expires if you don\'t check in within %1$d minutes of being called.</string>
     <string name="table_ready_title">Your table is ready!</string>
     <string name="waiting_for_table_title">Waiting for your table</string>
-    <string name="journey_in_line">In line</string>
-    <string name="journey_near">Near</string>
-    <string name="journey_check_in">Check in</string>
-    <string name="journey_table">Table</string>
-    <string name="journey_done">Done</string>
-    <string name="cd_journey">Step %1$d of %2$d: %3$s</string>
     <string name="checkin_heading_called">It\'s your turn — check in</string>
     <string name="checkin_heading_early">Already at the restaurant?</string>
     <string name="checkin_early_note">Checking in early keeps your place in line. When your number comes up, your table goes straight to ready.</string>

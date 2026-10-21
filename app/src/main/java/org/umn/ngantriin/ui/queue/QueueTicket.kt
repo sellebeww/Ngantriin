@@ -8,6 +8,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -32,6 +36,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.umn.ngantriin.R
 import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.domain.model.QueueStatus
@@ -71,14 +76,7 @@ fun QueueTicket(
             }
             if (queue.showsLinePosition) {
                 Spacer(Modifier.height(Spacing.lg))
-                QueueLine(
-                    peopleAhead = queue.peopleAhead,
-                    description = pluralStringResource(
-                        R.plurals.cd_people_ahead,
-                        queue.peopleAhead,
-                        queue.peopleAhead
-                    )
-                )
+                QueueLine(peopleAhead = queue.peopleAhead)
             }
         },
         stub = { TicketStub(queue) }
@@ -114,7 +112,7 @@ private fun CalledHeader(queue: ActiveQueue, onFinished: () -> Unit) {
     val urgent = seconds != null && seconds <= 120
 
     Row(verticalAlignment = Alignment.Bottom) {
-        TicketNumber(queue.queueNumber, ink.ink, scale = 0.66f)
+        TicketNumber(queue.queueNumber, ink.ink, scale = 0.57f)
         Spacer(Modifier.weight(1f))
         Column(horizontalAlignment = Alignment.End) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -199,9 +197,12 @@ private fun TicketStub(queue: ActiveQueue) {
                 ),
                 modifier = Modifier.weight(1.3f)
             )
+            val serving = queue.stats.currentServingNumber ?: "—"
+            val servingLabel = stringResource(R.string.progress_now_serving).lowercase()
             TicketStat(
-                value = queue.stats.currentServingNumber ?: "—",
-                label = stringResource(R.string.progress_now_serving).lowercase(),
+                value = serving,
+                label = servingLabel,
+                description = "$servingLabel $serving",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -267,12 +268,22 @@ fun TicketStat(
             },
             label = "ticketStat"
         ) { shown ->
-            Text(
-                text = shown,
-                style = MaterialTheme.typography.headlineMedium,
-                color = ink.ink,
-                maxLines = 1
-            )
+            // Shrinks rather than clips when a column is narrow ("S-031" on a
+            // small phone, or any figure at a large font size).
+            // The slot keeps full line height so labels stay level when one
+            // figure shrinks.
+            val style = MaterialTheme.typography.headlineMedium
+            Box(
+                modifier = Modifier.height(with(LocalDensity.current) { style.lineHeight.toDp() }),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                BasicText(
+                    text = shown,
+                    style = style.copy(color = ink.ink),
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = style.fontSize)
+                )
+            }
         }
         Text(
             text = label,

@@ -7,7 +7,7 @@ re-running produces the same file. Needs Pillow (dev-only, never shipped):
 """
 from pathlib import Path
 
-from PIL import Image, ImageStat
+from PIL import Image, ImageDraw, ImageFilter, ImageStat
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "assets-source" / "illustrations"
@@ -34,6 +34,19 @@ def grade_to_paper(im: Image.Image) -> Image.Image:
     return im.point(lut)
 
 
+def feather_into_paper(im: Image.Image, border: float = 0.05) -> Image.Image:
+    """Pad with flat Paper and fade the print's own edge into it, so no faint
+    rectangle shows where the print meets the app background. Padding first
+    means the fade never eats into the drawing."""
+    w, h = im.size
+    edge = int(min(w, h) * border)
+    canvas = Image.new("RGB", (w + 2 * edge, h + 2 * edge), PAPER)
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rectangle((edge // 2, edge // 2, w - edge // 2, h - edge // 2), fill=255)
+    canvas.paste(im, (edge, edge), mask.filter(ImageFilter.GaussianBlur(edge / 3)))
+    return canvas.resize((w, h), Image.LANCZOS)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for name, (master, (l, t, r, b), width) in ASSETS.items():
@@ -42,6 +55,7 @@ def main() -> None:
         w, h = im.size
         im = im.crop((round(l * w), round(t * h), round(r * w), round(b * h)))
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
+        im = feather_into_paper(im)
         out = OUT / f"{name}.webp"
         # No metadata is written; quality tuned against the 150 KB budget.
         im.save(out, "WEBP", quality=72, method=6)

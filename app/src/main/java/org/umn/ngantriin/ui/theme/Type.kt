@@ -117,9 +117,9 @@ val NgantriinTypography = Typography(
 val QueueNumberStyle = TextStyle(
     fontFamily = Ticket,
     fontWeight = FontWeight.ExtraBold,
-    fontSize = 96.sp,
-    lineHeight = 92.sp,
-    letterSpacing = (-1.5).sp,
+    fontSize = 112.sp,
+    lineHeight = 104.sp,
+    letterSpacing = (-0.5).sp,
     fontFeatureSettings = NUMBERS
 )
 

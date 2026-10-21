@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,13 +46,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.LocalTicketColors
 import org.umn.ngantriin.ui.theme.Motion
+import org.umn.ngantriin.ui.theme.PaperStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 import kotlin.random.Random
 
@@ -128,13 +130,16 @@ fun Ticket(
             .background(colors.paper, shape)
             .paperGrain()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onSizeChanged { headerHeight = it.height.toFloat() }
-                .padding(contentPadding),
-            content = header
-        )
+        // Status ink on the ticket is the paper palette in either theme.
+        CompositionLocalProvider(LocalStatusColors provides PaperStatusColors) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged { headerHeight = it.height.toFloat() }
+                    .padding(contentPadding),
+                content = header
+            )
+        }
         if (stub != null) {
             Perforation(
                 color = colors.rule,
@@ -179,7 +184,6 @@ private const val MAX_VISIBLE_GROUPS = 9
 @Composable
 fun QueueLine(
     peopleAhead: Int,
-    description: String,
     modifier: Modifier = Modifier
 ) {
     val colors = LocalTicketColors.current
@@ -193,7 +197,9 @@ fun QueueLine(
         modifier = modifier
             .fillMaxWidth()
             .height(28.dp)
-            .clearAndSetSemantics { contentDescription = description },
+            // A picture of the "groups ahead" figure on the stub, which
+            // screen readers already announce.
+            .clearAndSetSemantics { },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
     ) {
