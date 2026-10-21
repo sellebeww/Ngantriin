@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
@@ -47,6 +48,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 @Composable
 fun SearchScreen(
     onRestaurantClick: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = containerViewModel { container ->
@@ -76,7 +78,10 @@ fun SearchScreen(
             OfflineBanner(message = stringResource(R.string.search_offline))
         }
 
-        Column(Modifier.padding(start = Spacing.screenGutter, end = Spacing.screenGutter, top = Spacing.xxl)) {
+        IconButton(onClick = onBack, modifier = Modifier.padding(start = Spacing.xs, top = Spacing.xs)) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+        }
+        Column(Modifier.padding(horizontal = Spacing.screenGutter)) {
             Text(stringResource(R.string.search_title), style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(Spacing.xs))
             Text(

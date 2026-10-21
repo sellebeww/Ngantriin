@@ -2,15 +2,11 @@ package org.umn.ngantriin.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ConfirmationNumber
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.outlined.ConfirmationNumber
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.umn.ngantriin.R
 
@@ -66,22 +62,24 @@ object Routes {
     fun staffCustomer(queueId: String) = "staff_customer/$queueId"
 }
 
-/** The five customer tabs, in order. */
+/**
+ * The three customer tabs: find a place, hold your ticket, you. Search opens
+ * from Explore and history from the ticket tab — neither is somewhere people
+ * go on their own often enough to earn a tab.
+ */
 enum class BottomTab(
     val route: String,
     val labelRes: Int,
     val selectedIcon: ImageVector,
     val icon: ImageVector
 ) {
-    HOME(Routes.HOME, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
-    SEARCH(Routes.SEARCH, R.string.nav_search, Icons.Filled.Search, Icons.Outlined.Search),
+    HOME(Routes.HOME, R.string.nav_explore, Icons.Filled.Storefront, Icons.Outlined.Storefront),
     QUEUE(
         Routes.ACTIVE_QUEUE,
-        R.string.nav_queue,
+        R.string.nav_ticket,
         Icons.Filled.ConfirmationNumber,
         Icons.Outlined.ConfirmationNumber
     ),
-    HISTORY(Routes.HISTORY, R.string.nav_history, Icons.Filled.History, Icons.Outlined.History),
     PROFILE(Routes.PROFILE, R.string.nav_profile, Icons.Filled.Person, Icons.Outlined.Person);
 
     companion object {

@@ -8,6 +8,9 @@
     <string name="nav_queue">Queue</string>
     <string name="nav_history">History</string>
     <string name="nav_profile">Profile</string>
+    <!-- TODO: konfirmasi konten (redesign tab labels) -->
+    <string name="nav_explore">Explore</string>
+    <string name="nav_ticket">Ticket</string>
 
     <!-- Queue status labels -->
     <string name="status_waiting">Waiting</string>

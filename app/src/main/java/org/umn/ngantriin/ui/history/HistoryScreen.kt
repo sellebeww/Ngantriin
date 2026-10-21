@@ -19,9 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,6 +55,7 @@ fun HistoryScreen(
     onFindRestaurants: () -> Unit,
     onRate: (String) -> Unit,
     onOpenVisit: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = containerViewModel { container ->
@@ -70,13 +73,17 @@ fun HistoryScreen(
             OfflineBanner(message = stringResource(R.string.history_offline))
         }
 
+        IconButton(onClick = onBack, modifier = Modifier.padding(start = Spacing.xs, top = Spacing.xs)) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+        }
         Text(
             text = stringResource(R.string.history_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(
-                horizontal = Spacing.screenGutter,
-                vertical = Spacing.lg
+                start = Spacing.screenGutter,
+                end = Spacing.screenGutter,
+                bottom = Spacing.lg
             )
         )
 

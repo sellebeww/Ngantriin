@@ -8,6 +8,9 @@
     <string name="nav_queue">Antrean</string>
     <string name="nav_history">Riwayat</string>
     <string name="nav_profile">Profil</string>
+    <!-- TODO: konfirmasi konten (label tab redesain) -->
+    <string name="nav_explore">Jelajah</string>
+    <string name="nav_ticket">Tiket</string>
 
     <!-- Queue status labels -->
     <string name="status_waiting">Menunggu</string>

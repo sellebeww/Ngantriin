@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
 import org.umn.ngantriin.di.containerViewModel
-import org.umn.ngantriin.ui.components.ActiveQueueBanner
 import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.LocationRationaleDialog
 import org.umn.ngantriin.ui.components.OfflineBanner
@@ -63,7 +62,6 @@ fun HomeScreen(
     onRestaurantClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onActiveQueueClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = containerViewModel { container ->
@@ -119,20 +117,6 @@ fun HomeScreen(
                     modifier = Modifier.padding(horizontal = Spacing.screenGutter)
                 )
                 Spacer(Modifier.height(Spacing.xxl))
-            }
-
-            state.activeQueue?.let { queue ->
-                item {
-                    ActiveQueueBanner(
-                        queue = queue,
-                        onClick = onActiveQueueClick,
-                        modifier = Modifier.padding(
-                            horizontal = Spacing.screenGutter,
-                            vertical = Spacing.sm
-                        )
-                    )
-                    Spacer(Modifier.height(Spacing.sm))
-                }
             }
 
             if (state.isLoading) {

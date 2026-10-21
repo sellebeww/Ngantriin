@@ -1,5 +1,11 @@
 package org.umn.ngantriin.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -40,9 +46,12 @@ import org.umn.ngantriin.navigation.NgantriinBottomBar
 import org.umn.ngantriin.navigation.NgantriinNavHost
 import org.umn.ngantriin.navigation.Routes
 import org.umn.ngantriin.navigation.navigateToTab
+import org.umn.ngantriin.ui.components.MiniTicket
 import org.umn.ngantriin.ui.components.RequestNotificationPermissionOnce
 import org.umn.ngantriin.ui.splash.SplashScreen
+import org.umn.ngantriin.ui.theme.Motion
 import org.umn.ngantriin.ui.theme.NgantriinTheme
+import org.umn.ngantriin.ui.theme.Spacing
 
 /**
  * The session and the onboarding flag decide which area of the app
@@ -186,11 +195,37 @@ fun NgantriinApp(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
                     if (showBottomBar) {
-                        NgantriinBottomBar(
-                            currentRoute = currentRoute,
-                            hasActiveQueue = activeQueue != null,
-                            onTabSelected = { tab -> navController.navigateToTab(tab.route) }
-                        )
+                        Column {
+                            // The live ticket stays in thumb reach on every
+                            // tab except its own.
+                            val docked = activeQueue?.takeIf { currentRoute != Routes.ACTIVE_QUEUE }
+                            AnimatedVisibility(
+                                visible = docked != null,
+                                enter = fadeIn(Motion.fast()) + expandVertically(Motion.standard()),
+                                exit = fadeOut(Motion.fast()) + shrinkVertically(Motion.standard())
+                            ) {
+                                // Keeps the last ticket drawn while it animates out.
+                                val shown = remember { mutableStateOf(docked) }
+                                if (docked != null) shown.value = docked
+                                shown.value?.let { queue ->
+                                    MiniTicket(
+                                        queue = queue,
+                                        onClick = { navController.navigateToTab(Routes.ACTIVE_QUEUE) },
+                                        modifier = Modifier.padding(
+                                            start = Spacing.md,
+                                            end = Spacing.md,
+                                            top = Spacing.sm,
+                                            bottom = Spacing.sm
+                                        )
+                                    )
+                                }
+                            }
+                            NgantriinBottomBar(
+                                currentRoute = currentRoute,
+                                hasActiveQueue = activeQueue != null,
+                                onTabSelected = { tab -> navController.navigateToTab(tab.route) }
+                            )
+                        }
                     }
                 }
             ) { padding ->

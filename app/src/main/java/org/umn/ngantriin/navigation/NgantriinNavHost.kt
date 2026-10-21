@@ -42,6 +42,7 @@ import org.umn.ngantriin.ui.splash.SplashScreen
 import org.umn.ngantriin.ui.staff.StaffCustomerDetailScreen
 import org.umn.ngantriin.ui.staff.StaffDashboardScreen
 import org.umn.ngantriin.ui.staff.StaffQueueScreen
+import org.umn.ngantriin.ui.theme.Motion
 
 /**
  * One graph for the whole app; which area you land in is decided
@@ -77,10 +78,14 @@ fun NgantriinNavHost(
         // Short, quiet transitions: a fade with a small drift in the direction
         // of travel, so moving between screens reads as movement without
         // making anyone wait for it.
-        enterTransition = { fadeIn(tween(240)) + slideInHorizontally(tween(240)) { it / 12 } },
-        exitTransition = { fadeOut(tween(140)) },
-        popEnterTransition = { fadeIn(tween(240)) },
-        popExitTransition = { fadeOut(tween(140)) + slideOutHorizontally(tween(240)) { it / 12 } }
+        enterTransition = {
+            fadeIn(tween(Motion.ENTER_MS)) + slideInHorizontally(tween(Motion.ENTER_MS)) { it / 12 }
+        },
+        exitTransition = { fadeOut(tween(Motion.EXIT_MS)) },
+        popEnterTransition = { fadeIn(tween(Motion.ENTER_MS)) },
+        popExitTransition = {
+            fadeOut(tween(Motion.EXIT_MS)) + slideOutHorizontally(tween(Motion.ENTER_MS)) { it / 12 }
+        }
     ) {
         composable(Routes.SPLASH) { SplashScreen() }
 
@@ -105,21 +110,22 @@ fun NgantriinNavHost(
         composable(Routes.HOME) {
             HomeScreen(
                 onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) },
-                onSearchClick = { navController.navigateToTab(Routes.SEARCH) },
-                onNotificationsClick = { navController.navigate(Routes.NOTIFICATIONS) },
-                onActiveQueueClick = { navController.navigateToTab(Routes.ACTIVE_QUEUE) }
+                onSearchClick = { navController.navigate(Routes.SEARCH) },
+                onNotificationsClick = { navController.navigate(Routes.NOTIFICATIONS) }
             )
         }
 
         composable(Routes.SEARCH) {
             SearchScreen(
-                onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) }
+                onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) },
+                onBack = { navController.popBackStack() }
             )
         }
 
         composable(Routes.ACTIVE_QUEUE) {
             ActiveQueueScreen(
-                onFindRestaurants = { navController.navigateToTab(Routes.SEARCH) },
+                onFindRestaurants = { navController.navigateToTab(Routes.HOME) },
+                onOpenHistory = { navController.navigate(Routes.HISTORY) { launchSingleTop = true } },
                 onViewRestaurant = { navController.navigate(Routes.restaurantDetail(it)) },
                 onCheckIn = { navController.navigate(Routes.checkIn(it)) },
                 onMessage = showError
@@ -128,9 +134,10 @@ fun NgantriinNavHost(
 
         composable(Routes.HISTORY) {
             HistoryScreen(
-                onFindRestaurants = { navController.navigateToTab(Routes.SEARCH) },
+                onFindRestaurants = { navController.navigateToTab(Routes.HOME) },
                 onRate = { navController.navigate(Routes.review(it)) },
-                onOpenVisit = { navController.navigate(Routes.historyDetail(it)) }
+                onOpenVisit = { navController.navigate(Routes.historyDetail(it)) },
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -217,7 +224,7 @@ fun NgantriinNavHost(
             QueueCompletedScreen(
                 queueId = queueId,
                 onRate = { navController.navigate(Routes.review(it)) },
-                onViewHistory = { navController.navigateToTab(Routes.HISTORY) }
+                onViewHistory = { navController.navigateToHistory() }
             )
         }
 
@@ -228,7 +235,7 @@ fun NgantriinNavHost(
             ReviewScreen(
                 queueId = entry.arguments?.getString(Routes.ARG_QUEUE_ID).orEmpty(),
                 onBack = { navController.popBackStack() },
-                onSubmitted = { navController.navigateToTab(Routes.HISTORY) }
+                onSubmitted = { navController.navigateToHistory() }
             )
         }
 
@@ -310,4 +317,10 @@ fun NavHostController.navigateToTab(route: String) {
         launchSingleTop = true
         restoreState = true
     }
+}
+
+/** History lives under the ticket tab, so back from it lands on the ticket. */
+fun NavHostController.navigateToHistory() {
+    navigateToTab(Routes.ACTIVE_QUEUE)
+    navigate(Routes.HISTORY) { launchSingleTop = true }
 }
