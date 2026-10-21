@@ -1,22 +1,23 @@
 package org.umn.ngantriin.ui.profile
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -24,11 +25,11 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +50,7 @@ import org.umn.ngantriin.di.containerViewModel
 import org.umn.ngantriin.domain.model.UserRole
 import org.umn.ngantriin.ui.components.ConfirmDialog
 import org.umn.ngantriin.ui.components.NgantriinTextField
+import org.umn.ngantriin.ui.components.Perforation
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.components.message
@@ -110,27 +113,19 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(Spacing.lg))
 
-        Surface(
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(Spacing.xl)) {
+        Column(Modifier.fillMaxWidth()) {
+            Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(64.dp)
-                            .background(
-                                MaterialTheme.colorScheme.secondaryContainer,
-                                MaterialTheme.shapes.large
-                            ),
+                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = state.user?.initials ?: "N",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 
@@ -192,22 +187,21 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(Spacing.lg))
 
-        // IntrinsicSize.Max + fillMaxHeight: every tile is as tall as the
-        // tallest, so one that wraps its label doesn't leave the others ragged.
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-        ) {
+        // Your tally, printed like a receipt: three figures split by tear
+        // lines rather than three identical tiles.
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             StatTile(
                 value = "${state.completedVisits}",
                 label = stringResource(R.string.profile_stat_visits),
                 modifier = Modifier.weight(1f)
             )
+            StatTear()
             StatTile(
                 value = "${state.totalQueues}",
                 label = stringResource(R.string.profile_stat_queues),
                 modifier = Modifier.weight(1f)
             )
+            StatTear()
             StatTile(
                 value = "${state.minutesSaved}",
                 label = stringResource(R.string.profile_stat_minutes_saved),
@@ -217,12 +211,8 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(Spacing.xl))
 
-        Surface(
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Column {
             Column {
                 ProfileRow(
                     icon = Icons.Filled.Notifications,
@@ -244,13 +234,14 @@ fun ProfileScreen(
                 if (state.user?.role == UserRole.STAFF) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     ProfileRow(
-                        icon = Icons.Filled.Settings,
+                        icon = Icons.Filled.Storefront,
                         label = stringResource(R.string.profile_restaurant_dashboard),
                         onClick = onOpenStaffDashboard
                     )
                 }
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         Spacer(Modifier.height(Spacing.xl))
 
@@ -280,31 +271,31 @@ fun ProfileScreen(
 
 @Composable
 private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxHeight(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondaryContainer
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Spacing.lg, horizontal = Spacing.md),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-            Spacer(Modifier.height(Spacing.xxs))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall.balanced(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
+    Column(modifier.semantics(mergeDescendants = true) {}) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.displayMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
+}
+
+@Composable
+private fun StatTear() {
+    Perforation(
+        color = MaterialTheme.colorScheme.outline,
+        vertical = true,
+        modifier = Modifier
+            .padding(horizontal = Spacing.sm)
+            .width(Spacing.md)
+            .fillMaxHeight()
+    )
 }
 
 @Composable
@@ -318,16 +309,15 @@ private fun ProfileRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = Spacing.lg, vertical = Spacing.lg),
+            .heightIn(min = 56.dp)
+            .padding(vertical = Spacing.md),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.small)
-                .padding(Spacing.sm).size(20.dp)
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(22.dp)
         )
         Spacer(Modifier.width(Spacing.md))
         Text(
@@ -340,7 +330,7 @@ private fun ProfileRow(
             Text(
                 text = trailing,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.width(Spacing.sm))
         }
