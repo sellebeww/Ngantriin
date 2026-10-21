@@ -1,6 +1,9 @@
 package org.umn.ngantriin.ui.queue
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +21,6 @@ import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -46,7 +53,6 @@ import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.components.ConfirmDialog
 import org.umn.ngantriin.ui.components.DangerTextButton
-import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.OfflineBanner
 import org.umn.ngantriin.ui.components.PrimaryButton
@@ -118,14 +124,7 @@ fun ActiveQueueScreen(
         when {
             state.isLoading -> FullScreenLoader()
 
-            state.queue == null -> EmptyState(
-                icon = Icons.Outlined.ConfirmationNumber,
-                title = stringResource(R.string.active_queue_empty_title),
-                message = stringResource(R.string.active_queue_empty_message),
-                actionLabel = stringResource(R.string.active_queue_find_restaurant),
-                onAction = onFindRestaurants,
-                modifier = Modifier.fillMaxSize()
-            )
+            state.queue == null -> NoTicket(onFindRestaurants)
 
             else -> ActiveQueueContent(
                 queue = state.queue!!,
@@ -307,5 +306,56 @@ private fun GuidanceNote(queue: ActiveQueue) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
+    }
+}
+
+/**
+ * No ticket yet: three empty stools by a cart — the wait the app removes.
+ * The illustration is decoration only; the copy and button carry the state.
+ */
+@Composable
+private fun NoTicket(onFindRestaurants: () -> Unit) {
+    // The art is printed on paper. On the light theme the paper is the page;
+    // on the dark theme it is shown as a sheet, like the ticket.
+    val sheet = if (isSystemInDarkTheme()) {
+        Modifier.clip(MaterialTheme.shapes.large)
+    } else {
+        Modifier
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = Spacing.screenGutter)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.empty_ticket_stools),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 360.dp)
+                .then(sheet)
+        )
+        Spacer(Modifier.height(Spacing.xl))
+        Text(
+            text = stringResource(R.string.active_queue_empty_title),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
+        )
+        Spacer(Modifier.height(Spacing.sm))
+        Text(
+            text = stringResource(R.string.active_queue_empty_message),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.weight(1f, fill = false))
+        Spacer(Modifier.height(Spacing.xxl))
+        PrimaryButton(
+            text = stringResource(R.string.active_queue_find_restaurant),
+            onClick = onFindRestaurants
+        )
+        Spacer(Modifier.height(Spacing.xxl))
     }
 }
