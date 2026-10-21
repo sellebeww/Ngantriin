@@ -79,8 +79,25 @@ data class ActiveQueue(
     val stats: QueueStats,
     /** Groups still in front of this ticket. */
     val peopleAhead: Int,
-    val estimatedWaitMinutes: Int
+    val estimatedWaitMinutes: Int,
+    /** When [peopleAhead] / [estimatedWaitMinutes] last changed; the estimate counts down from here. */
+    val estimateAnchor: Instant = Instant.now()
 ) {
+    private fun elapsedMinutes(now: Instant): Int =
+        Duration.between(estimateAnchor, now).toMinutes().toInt().coerceAtLeast(0)
+
+    /**
+     * What is left of [estimatedWaitMinutes]. Never 0 while someone is still
+     * ahead — "No wait" would be a lie — so it bottoms out at 1 minute.
+     */
+    fun remainingWaitMinutes(now: Instant = Instant.now()): Int =
+        (estimatedWaitMinutes - elapsedMinutes(now)).coerceAtLeast(if (peopleAhead > 0) 1 else 0)
+
+    /** The line has not moved for as long as the estimate said it would take. */
+    fun isPastEstimate(now: Instant = Instant.now()): Boolean =
+        showsLinePosition && peopleAhead > 0 && estimatedWaitMinutes > 0 &&
+            elapsedMinutes(now) >= estimatedWaitMinutes
+
     /** 1-based place in line — "#7" when six groups are ahead. */
     val position: Int get() = peopleAhead + 1
 

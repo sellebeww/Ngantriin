@@ -139,6 +139,6 @@ private fun summaryFor(queue: ActiveQueue): String = when {
     else -> stringResource(
         R.string.queue_banner_ahead_and_wait,
         groupsText(queue.peopleAhead),
-        waitTimeText(queue.estimatedWaitMinutes)
+        waitTimeText(org.umn.ngantriin.ui.queue.rememberRemainingWait(queue))
     )
 }

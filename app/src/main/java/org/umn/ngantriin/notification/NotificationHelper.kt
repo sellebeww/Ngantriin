@@ -134,7 +134,7 @@ class NotificationHelper(private val context: Context) {
             else -> context.getString(
                 R.string.live_ahead_and_wait,
                 queue.peopleAhead,
-                QueueNotificationCopy.waitTimeText(context, queue.estimatedWaitMinutes)
+                QueueNotificationCopy.waitTimeText(context, queue.remainingWaitMinutes())
             )
         }
 

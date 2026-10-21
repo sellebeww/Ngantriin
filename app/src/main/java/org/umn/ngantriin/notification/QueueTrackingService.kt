@@ -18,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -73,6 +74,7 @@ class QueueTrackingService : Service() {
                     else -> flowOf(null)
                 }
             }
+            .combine(minuteTicks()) { queue, _ -> queue } // the countdown in the text moves too
             .collect { queue ->
                 if (queue == null) {
                     // A null can be a cache gap (venue row not loaded yet)

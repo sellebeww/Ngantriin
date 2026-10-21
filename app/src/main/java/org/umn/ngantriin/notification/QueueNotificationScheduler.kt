@@ -4,7 +4,11 @@ import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -70,6 +74,14 @@ class QueueNotificationScheduler(
                 .collect { queue -> queue?.let { notifyMilestone(it) } }
         }
 
+        // The line stalled past its own estimate: nothing else would fire.
+        scope.launch {
+            userIds
+                .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
+                .combine(minuteTicks()) { queue, _ -> queue }
+                .collect { queue -> if (queue != null && queue.isPastEstimate()) notifyPastEstimate(queue) }
+        }
+
         // Endings: a finished ticket drops out of the active flow, so watch
         // the latest ticket instead.
         scope.launch {
@@ -92,6 +104,11 @@ class QueueNotificationScheduler(
             emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.RETURN_NOW), silent = true)
             emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.ALMOST_THERE), silent = true)
         }
+    }
+
+    private suspend fun notifyPastEstimate(queue: ActiveQueue) {
+        val userId = authRepository.currentUserOrNull()?.id ?: return
+        emit(QueueNotificationCopy.buildPastEstimate(context, userId, queue))
     }
 
     private suspend fun notifyEnding(entry: QueueEntry) {
@@ -131,5 +148,13 @@ class QueueNotificationScheduler(
     private companion object {
         const val TAG = "Ngantriin"
         val RECENT: Duration = Duration.ofMinutes(30)
+    }
+}
+
+/** Emits now and then once a minute — drives the estimate countdown. */
+internal fun minuteTicks(): Flow<Unit> = flow {
+    while (true) {
+        emit(Unit)
+        delay(60_000)
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import org.umn.ngantriin.domain.model.ActiveQueue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -42,6 +44,19 @@ fun rememberSecondsLeft(
         }
     }
     return seconds
+}
+
+/** [ActiveQueue.remainingWaitMinutes], refreshed every 30 seconds. */
+@Composable
+fun rememberRemainingWait(queue: ActiveQueue): Int {
+    var now by remember { mutableStateOf(Instant.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000)
+            now = Instant.now()
+        }
+    }
+    return queue.remainingWaitMinutes(now)
 }
 
 private fun secondsUntil(deadline: Instant): Long =

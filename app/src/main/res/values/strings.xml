@@ -30,6 +30,11 @@
         <item quantity="one">Only %1$d group ahead of you. Estimated wait: %2$s.</item>
         <item quantity="other">Only %1$d groups ahead of you. Estimated wait: %2$s.</item>
     </plurals>
+    <string name="push_past_estimate_title">Still waiting</string>
+    <plurals name="push_past_estimate_body">
+        <item quantity="one">The estimate has passed, but %1$d group is still ahead of you. Hang tight.</item>
+        <item quantity="other">The estimate has passed, but %1$d groups are still ahead of you. Hang tight.</item>
+    </plurals>
     <string name="push_return_now_title">Head back now</string>
     <string name="push_return_now_body">You\'re almost up. Start heading back to the restaurant.</string>
     <string name="push_called_title">It\'s your turn!</string>

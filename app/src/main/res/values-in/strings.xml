@@ -29,6 +29,10 @@
     <plurals name="push_almost_there_body">
         <item quantity="other">Tinggal %1$d grup lagi di depanmu. Estimasi tunggu: %2$s.</item>
     </plurals>
+    <string name="push_past_estimate_title">Masih menunggu</string>
+    <plurals name="push_past_estimate_body">
+        <item quantity="other">Estimasi sudah lewat, tapi masih ada %1$d grup di depanmu. Sabar sebentar ya.</item>
+    </plurals>
     <string name="push_return_now_title">Saatnya kembali</string>
     <string name="push_return_now_body">Sebentar lagi giliranmu. Mulai kembali ke restoran sekarang.</string>
     <string name="push_called_title">Giliranmu!</string>

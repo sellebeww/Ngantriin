@@ -203,6 +203,7 @@ private fun TableReadyHeader(queue: ActiveQueue) {
 @Composable
 private fun TicketStub(queue: ActiveQueue) {
     val ink = LocalTicketColors.current
+    val remainingWait = rememberRemainingWait(queue)
     when {
         queue.showsLinePosition -> {
             val serving = queue.stats.currentServingNumber ?: "—"
@@ -219,12 +220,12 @@ private fun TicketStub(queue: ActiveQueue) {
                     weight = 1f
                 ),
                 StatSpec(
-                    value = waitTimeText(queue.estimatedWaitMinutes),
+                    value = waitTimeText(remainingWait),
                     label = stringResource(R.string.active_queue_estimated_wait_label),
                     description = pluralStringResource(
                         R.plurals.cd_estimated_wait,
-                        queue.estimatedWaitMinutes,
-                        queue.estimatedWaitMinutes
+                        remainingWait,
+                        remainingWait
                     ),
                     weight = 1.3f
                 ),

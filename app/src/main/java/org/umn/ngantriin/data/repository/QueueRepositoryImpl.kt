@@ -56,6 +56,11 @@ class QueueRepositoryImpl(
      */
     private val positions = MutableStateFlow<Map<String, QueuePosition>>(emptyMap())
 
+    private class EstimateAnchor(val peopleAhead: Int, val estimate: Int, val at: java.time.Instant)
+
+    /** Per ticket: when the position/estimate last changed, so the estimate can count down. */
+    private val anchors = java.util.concurrent.ConcurrentHashMap<String, EstimateAnchor>()
+
     /** Tickets this device cancelled — see [wasLeftByCustomer]. */
     private val leftByCustomer = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
@@ -260,6 +265,12 @@ class QueueRepositoryImpl(
         val estimate = serverPosition?.estimatedWaitMinutes
             ?: QueueMath.estimatedWaitMinutes(peopleAhead, restaurant.averageServiceMinutes)
 
+        // shortcut: anchor lives in memory, so a process restart restarts the countdown.
+        val anchor = anchors.compute(entry.id) { _, old ->
+            if (old != null && old.peopleAhead == peopleAhead && old.estimate == estimate) old
+            else EstimateAnchor(peopleAhead, estimate, java.time.Instant.now())
+        }!!
+
         return ActiveQueue(
             entry = entry,
             restaurant = restaurant,
@@ -270,7 +281,8 @@ class QueueRepositoryImpl(
                 )
             } ?: stats,
             peopleAhead = peopleAhead,
-            estimatedWaitMinutes = estimate
+            estimatedWaitMinutes = estimate,
+            estimateAnchor = anchor.at
         )
     }
 

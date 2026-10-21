@@ -63,6 +63,27 @@ object QueueNotificationCopy {
         type = type
     )
 
+    /**
+     * "Still waiting, and the estimate is up." Filed as POSITION_UPDATE — the
+     * local scheduler never emits that type otherwise, so the id stays unique
+     * and it fires once per ticket.
+     */
+    fun buildPastEstimate(context: Context, userId: String, queue: ActiveQueue): AppNotification =
+        AppNotification(
+            id = idFor(queue.entry.id, NotificationType.POSITION_UPDATE),
+            userId = userId,
+            queueId = queue.entry.id,
+            title = context.getString(R.string.push_past_estimate_title),
+            body = context.resources.getQuantityString(
+                R.plurals.push_past_estimate_body,
+                queue.peopleAhead,
+                queue.peopleAhead
+            ),
+            type = NotificationType.POSITION_UPDATE,
+            isRead = false,
+            createdAt = Instant.now()
+        )
+
     /** For a ticket that has already ended and so has no line around it. */
     fun build(
         context: Context,
