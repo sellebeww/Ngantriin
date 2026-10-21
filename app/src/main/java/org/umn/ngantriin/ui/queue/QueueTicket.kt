@@ -173,38 +173,48 @@ private fun TableReadyHeader(queue: ActiveQueue) {
 private fun TicketStub(queue: ActiveQueue) {
     val ink = LocalTicketColors.current
     when {
-        queue.showsLinePosition -> Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
-        ) {
-            TicketStat(
-                value = "${queue.peopleAhead}",
-                label = pluralStringResource(R.plurals.queue_group_ahead_label, queue.peopleAhead),
-                description = pluralStringResource(
-                    R.plurals.cd_people_ahead,
-                    queue.peopleAhead,
-                    queue.peopleAhead
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            TicketStat(
-                value = waitTimeText(queue.estimatedWaitMinutes),
-                label = stringResource(R.string.active_queue_estimated_wait_label),
-                description = pluralStringResource(
-                    R.plurals.cd_estimated_wait,
-                    queue.estimatedWaitMinutes,
-                    queue.estimatedWaitMinutes
-                ),
-                modifier = Modifier.weight(1.3f)
-            )
+        queue.showsLinePosition -> {
             val serving = queue.stats.currentServingNumber ?: "—"
             val servingLabel = stringResource(R.string.progress_now_serving).lowercase()
-            TicketStat(
-                value = serving,
-                label = servingLabel,
-                description = "$servingLabel $serving",
-                modifier = Modifier.weight(1f)
+            val stats = listOf(
+                StatSpec(
+                    value = "${queue.peopleAhead}",
+                    label = pluralStringResource(R.plurals.queue_group_ahead_label, queue.peopleAhead),
+                    description = pluralStringResource(
+                        R.plurals.cd_people_ahead,
+                        queue.peopleAhead,
+                        queue.peopleAhead
+                    ),
+                    weight = 1f
+                ),
+                StatSpec(
+                    value = waitTimeText(queue.estimatedWaitMinutes),
+                    label = stringResource(R.string.active_queue_estimated_wait_label),
+                    description = pluralStringResource(
+                        R.plurals.cd_estimated_wait,
+                        queue.estimatedWaitMinutes,
+                        queue.estimatedWaitMinutes
+                    ),
+                    weight = 1.3f
+                ),
+                StatSpec(serving, servingLabel, "$servingLabel $serving", weight = 1f)
             )
+            // At large font sizes three columns cannot hold "~1 hr 12 min";
+            // reflow to one figure per line instead of shrinking it away.
+            if (LocalDensity.current.fontScale >= 1.5f) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+                    stats.forEach { TicketStat(it.value, it.label, description = it.description) }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
+                ) {
+                    stats.forEach {
+                        TicketStat(it.value, it.label, Modifier.weight(it.weight), it.description)
+                    }
+                }
+            }
         }
 
         queue.status == QueueStatus.CALLED -> StubNote(
@@ -292,3 +302,5 @@ fun TicketStat(
         )
     }
 }
+
+private class StatSpec(val value: String, val label: String, val description: String, val weight: Float)
