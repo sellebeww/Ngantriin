@@ -88,9 +88,6 @@ fun NgantriinApp(
 
             val area = resolveArea(session, onboardingCompleted, recoveryPending)
 
-            // Ask for notification permission only once the user is actually
-            // in the app and a queue update could matter to them.
-            RequestNotificationPermissionOnce(enabled = session is SessionState.SignedIn)
 
             if (area == null) {
                 SplashScreen()
@@ -144,6 +141,10 @@ fun NgantriinApp(
                 signedInUserId?.let { container.queueRepository.observeActiveQueue(it) }
                     ?: flowOf(null)
             }.collectAsStateWithLifecycle(null)
+
+            // Ask for notification permission when the first ticket is
+            // issued: that is the moment a notification is obviously useful.
+            RequestNotificationPermissionOnce(enabled = activeQueue != null)
 
             // A live ticket keeps tracking after the app leaves
             // the screen. Started from here because Android only allows a

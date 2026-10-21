@@ -3,8 +3,12 @@ package org.umn.ngantriin.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -82,32 +89,35 @@ fun NgantriinNavHost(
             fadeIn(tween(Motion.ENTER_MS)) + slideInHorizontally(tween(Motion.ENTER_MS)) { it / 12 }
         },
         exitTransition = { fadeOut(tween(Motion.EXIT_MS)) },
-        popEnterTransition = { fadeIn(tween(Motion.ENTER_MS)) },
+        // Back (and the predictive-back gesture, which scrubs these): the
+        // screen you leave shrinks a little and fades over the one beneath,
+        // which is already in place — the system's own back motion.
+        popEnterTransition = { fadeIn(tween(Motion.ENTER_MS), initialAlpha = 0.6f) },
         popExitTransition = {
-            fadeOut(tween(Motion.EXIT_MS)) + slideOutHorizontally(tween(Motion.ENTER_MS)) { it / 12 }
+            scaleOut(tween(Motion.ENTER_MS), targetScale = 0.92f) + fadeOut(tween(Motion.ENTER_MS))
         }
     ) {
-        composable(Routes.SPLASH) { SplashScreen() }
+        destination(Routes.SPLASH) { SplashScreen() }
 
-        composable(Routes.ONBOARDING) {
+        destination(Routes.ONBOARDING) {
             OnboardingScreen(onFinished = onOnboardingFinished)
         }
 
         // --- Auth ------------------------------------------------------------
 
-        composable(Routes.LOGIN) {
+        destination(Routes.LOGIN) {
             LoginScreen(onNavigateToRegister = { navController.navigate(Routes.REGISTER) })
         }
 
-        composable(Routes.RESET_PASSWORD) { ResetPasswordScreen() }
+        destination(Routes.RESET_PASSWORD) { ResetPasswordScreen() }
 
-        composable(Routes.REGISTER) {
+        destination(Routes.REGISTER) {
             RegisterScreen(onBack = { navController.popBackStack() })
         }
 
         // --- Customer tabs ---------------------------------------------------
 
-        composable(Routes.HOME) {
+        destination(Routes.HOME) {
             HomeScreen(
                 onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) },
                 onSearchClick = { navController.navigate(Routes.SEARCH) },
@@ -115,14 +125,14 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(Routes.SEARCH) {
+        destination(Routes.SEARCH) {
             SearchScreen(
                 onRestaurantClick = { navController.navigate(Routes.restaurantDetail(it)) },
                 onBack = { navController.popBackStack() }
             )
         }
 
-        composable(Routes.ACTIVE_QUEUE) {
+        destination(Routes.ACTIVE_QUEUE) {
             ActiveQueueScreen(
                 onFindRestaurants = { navController.navigateToTab(Routes.HOME) },
                 onOpenHistory = { navController.navigate(Routes.HISTORY) { launchSingleTop = true } },
@@ -132,7 +142,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(Routes.HISTORY) {
+        destination(Routes.HISTORY) {
             HistoryScreen(
                 onFindRestaurants = { navController.navigateToTab(Routes.HOME) },
                 onRate = { navController.navigate(Routes.review(it)) },
@@ -141,7 +151,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = Routes.HISTORY_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
         ) { entry ->
@@ -154,7 +164,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(Routes.PROFILE) {
+        destination(Routes.PROFILE) {
             ProfileScreen(
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
@@ -164,7 +174,7 @@ fun NgantriinNavHost(
 
         // --- Customer details ------------------------------------------------
 
-        composable(
+        destination(
             route = Routes.RESTAURANT_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_RESTAURANT_ID) { type = NavType.StringType })
         ) { entry ->
@@ -185,7 +195,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = Routes.QUEUE_CONFIRMATION,
             arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
         ) { entry ->
@@ -205,7 +215,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = Routes.CHECK_IN,
             arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
         ) { entry ->
@@ -216,7 +226,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = Routes.QUEUE_COMPLETED,
             arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
         ) { entry ->
@@ -228,7 +238,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = Routes.REVIEW,
             arguments = listOf(navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType })
         ) { entry ->
@@ -239,34 +249,34 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(Routes.NOTIFICATIONS) {
+        destination(Routes.NOTIFICATIONS) {
             NotificationsScreen(
                 onBack = { navController.popBackStack() },
                 onOpenQueue = { navController.navigateToTab(Routes.ACTIVE_QUEUE) }
             )
         }
 
-        composable(Routes.SETTINGS) {
+        destination(Routes.SETTINGS) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
                 onOpenAbout = { navController.navigate(Routes.ABOUT) }
             )
         }
 
-        composable(Routes.ABOUT) {
+        destination(Routes.ABOUT) {
             AboutScreen(onBack = { navController.popBackStack() })
         }
 
         // --- Staff -----------------------------------------------------------
 
-        composable(Routes.STAFF_DASHBOARD) {
+        destination(Routes.STAFF_DASHBOARD) {
             StaffDashboardScreen(
                 onOpenQueue = { navController.navigate(Routes.staffQueue(it)) },
                 onMessage = showError
             )
         }
 
-        composable(
+        destination(
             route = Routes.STAFF_QUEUE,
             arguments = listOf(navArgument(Routes.ARG_RESTAURANT_ID) { type = NavType.StringType })
         ) { entry ->
@@ -281,7 +291,7 @@ fun NgantriinNavHost(
             )
         }
 
-        composable(
+        destination(
             route = "${Routes.STAFF_CUSTOMER}?restaurantId={${Routes.ARG_RESTAURANT_ID}}",
             arguments = listOf(
                 navArgument(Routes.ARG_QUEUE_ID) { type = NavType.StringType },
@@ -323,4 +333,21 @@ fun NavHostController.navigateToTab(route: String) {
 fun NavHostController.navigateToHistory() {
     navigateToTab(Routes.ACTIVE_QUEUE)
     navigate(Routes.HISTORY) { launchSingleTop = true }
+}
+
+/**
+ * A destination drawn on the page colour. Screens are otherwise transparent,
+ * and two of them overlap mid-transition (most visibly while the predictive
+ * back gesture is held), so each needs its own ground.
+ */
+private fun NavGraphBuilder.destination(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) = composable(route, arguments) { entry ->
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) { content(entry) }
 }
