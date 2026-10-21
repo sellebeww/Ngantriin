@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -27,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -40,9 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
@@ -288,17 +289,21 @@ private fun StaffQueueRow(
         onFinished = onCountdownFinished
     )
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface
+    val rule = MaterialTheme.colorScheme.outlineVariant
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .drawBehind {
+                drawLine(rule, Offset(0f, size.height), Offset(size.width, size.height), 1.dp.toPx())
+            }
     ) {
-        Column(Modifier.clickable(onClick = onClick).padding(Spacing.lg)) {
+        Column(Modifier.clickable(onClick = onClick).padding(vertical = Spacing.md)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = entry.queueNumber,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
@@ -348,7 +353,16 @@ private fun StaffQueueRow(
                             onClick = { onUpdateStatus(status) },
                             enabled = !isWorking
                         ) {
-                            Text(stringResource(labelRes), style = MaterialTheme.typography.labelMedium)
+                            // Taking someone out of the line reads as what it is.
+                            Text(
+                                stringResource(labelRes),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (status == QueueStatus.CANCELLED) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                }
+                            )
                         }
                     }
                 }
