@@ -110,8 +110,6 @@
     <string name="queue_banner_ahead_and_wait">%1$s lagi • %2$s</string>
 
     <!-- Restaurant card -->
-    <string name="restaurant_card_waiting">menunggu</string>
-    <string name="restaurant_card_est_wait">estimasi tunggu</string>
     <string name="restaurant_open">BUKA</string>
     <string name="restaurant_closed">TUTUP</string>
 

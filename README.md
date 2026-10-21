@@ -15,13 +15,17 @@ Firebase Cloud Messaging.
 
 ## Tampilan Aplikasi
 
+Bahasa desainnya ("Karcis": tiket antrean sebagai satu-satunya objek fisik di
+aplikasi) dijelaskan di [DESIGN.md](DESIGN.md); aset dan sumbernya di
+[ASSETS.md](ASSETS.md).
+
 ### Pelanggan
 
 <table width="100%">
 <tr>
 <th width="33%">Onboarding</th>
 <th width="33%">Login</th>
-<th width="33%">Beranda</th>
+<th width="33%">Jelajah</th>
 </tr>
 <tr align="center">
 <td><img src="docs/screenshots/02-onboarding.png" width="220" height="489"></td>
@@ -47,10 +51,10 @@ Firebase Cloud Messaging.
 
 <div align="center">
 
-| Favorit di Beranda | Cari Favorit |
+| Favorit di Jelajah | Cari Favorit |
 | :---: | :---: |
 | <img src="docs/screenshots/14-favorit.png" width="220" height="489"> | <img src="docs/screenshots/15-cari-favorit.png" width="220" height="489"> |
-| Restoran yang ditandai muncul sendiri di Beranda | Satu ketukan untuk menyaring favorit |
+| Restoran yang ditandai muncul sendiri di Jelajah | Satu ketukan untuk menyaring favorit |
 
 </div>
 
@@ -74,7 +78,7 @@ Firebase Cloud Messaging.
 - **Temukan restoran**: daftar terdekat berdasarkan lokasi, pencarian, dan
   urutan berdasarkan jarak, antrean tersingkat, atau rating tertinggi.
 - **Favorit**: ketuk ikon hati pada restoran mana pun. Restoran favorit muncul
-  di bagian **Favoritmu** pada Beranda, dan bisa disaring lewat chip
+  di bagian **Favoritmu** pada Jelajah, dan bisa disaring lewat chip
   **Favorit** di halaman Cari. Tersimpan di perangkat, tidak perlu akun.
 - **Antrean transparan**: jumlah grup yang menunggu, estimasi waktu tunggu,
   status buka/tutup, dan nomor yang sedang dilayani.
@@ -327,7 +331,7 @@ org.umn.ngantriin
 ├── location/        Lokasi dan jarak (urutan terdekat, jarak di detail restoran)
 ├── notification/    Layanan FCM, antrean live (foreground service), channel, scheduler milestone
 ├── work/            WorkManager: sinkronisasi dan antrean penulisan offline
-├── navigation/      Rute, NavHost, bottom bar
+├── navigation/      Rute, NavHost, tab bar (Jelajah, Tiket, Profil)
 ├── di/              AppContainer
 └── ui/              Tema, komponen, dan satu paket per area layar
 

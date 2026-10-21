@@ -119,8 +119,6 @@
     <string name="queue_banner_ahead_and_wait">%1$s ahead • %2$s</string>
 
     <!-- Restaurant card -->
-    <string name="restaurant_card_waiting">waiting</string>
-    <string name="restaurant_card_est_wait">est. wait</string>
     <string name="restaurant_open">OPEN</string>
     <string name="restaurant_closed">CLOSED</string>
 
