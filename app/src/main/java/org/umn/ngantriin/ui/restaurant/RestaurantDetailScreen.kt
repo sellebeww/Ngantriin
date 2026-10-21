@@ -18,13 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventSeat
-import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Remove
@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
@@ -70,8 +70,7 @@ import org.umn.ngantriin.ui.components.SectionHeader
 import org.umn.ngantriin.ui.components.distanceText
 import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.components.relativeText
-import org.umn.ngantriin.ui.components.waitTimeText
-import org.umn.ngantriin.ui.theme.LocalStatusColors
+import org.umn.ngantriin.ui.components.waitTimeShortText
 import org.umn.ngantriin.ui.theme.Spacing
 
 @Composable
@@ -162,7 +161,7 @@ fun RestaurantDetailScreen(
                         value = restaurant.operatingHours
                     )
                     InfoRow(
-                        icon = Icons.Filled.AccessTime,
+                        icon = Icons.Filled.HourglassBottom,
                         label = stringResource(R.string.restaurant_avg_service_time),
                         value = stringResource(
                             R.string.restaurant_avg_service_value,
@@ -267,7 +266,10 @@ private fun DetailHeader(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(top = 200.dp),
-            shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
+            shape = MaterialTheme.shapes.extraLarge.copy(
+                bottomStart = CornerSize(0.dp),
+                bottomEnd = CornerSize(0.dp)
+            ),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(Modifier.padding(Spacing.screenGutter)) {
@@ -305,100 +307,77 @@ private fun DetailHeader(
     }
 }
 
-/** Queue status card. */
+/**
+ * The restaurant's own "now serving" board: three figures in the ticket face,
+ * flat on the page. No capacity bar — a coloured bar against a capacity the
+ * customer cannot act on read as a judgement, not information.
+ */
 @Composable
 private fun QueueStatusCard(state: RestaurantDetailUiState) {
     val restaurant = state.restaurant ?: return
-    val statusColors = LocalStatusColors.current
-    val fill = if (restaurant.queueCapacity > 0) {
-        (state.waitingCount.toFloat() / restaurant.queueCapacity).coerceIn(0f, 1f)
-    } else {
-        0f
-    }
-
-    Surface(
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(Modifier.padding(Spacing.xl)) {
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.restaurant_current_queue),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(Spacing.md))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
+        ) {
+            BoardFigure(
+                value = "${state.waitingCount}",
+                label = stringResource(R.string.restaurant_groups_waiting),
+                modifier = Modifier.weight(1f)
+            )
+            BoardFigure(
+                value = waitTimeShortText(state.estimatedWaitMinutes),
+                label = stringResource(R.string.restaurant_estimated_wait),
+                accent = true,
+                modifier = Modifier.weight(1.2f)
+            )
+        }
+        Spacer(Modifier.height(Spacing.md))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(Modifier.height(Spacing.sm))
+        Row(Modifier.fillMaxWidth()) {
             Text(
-                text = stringResource(R.string.restaurant_current_queue),
-                style = MaterialTheme.typography.labelSmall,
+                text = state.stats?.currentServingNumber?.let {
+                    stringResource(R.string.restaurant_now_serving, it)
+                } ?: stringResource(R.string.restaurant_nobody_served),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(R.string.restaurant_capacity, restaurant.queueCapacity),
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(Spacing.md))
-
-            Row(verticalAlignment = Alignment.Bottom) {
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Filled.Groups,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Spacer(Modifier.width(Spacing.sm))
-                        Text(
-                            text = "${state.waitingCount}",
-                            style = MaterialTheme.typography.displaySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.restaurant_groups_waiting),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = waitTimeText(state.estimatedWaitMinutes),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.restaurant_estimated_wait),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(Spacing.lg))
-
-            LinearProgressIndicator(
-                progress = { fill },
-                modifier = Modifier.fillMaxWidth().height(8.dp),
-                color = when {
-                    fill > 0.85f -> statusColors.cancelled
-                    fill > 0.5f -> statusColors.almostThere
-                    else -> statusColors.called
-                },
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                gapSize = 0.dp,
-                drawStopIndicator = {}
-            )
-
-            Spacer(Modifier.height(Spacing.sm))
-
-            Row(Modifier.fillMaxWidth()) {
-                Text(
-                    text = state.stats?.currentServingNumber?.let {
-                        stringResource(R.string.restaurant_now_serving, it)
-                    } ?: stringResource(R.string.restaurant_nobody_served),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = stringResource(R.string.restaurant_capacity, restaurant.queueCapacity),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun BoardFigure(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier,
+    accent: Boolean = false
+) {
+    Column(modifier.semantics(mergeDescendants = true) {}) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.displayMedium,
+            color = if (accent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
