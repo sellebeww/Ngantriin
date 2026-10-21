@@ -1,5 +1,8 @@
 package org.umn.ngantriin.data.remote.demo
 
+import androidx.annotation.DrawableRes
+import org.umn.ngantriin.BuildConfig
+import org.umn.ngantriin.R
 import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.Restaurant
@@ -14,6 +17,14 @@ import java.time.temporal.ChronoUnit
  */
 object DemoSeed {
 
+    /**
+     * Demo pictures ship in the APK rather than being hotlinked. Coil reads
+     * android.resource URIs by numeric id only.
+     * shortcut: ids can change between builds; the demo catalogue is
+     * rewritten on every refresh, so a stale cached URI only lasts until then.
+     */
+    private fun bundledImage(@DrawableRes id: Int) = "android.resource://${BuildConfig.APPLICATION_ID}/$id"
+
     const val WAROENG_ID = "11111111-1111-4111-8111-111111111111"
 
     val RESTAURANTS: List<Restaurant> = listOf(
@@ -24,7 +35,7 @@ object DemoSeed {
             category = "Indonesian",
             address = "Ruko Sentra Gading Serpong, Jl. Boulevard Raya, Tangerang",
             latitude = -6.238800, longitude = 106.626500,
-            imageUrl = "https://images.unsplash.com/photo-1555126634-323283e090fa?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_nusantara),
             rating = 4.7, ratingCount = 128,
             openingTime = LocalTime.of(10, 0), closingTime = LocalTime.of(22, 0),
             isOpen = true, averageServiceMinutes = 3,
@@ -37,7 +48,7 @@ object DemoSeed {
             category = "Coffee",
             address = "Jl. Kelapa Gading Barat No. 8, Gading Serpong",
             latitude = -6.243100, longitude = 106.630900,
-            imageUrl = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_kopi),
             rating = 4.5, ratingCount = 86,
             openingTime = LocalTime.of(7, 0), closingTime = LocalTime.of(21, 0),
             isOpen = true, averageServiceMinutes = 2,
@@ -51,7 +62,7 @@ object DemoSeed {
             category = "Japanese",
             address = "Paramount Plaza, Jl. Gading Serpong Boulevard, Tangerang",
             latitude = -6.232400, longitude = 106.620700,
-            imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_sakura),
             rating = 4.8, ratingCount = 211,
             openingTime = LocalTime.of(11, 0), closingTime = LocalTime.of(22, 0),
             isOpen = true, averageServiceMinutes = 4,
@@ -64,7 +75,7 @@ object DemoSeed {
             category = "Korean",
             address = "Ruko Pasar Modern Paramount, Gading Serpong",
             latitude = -6.246900, longitude = 106.624200,
-            imageUrl = "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_seoul),
             rating = 4.4, ratingCount = 64,
             openingTime = LocalTime.of(11, 0), closingTime = LocalTime.of(21, 30),
             isOpen = true, averageServiceMinutes = 3,
@@ -78,7 +89,7 @@ object DemoSeed {
             category = "Chinese",
             address = "Jl. Raya Kelapa Dua No. 21, Tangerang",
             latitude = -6.251300, longitude = 106.617800,
-            imageUrl = "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_bakmi),
             rating = 4.6, ratingCount = 152,
             openingTime = LocalTime.of(8, 0), closingTime = LocalTime.of(20, 0),
             // Closed on purpose, so the "restaurant is closed" path (28.1) is
@@ -93,7 +104,7 @@ object DemoSeed {
             category = "Mexican",
             address = "Scientia Square Park, Gading Serpong",
             latitude = -6.256700, longitude = 106.618900,
-            imageUrl = "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800",
+            imageUrl = bundledImage(R.drawable.demo_dish_taco),
             rating = 4.2, ratingCount = 41,
             openingTime = LocalTime.of(11, 0), closingTime = LocalTime.of(22, 0),
             isOpen = true, averageServiceMinutes = 3,

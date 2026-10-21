@@ -16,10 +16,16 @@ OUT = ROOT / "app" / "src" / "main" / "res" / "drawable-nodpi"
 PAPER = (0xFF, 0xFA, 0xF4)  # token Paper
 
 # name: (master file, crop box as fractions l, t, r, b, output width px, edge)
-# edge "all": floats on the page; "bottom": full-bleed, fades into the page below.
+# edge "all": floats on the page; "bottom": full-bleed, fades into the page
+# below; "none": shown clipped in a frame, left as is.
 ASSETS = {
     "empty_ticket_stools": ("empty-ticket-stools-master.png", (0.0, 0.16, 1.0, 1.0), 840, "all"),
     "firstrun_table": ("firstrun-table-master.png", (0.0, 0.22, 1.0, 0.92), 1080, "bottom"),
+    # Demo-mode restaurant pictures: square, clipped by the UI, so no feathering.
+    **{
+        f"demo_dish_{name}": (f"demo-dish-{name}-master.png", (0.04, 0.04, 0.96, 0.96), 640, "none")
+        for name in ("nusantara", "kopi", "sakura", "seoul", "bakmi", "taco")
+    },
 }
 
 
@@ -69,10 +75,13 @@ def main() -> None:
         w, h = im.size
         im = im.crop((round(l * w), round(t * h), round(r * w), round(b * h)))
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
-        im = feather_into_paper(im) if edge == "all" else fade_bottom_into_paper(im)
+        if edge == "all":
+            im = feather_into_paper(im)
+        elif edge == "bottom":
+            im = fade_bottom_into_paper(im)
         out = OUT / f"{name}.webp"
         # No metadata is written; quality tuned against the 150 KB budget.
-        im.save(out, "WEBP", quality=72, method=6)
+        im.save(out, "WEBP", quality=66 if edge == "none" else 72, method=6)
         budget = 250_000 if edge == "bottom" else 150_000  # full-bleed hero vs. spot art
         assert out.stat().st_size <= budget, f"{out.name} over budget: {out.stat().st_size}"
         print(f"{out.relative_to(ROOT)} {im.size[0]}x{im.size[1]} {out.stat().st_size // 1024} KB")
