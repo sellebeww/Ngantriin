@@ -2,48 +2,37 @@ package org.umn.ngantriin.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Orange dining palette with cream surfaces and warm brown text.
+// "Karcis" palette: warm thermal paper, brown-black ink, one saffron accent.
+// OKLCH values are the design intent (see DESIGN.md); hex is what ships.
 
-// Brand
-val Saffron90 = Color(0xFFFFEBD6)
+// Brand accent — oklch(0.56 0.15 48)
+val Saffron90 = Color(0xFFFFE8D2)
 val Saffron60 = Color(0xFFFFB464)
 val Saffron50 = Color(0xFFBB5008)
 val Saffron40 = Color(0xFF923B05)
-val Saffron20 = Color(0xFF71330A)
+val Saffron20 = Color(0xFF5C2504)
 
-// Warm neutral surfaces and readable text.
+// Ink — oklch(0.26 0.02 55) and its tints.
 val Ink900 = Color(0xFF2D241E)
-val Ink800 = Color(0xFF382B22)
 val Ink500 = Color(0xFF75675C)
-val Ink300 = Color(0xFFBEAA99)
+val Ink300 = Color(0xFFB3A496)
 val Ink200 = Color(0xFFE6DACE)
-val Ink100 = Color(0xFFF5EDE3)
-val Cloud = Color(0xFFFFFAF4)
-val SurfaceWhite = Color(0xFFFFFFFF)
+val Ink100 = Color(0xFFF2E9DE)
 
-// Supporting accent, used for informational surfaces only
-val OrangeAccent = Color(0xFFA74608)
-val OrangeAccentContainer = Color(0xFFFFEDD9)
+// Paper — oklch(0.985 0.01 75)
+val Paper = Color(0xFFFFFAF4)
+val PaperBright = Color(0xFFFFFDF9)
 
-// Queue status ramp. Each of these is always paired with an icon
-// and a text label so colour is never the only signal.
-val StatusWaiting = Color(0xFFB2740B)
-val StatusWaitingContainer = Color(0xFFFFF0D2)
-val StatusAlmostThere = Color(0xFFC2410C)
-val StatusAlmostThereContainer = Color(0xFFFFE6D5)
-val StatusCalled = Color(0xFF0B7A3E)
-val StatusCalledContainer = Color(0xFFD4F4E0)
-val StatusCheckedIn = Color(0xFF1D4ED8)
-val StatusCheckedInContainer = Color(0xFFDCE7FF)
-val StatusTableReady = Color(0xFF6D28D9)
-val StatusTableReadyContainer = Color(0xFFEDE4FF)
-val StatusCompleted = Color(0xFF0E7C5A)
-val StatusCompletedContainer = Color(0xFFD5F2E8)
-val StatusCancelled = Color(0xFF9F1F17)
-val StatusCancelledContainer = Color(0xFFFCE0DE)
-val StatusExpired = Color(0xFF57534E)
-val StatusExpiredContainer = Color(0xFFECE9E6)
+// Night: charred and warm, never neutral grey.
+val Night950 = Color(0xFF1A1512)
+val Night900 = Color(0xFF241D18)
+val Night800 = Color(0xFF2E261F)
+val Night700 = Color(0xFF3A3028)
+val Night600 = Color(0xFF4A3E34)
+val NightInk = Color(0xFFF3EBE1)
 
-// Feedback
+// Feedback. Red is kept for cancellation and running-out-of-time only.
 val ErrorRed = Color(0xFFB3261E)
-val OfflineSlate = Color(0xFF4B5563)
+val ErrorRedContainer = Color(0xFFFCE0DE)
+val ErrorRedNight = Color(0xFFFF8A7E)
+val ErrorRedNightContainer = Color(0xFF4F120E)

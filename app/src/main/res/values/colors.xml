@@ -2,6 +2,6 @@
 <resources>
     <!-- Mirrors ui/theme/Color.kt for the resources the framework needs. -->
     <color name="brand_saffron">#FFBB5008</color>
-    <color name="ink_900">#FF2D241E</color>
+    <color name="night_950">#FF1A1512</color>
     <color name="cloud">#FFFFFAF4</color>
 </resources>
