@@ -42,6 +42,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -528,6 +530,11 @@ private fun JoinQueueBar(
 
 @Composable
 private fun PartySizeStepper(partySize: Int, onChange: (Int) -> Unit) {
+    val haptics = LocalHapticFeedback.current
+    val step: (Int) -> Unit = {
+        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+        onChange(it)
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -539,20 +546,20 @@ private fun PartySizeStepper(partySize: Int, onChange: (Int) -> Unit) {
             modifier = Modifier.weight(1f)
         )
         IconButton(
-            onClick = { onChange(partySize - 1) },
+            onClick = { step(partySize - 1) },
             enabled = partySize > 1
         ) {
             Icon(Icons.Filled.Remove, contentDescription = stringResource(R.string.cd_fewer_people))
         }
         Text(
             text = "$partySize",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.width(36.dp),
             textAlign = TextAlign.Center
         )
         IconButton(
-            onClick = { onChange(partySize + 1) },
+            onClick = { step(partySize + 1) },
             enabled = partySize < Constants.MAX_PARTY_SIZE
         ) {
             Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_more_people))

@@ -1,39 +1,30 @@
 package org.umn.ngantriin.ui.queue
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
@@ -42,15 +33,15 @@ import org.umn.ngantriin.ui.components.BottomAnchoredColumn
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
-import org.umn.ngantriin.ui.components.waitTimeText
-import org.umn.ngantriin.ui.theme.LocalStatusColors
-import org.umn.ngantriin.ui.theme.QueueNumberStyle
+import org.umn.ngantriin.ui.theme.LocalTicketColors
+import org.umn.ngantriin.ui.theme.Motion
 import org.umn.ngantriin.ui.theme.Spacing
-import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * The confirmation. Its one job is to make the number the backend
- * just issued unmistakable before the customer walks away.
+ * The confirmation, and the app's one big moment: the ticket the backend
+ * just issued prints out of a slot, settles with a click you can feel, and
+ * from then on is the same ticket the customer carries on the ticket tab.
+ * With animations off it is simply there.
  */
 @Composable
 fun JoinQueueConfirmationScreen(
@@ -69,51 +60,32 @@ fun JoinQueueConfirmationScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val queue = state.queue
 
-    var appeared by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { appeared = true }
-    val scale by animateFloatAsState(
-        targetValue = if (appeared) 1f else 0.85f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "confirm-scale"
-    )
-
     if (queue == null) {
         if (state.isLoading) FullScreenLoader(modifier.fillMaxSize()) else onViewMyQueue()
         return
     }
 
-    val statusColors = LocalStatusColors.current
+    val colors = LocalTicketColors.current
+    val haptics = LocalHapticFeedback.current
+    // 0 = still inside the printer, 1 = fully out.
+    val printed = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        printed.animateTo(1f, Motion.emphasized())
+        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+    }
 
     BottomAnchoredColumn(
-        modifier = modifier.padding(horizontal = Spacing.screenGutter),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.padding(horizontal = Spacing.screenGutter)
     ) {
-        Spacer(Modifier.height(Spacing.huge))
-
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .scale(scale)
-                .background(statusColors.calledContainer, RoundedCornerShape(50)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = statusColors.called,
-                modifier = Modifier.size(38.dp)
-            )
-        }
-
-        Spacer(Modifier.height(Spacing.xl))
+        Spacer(Modifier.height(Spacing.xxxl))
 
         Text(
             text = stringResource(R.string.confirm_joined_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
+            modifier = Modifier.semantics { heading() }
         )
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.xs))
         Text(
             text = queue.restaurant.name,
             style = MaterialTheme.typography.bodyLarge,
@@ -122,75 +94,52 @@ fun JoinQueueConfirmationScreen(
 
         Spacer(Modifier.height(Spacing.xxl))
 
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth()
+        // The printer's mouth. The ticket is drawn only below it, so it
+        // appears to feed out rather than slide in from nowhere.
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(colors.slot, RoundedCornerShape(4.dp))
+        )
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.sm)
+                .drawWithContent {
+                    // Clip the top edge only; the ticket's shadow may spill
+                    // out at the sides and bottom.
+                    clipRect(left = -size.width, top = 0f, right = size.width * 2, bottom = size.height * 2) {
+                        this@drawWithContent.drawContent()
+                    }
+                },
+            contentAlignment = Alignment.TopCenter
         ) {
-            Column(
-                modifier = Modifier.padding(Spacing.xxl),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.confirm_queue_number_label),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text = queue.queueNumber,
-                    style = QueueNumberStyle,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(Modifier.height(Spacing.xl))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Spacer(Modifier.height(Spacing.xl))
-
-                // Same two-column split as the Active Queue card, so the numbers
-                // sit in the same place on both screens.
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    QueueStat(
-                        value = "${queue.peopleAhead}",
-                        label = pluralStringResource(R.plurals.queue_group_ahead_label, queue.peopleAhead),
-                        modifier = Modifier.weight(1f)
-                    )
-                    Box(
-                        Modifier
-                            .width(1.dp)
-                            .height(48.dp)
-                            .background(MaterialTheme.colorScheme.outlineVariant)
-                    )
-                    QueueStat(
-                        value = waitTimeText(queue.estimatedWaitMinutes),
-                        label = stringResource(R.string.active_queue_estimated_wait_label),
-                        modifier = Modifier.weight(1f)
-                    )
+            QueueTicket(
+                queue = queue,
+                modifier = Modifier.graphicsLayer {
+                    translationY = -(1f - printed.value) * size.height
                 }
-            }
+            )
         }
 
         Spacer(Modifier.height(Spacing.xl))
 
         Text(
             text = stringResource(R.string.confirm_body),
-            style = MaterialTheme.typography.bodyMedium.balanced(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(Spacing.sm))
         // Say the one rule that can cost the ticket up front.
         Text(
             text = stringResource(R.string.countdown_hint, queue.restaurant.checkInWindowMinutes),
-            style = MaterialTheme.typography.bodySmall.balanced(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(Spacing.xl))
 
         PrimaryButton(text = stringResource(R.string.action_view_my_queue), onClick = onViewMyQueue)
         Spacer(Modifier.height(Spacing.md))
