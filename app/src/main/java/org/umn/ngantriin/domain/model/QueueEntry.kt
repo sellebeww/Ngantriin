@@ -93,10 +93,14 @@ data class ActiveQueue(
     fun remainingWaitMinutes(now: Instant = Instant.now()): Int =
         (estimatedWaitMinutes - elapsedMinutes(now)).coerceAtLeast(if (peopleAhead > 0) 1 else 0)
 
+    /** Whether the line can stall past its estimate at all. */
+    fun canPassEstimate(): Boolean = showsLinePosition && peopleAhead > 0 && estimatedWaitMinutes > 0
+
+    fun estimateDeadline(): Instant = estimateAnchor.plus(Duration.ofMinutes(estimatedWaitMinutes.toLong()))
+
     /** The line has not moved for as long as the estimate said it would take. */
     fun isPastEstimate(now: Instant = Instant.now()): Boolean =
-        showsLinePosition && peopleAhead > 0 && estimatedWaitMinutes > 0 &&
-            elapsedMinutes(now) >= estimatedWaitMinutes
+        canPassEstimate() && !now.isBefore(estimateDeadline())
 
     /** 1-based place in line — "#7" when six groups are ahead. */
     val position: Int get() = peopleAhead + 1

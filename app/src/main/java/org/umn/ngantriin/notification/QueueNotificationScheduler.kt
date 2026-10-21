@@ -6,13 +6,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import org.umn.ngantriin.data.local.dao.NotificationDao
 import org.umn.ngantriin.domain.model.ActiveQueue
@@ -57,14 +57,29 @@ class QueueNotificationScheduler(
 ) {
 
     fun start(scope: CoroutineScope) {
-        if (notificationHelper.isPushConfigured) {
-            Log.i(TAG, "FCM configured; leaving queue notifications to push.")
-            return
-        }
-
         val userIds = authRepository.sessionState
             .map { (it as? SessionState.SignedIn)?.user?.id }
             .distinctUntilChanged()
+
+        // The line stalled past its own estimate: nothing else would fire. The
+        // server only reacts to queue changes, so this is local even with push.
+        // Sleeps until the exact deadline; a new position restarts the wait.
+        scope.launch {
+            userIds
+                .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
+                .mapLatest { queue ->
+                    if (queue != null && queue.canPassEstimate()) {
+                        delay(Duration.between(Instant.now(), queue.estimateDeadline()).toMillis().coerceAtLeast(0))
+                        if (queue.isPastEstimate()) notifyPastEstimate(queue)
+                    }
+                }
+                .collect { }
+        }
+
+        if (notificationHelper.isPushConfigured) {
+            Log.i(TAG, "FCM configured; leaving queue milestones to push.")
+            return
+        }
 
         // Live milestones: these need the line around the ticket.
         scope.launch {
@@ -72,14 +87,6 @@ class QueueNotificationScheduler(
                 .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
                 .distinctUntilChanged()
                 .collect { queue -> queue?.let { notifyMilestone(it) } }
-        }
-
-        // The line stalled past its own estimate: nothing else would fire.
-        scope.launch {
-            userIds
-                .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
-                .combine(minuteTicks()) { queue, _ -> queue }
-                .collect { queue -> if (queue != null && queue.isPastEstimate()) notifyPastEstimate(queue) }
         }
 
         // Endings: a finished ticket drops out of the active flow, so watch
