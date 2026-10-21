@@ -180,15 +180,13 @@ fun SearchScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = Spacing.screenGutter,
-                end = Spacing.screenGutter,
-                bottom = Spacing.xxxl
-            )
+            // Rows carry their own gutter so their hairlines and press
+            // ripple run to the screen edge.
+            contentPadding = PaddingValues(bottom = Spacing.xxxl)
         ) {
             when {
                 state.isLoading -> items(4) {
-                    RestaurantCardSkeleton(Modifier.padding(vertical = Spacing.sm))
+                    RestaurantCardSkeleton()
                 }
 
                 state.isEmpty -> item {
@@ -216,7 +214,7 @@ fun SearchScreen(
                     RestaurantCard(
                         listing = listing,
                         onClick = { onRestaurantClick(listing.id) },
-                        modifier = Modifier.animateItem().padding(vertical = Spacing.sm),
+                        modifier = Modifier.animateItem(),
                         isFavorite = listing.id in state.favoriteIds,
                         onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
                     )

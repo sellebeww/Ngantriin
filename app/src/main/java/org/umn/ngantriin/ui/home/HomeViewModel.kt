@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.umn.ngantriin.core.ConnectivityObserver
-import org.umn.ngantriin.core.Constants
 import org.umn.ngantriin.domain.model.ActiveQueue
 import org.umn.ngantriin.domain.model.GeoPoint
 import org.umn.ngantriin.domain.model.RestaurantFilters
@@ -34,7 +33,6 @@ data class HomeUiState(
     val userName: String = "",
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
-    val nearby: List<RestaurantListing> = emptyList(),
     val all: List<RestaurantListing> = emptyList(),
     val favoriteIds: Set<String> = emptySet(),
     val activeQueue: ActiveQueue? = null,
@@ -121,7 +119,6 @@ class HomeViewModel(
             userName = (sessionState as? SessionState.SignedIn)?.user?.displayName.orEmpty(),
             isLoading = restaurants.isEmpty() && !environment.firstLoadDone,
             isRefreshing = environment.isRefreshing,
-            nearby = restaurants.nearby(environment.location),
             all = restaurants,
             favoriteIds = favoriteIds,
             activeQueue = queue,
@@ -156,21 +153,5 @@ class HomeViewModel(
 
     fun onLocationPermissionResult(granted: Boolean) {
         locationTracker.onPermissionResult(granted)
-    }
-
-    /**
-     * "Near You" is the first thing on the screen, so it stays short and only
-     * shows venues that really are nearby. Without a fix we fall back to the
-     * top of the list rather than showing nothing.
-     */
-    private fun List<RestaurantListing>.nearby(origin: GeoPoint?): List<RestaurantListing> {
-        if (origin == null) return take(NEARBY_LIMIT)
-        return filter { (it.distanceMeters ?: Double.MAX_VALUE) <= Constants.NEARBY_RADIUS_METERS }
-            .take(NEARBY_LIMIT)
-            .ifEmpty { take(NEARBY_LIMIT) }
-    }
-
-    private companion object {
-        const val NEARBY_LIMIT = 6
     }
 }

@@ -1,30 +1,25 @@
 package org.umn.ngantriin.ui.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -37,26 +32,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
 import org.umn.ngantriin.di.containerViewModel
+import org.umn.ngantriin.domain.model.RestaurantListing
 import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.LocationRationaleDialog
 import org.umn.ngantriin.ui.components.OfflineBanner
 import org.umn.ngantriin.ui.components.RestaurantCard
-import org.umn.ngantriin.ui.components.RestaurantCardCompact
 import org.umn.ngantriin.ui.components.RestaurantCardSkeleton
 import org.umn.ngantriin.ui.components.SectionHeader
-import org.umn.ngantriin.ui.components.SkeletonBox
 import org.umn.ngantriin.ui.components.greetingText
 import org.umn.ngantriin.ui.components.rememberLocationPermissionState
 import org.umn.ngantriin.ui.theme.Spacing
 
+/**
+ * Explore. No promo hero: the first thing under the search field is the
+ * list itself, each row already showing how long its wait is, so "where can
+ * I eat soon?" is answered by scrolling, not tapping.
+ */
 @Composable
 fun HomeScreen(
     onRestaurantClick: (String) -> Unit,
@@ -105,33 +105,18 @@ fun HomeScreen(
                 HomeSearchBar(
                     onClick = onSearchClick,
                     modifier = Modifier.padding(
-                        horizontal = Spacing.screenGutter,
-                        vertical = Spacing.lg
+                        start = Spacing.screenGutter,
+                        end = Spacing.screenGutter,
+                        top = Spacing.md,
+                        bottom = Spacing.xl
                     )
                 )
             }
 
-            item {
-                DiscoveryBanner(
-                    onClick = onSearchClick,
-                    modifier = Modifier.padding(horizontal = Spacing.screenGutter)
-                )
-                Spacer(Modifier.height(Spacing.xxl))
-            }
+            when {
+                state.isLoading -> items(5) { RestaurantCardSkeleton() }
 
-            if (state.isLoading) {
-                item { NearYouSkeleton() }
-                items(3) { index ->
-                    RestaurantCardSkeleton(
-                        modifier = Modifier.padding(
-                            horizontal = Spacing.screenGutter,
-                            vertical = Spacing.sm
-                        )
-                    )
-                    if (index == 2) Spacer(Modifier.height(Spacing.lg))
-                }
-            } else if (state.isEmpty) {
-                item {
+                state.isEmpty -> item {
                     EmptyState(
                         icon = Icons.Outlined.Storefront,
                         title = stringResource(R.string.home_empty_title),
@@ -144,78 +129,73 @@ fun HomeScreen(
                         onAction = viewModel::refresh
                     )
                 }
-            } else {
-                item {
-                    SectionHeader(
-                        title = stringResource(R.string.home_near_you),
-                        subtitle = if (state.hasLocation) {
-                            stringResource(R.string.home_near_you_subtitle_located)
-                        } else {
-                            stringResource(R.string.home_near_you_subtitle_default)
-                        },
-                        modifier = Modifier.padding(horizontal = Spacing.screenGutter)
-                    )
-                    Spacer(Modifier.height(Spacing.md))
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = Spacing.screenGutter),
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-                    ) {
-                        items(state.nearby, key = { it.id }) { listing ->
-                            RestaurantCardCompact(
-                                listing = listing,
-                                onClick = { onRestaurantClick(listing.id) },
-                                isFavorite = listing.id in state.favoriteIds,
-                                onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
+
+                else -> {
+                    if (state.favorites.isNotEmpty()) {
+                        item {
+                            SectionHeader(
+                                title = stringResource(R.string.home_favorites),
+                                subtitle = stringResource(R.string.home_favorites_subtitle),
+                                modifier = Modifier.padding(horizontal = Spacing.screenGutter)
                             )
                         }
+                        restaurantRows(
+                            listings = state.favorites,
+                            keyPrefix = "fav-",
+                            favoriteIds = state.favoriteIds,
+                            onClick = onRestaurantClick,
+                            onToggleFavorite = viewModel::toggleFavorite
+                        )
+                        item { Spacer(Modifier.height(Spacing.xxl)) }
                     }
-                    Spacer(Modifier.height(Spacing.xxl))
-                    if (state.favorites.isNotEmpty()) {
+
+                    item {
+                        // Nearest first once we know where you are; otherwise
+                        // the whole list, with location offered in the header.
                         SectionHeader(
-                            title = stringResource(R.string.home_favorites),
-                            subtitle = stringResource(R.string.home_favorites_subtitle),
+                            title = if (state.hasLocation) {
+                                stringResource(R.string.home_near_you)
+                            } else {
+                                stringResource(R.string.home_all_restaurants)
+                            },
+                            subtitle = if (state.hasLocation) {
+                                stringResource(R.string.home_near_you_subtitle_located)
+                            } else {
+                                stringResource(R.string.home_all_restaurants_subtitle)
+                            },
+                            actionLabel = stringResource(R.string.home_see_all),
+                            onAction = onSearchClick,
                             modifier = Modifier.padding(horizontal = Spacing.screenGutter)
                         )
-                        Spacer(Modifier.height(Spacing.md))
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = Spacing.screenGutter),
-                            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-                        ) {
-                            items(state.favorites, key = { "fav-" + it.id }) { listing ->
-                                RestaurantCardCompact(
-                                    listing = listing,
-                                    onClick = { onRestaurantClick(listing.id) },
-                                    isFavorite = true,
-                                    onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(Spacing.xxl))
                     }
-                    SectionHeader(
-                        title = stringResource(R.string.home_all_restaurants),
-                        subtitle = stringResource(R.string.home_all_restaurants_subtitle),
-                        actionLabel = stringResource(R.string.home_see_all),
-                        onAction = onSearchClick,
-                        modifier = Modifier.padding(horizontal = Spacing.screenGutter)
-                    )
-                    Spacer(Modifier.height(Spacing.md))
-                }
-
-                items(state.all, key = { it.id }) { listing ->
-                    RestaurantCard(
-                        listing = listing,
-                        onClick = { onRestaurantClick(listing.id) },
-                        modifier = Modifier.animateItem().padding(
-                            horizontal = Spacing.screenGutter,
-                            vertical = Spacing.sm
-                        ),
-                        isFavorite = listing.id in state.favoriteIds,
-                        onToggleFavorite = { viewModel.toggleFavorite(listing.id) }
+                    restaurantRows(
+                        listings = state.all,
+                        keyPrefix = "",
+                        favoriteIds = state.favoriteIds,
+                        onClick = onRestaurantClick,
+                        onToggleFavorite = viewModel::toggleFavorite
                     )
                 }
             }
         }
+    }
+}
+
+private fun LazyListScope.restaurantRows(
+    listings: List<RestaurantListing>,
+    keyPrefix: String,
+    favoriteIds: Set<String>,
+    onClick: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit
+) {
+    items(listings, key = { keyPrefix + it.id }) { listing ->
+        RestaurantCard(
+            listing = listing,
+            onClick = { onClick(listing.id) },
+            modifier = Modifier.animateItem(),
+            isFavorite = listing.id in favoriteIds,
+            onToggleFavorite = { onToggleFavorite(listing.id) }
+        )
     }
 }
 
@@ -232,22 +212,18 @@ private fun HomeHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                start = Spacing.screenGutter,
-                end = Spacing.screenGutter,
-                top = Spacing.lg
-            ),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(start = Spacing.screenGutter, end = Spacing.sm, top = Spacing.xl),
+        verticalAlignment = Alignment.Top
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                text = if (userName.isBlank()) greeting else "$greeting, $userName",
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
+                text = if (userName.isBlank()) greeting else "$greeting,\n$userName",
+                style = MaterialTheme.typography.headlineLarge,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
             )
-            Spacer(Modifier.height(Spacing.xs))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -267,20 +243,22 @@ private fun HomeHeader(
                         locationGranted -> stringResource(R.string.home_location_finding)
                         else -> stringResource(R.string.home_location_off)
                     },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelLarge,
+                    // Only the "turn it on" state is an action, so only it is accent.
+                    color = if (locationGranted) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             }
         }
 
-        IconButton(
-            onClick = onNotificationsClick,
-            modifier = Modifier.background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
-        ) {
+        IconButton(onClick = onNotificationsClick) {
             BadgedBox(
                 badge = {
                     if (unreadCount > 0) {
-                        Badge {
+                        Badge(containerColor = MaterialTheme.colorScheme.primary) {
                             Text(if (unreadCount > 9) stringResource(R.string.badge_overflow) else "$unreadCount")
                         }
                     }
@@ -301,11 +279,13 @@ private fun HomeSearchBar(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
         shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        color = MaterialTheme.colorScheme.surface
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.lg),
+            modifier = Modifier
+                .heightIn(min = 52.dp)
+                .padding(horizontal = Spacing.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -316,75 +296,9 @@ private fun HomeSearchBar(onClick: () -> Unit, modifier: Modifier = Modifier) {
             Spacer(Modifier.width(Spacing.md))
             Text(
                 text = stringResource(R.string.home_search_placeholder),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-@Composable
-private fun DiscoveryBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.tertiaryContainer,
-        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-    ) {
-        Row(
-            modifier = Modifier.padding(start = Spacing.xl, top = Spacing.xl, bottom = Spacing.xl),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.home_hero_eyebrow),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.72f)
-                )
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    stringResource(R.string.home_hero_title),
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Spacer(Modifier.height(Spacing.md))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.home_hero_action), style = MaterialTheme.typography.labelMedium)
-                    Spacer(Modifier.width(Spacing.sm))
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(18.dp))
-                }
-            }
-            Image(
-                painter = painterResource(R.drawable.dining_bowl),
-                contentDescription = null,
-                modifier = Modifier.weight(0.65f).height(144.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun NearYouSkeleton() {
-    Column(Modifier.padding(horizontal = Spacing.screenGutter)) {
-        SkeletonBox(Modifier.width(140.dp).height(22.dp))
-        Spacer(Modifier.height(Spacing.md))
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            repeat(2) {
-                Box(Modifier.width(244.dp)) {
-                    SkeletonBox(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(212.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.shapes.large
-                            )
-                    )
-                }
-            }
-        }
-        Spacer(Modifier.height(Spacing.xxl))
-        SkeletonBox(Modifier.width(170.dp).height(22.dp))
-        Spacer(Modifier.height(Spacing.md))
     }
 }

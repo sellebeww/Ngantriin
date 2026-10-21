@@ -103,7 +103,6 @@
     <string name="home_refresh">Refresh</string>
     <string name="home_near_you">Near You</string>
     <string name="home_near_you_subtitle_located">Your next meal, just around the corner</string>
-    <string name="home_near_you_subtitle_default">Turn on location to sort by distance</string>
     <string name="home_all_restaurants">All restaurants</string>
     <string name="home_all_restaurants_subtitle">Check the wait before you head out</string>
     <string name="home_see_all">See all</string>
@@ -475,9 +474,6 @@
     <string name="settings_version">Ngantriin • version 1.0</string>
 
     <!-- Discovery -->
-    <string name="home_hero_eyebrow">A LITTLE LESS WAITING</string>
-    <string name="home_hero_title">Good food.\nMore good times.</string>
-    <string name="home_hero_action">Find your table</string>
     <string name="search_title">Find your next favorite</string>
     <string name="search_subtitle">Good food is closer than you think.</string>
 

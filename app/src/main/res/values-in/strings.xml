@@ -94,7 +94,6 @@
     <string name="home_refresh">Muat ulang</string>
     <string name="home_near_you">Di Dekatmu</string>
     <string name="home_near_you_subtitle_located">Pilihan terdekat untuk waktu makanmu</string>
-    <string name="home_near_you_subtitle_default">Aktifkan lokasi untuk mengurutkan berdasarkan jarak</string>
     <string name="home_all_restaurants">Semua restoran</string>
     <string name="home_all_restaurants_subtitle">Cek waktu tunggu sebelum berangkat</string>
     <string name="home_see_all">Lihat semua</string>
@@ -461,9 +460,6 @@
     <string name="settings_version">Ngantriin • versi 1.0</string>
 
     <!-- Discovery -->
-    <string name="home_hero_eyebrow">WAKTUNYA MAKAN ENAK</string>
-    <string name="home_hero_title">Makan enak.\nAntre santai.</string>
-    <string name="home_hero_action">Temukan tempatmu</string>
     <string name="search_title">Mau makan apa?</string>
     <string name="search_subtitle">Temukan tempat enak untuk hari ini.</string>
 

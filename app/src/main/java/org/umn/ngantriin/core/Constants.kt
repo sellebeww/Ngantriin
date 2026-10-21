@@ -1,9 +1,6 @@
 package org.umn.ngantriin.core
 
 object Constants {
-    /** How far out "Near You" reaches before a venue stops being nearby. */
-    const val NEARBY_RADIUS_METERS = 15_000.0
-
     /** Cached rows older than this are refreshed on the next screen open. */
     const val CACHE_STALE_AFTER_MINUTES = 15L
 
