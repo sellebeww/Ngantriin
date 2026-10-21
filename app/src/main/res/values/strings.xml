@@ -308,7 +308,6 @@
 
     <!-- Join queue confirmation screen -->
     <string name="confirm_joined_title">You joined the queue!</string>
-    <string name="confirm_queue_number_label">QUEUE NUMBER</string>
     <string name="confirm_body">You can leave the area and carry on with your day. We\'ll notify you when your turn is near.</string>
     <string name="action_back_to_home">Back to home</string>
 
@@ -343,7 +342,6 @@
     <string name="history_title">Queue History</string>
     <string name="history_empty_title">No queue history yet</string>
     <string name="history_empty_message">Once you\'ve been through a queue, it shows up here with how long you actually waited.</string>
-    <string name="history_number_and_date">%1$s • %2$s</string>
     <string name="history_waited_minutes">Waited %1$d min</string>
     <string name="history_wait_not_recorded">Wait time not recorded</string>
     <string name="history_rate_visit">Rate visit</string>

@@ -297,7 +297,6 @@
 
     <!-- Join queue confirmation screen -->
     <string name="confirm_joined_title">Kamu bergabung ke antrean!</string>
-    <string name="confirm_queue_number_label">NOMOR ANTREAN</string>
     <string name="confirm_body">Kamu bisa tinggalkan lokasi dan lanjutkan harimu. Kami akan kabari saat giliranmu dekat.</string>
     <string name="action_back_to_home">Kembali ke beranda</string>
 
@@ -332,7 +331,6 @@
     <string name="history_title">Riwayat Antrean</string>
     <string name="history_empty_title">Belum ada riwayat antrean</string>
     <string name="history_empty_message">Setelah kamu pernah mengantre, riwayatnya akan muncul di sini lengkap dengan lama waktu tunggu sebenarnya.</string>
-    <string name="history_number_and_date">%1$s • %2$s</string>
     <string name="history_waited_minutes">Menunggu %1$d mnt</string>
     <string name="history_wait_not_recorded">Waktu tunggu tidak tercatat</string>
     <string name="history_rate_visit">Beri nilai</string>

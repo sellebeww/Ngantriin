@@ -13,16 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,12 +34,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.time.Instant
 import org.umn.ngantriin.R
 import org.umn.ngantriin.di.containerViewModel
 import org.umn.ngantriin.domain.model.QueueEntry
@@ -51,14 +48,12 @@ import org.umn.ngantriin.ui.components.EmptyState
 import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.InfoRow
 import org.umn.ngantriin.ui.components.PrimaryButton
-import org.umn.ngantriin.ui.components.QueueStatusPill
 import org.umn.ngantriin.ui.components.RatingStars
-import org.umn.ngantriin.ui.components.RestaurantImage
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.components.dateTimeText
+import org.umn.ngantriin.ui.queue.StubTicket
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
-import java.time.Instant
 
 /** The full story of one visit. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,7 +106,7 @@ fun HistoryDetailScreen(
             state.isLoading -> FullScreenLoader(Modifier.padding(padding))
 
             item == null -> EmptyState(
-                icon = Icons.Outlined.ReceiptLong,
+                icon = Icons.AutoMirrored.Outlined.ReceiptLong,
                 title = stringResource(R.string.history_not_found),
                 message = "",
                 actionLabel = stringResource(R.string.action_go_back),
@@ -129,49 +124,21 @@ fun HistoryDetailScreen(
                 val entry = item.entry
                 Spacer(Modifier.height(Spacing.sm))
 
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(Spacing.lg),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RestaurantImage(
-                            imageUrl = item.restaurantImageUrl,
-                            contentDescription = stringResource(R.string.cd_restaurant_photo, item.restaurantName),
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                        )
-                        Spacer(Modifier.width(Spacing.lg))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = item.restaurantName,
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Spacer(Modifier.height(Spacing.xs))
-                            Text(
-                                text = dateTimeText(entry.joinedAt),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(Spacing.sm))
-                            QueueStatusPill(entry.status, compact = true)
-                        }
-                    }
-                }
+                // The visit's own ticket, reprinted.
+                StubTicket(
+                    status = entry.status,
+                    number = entry.queueNumber,
+                    caption = item.restaurantName
+                )
+                Spacer(Modifier.height(Spacing.md))
+                Text(
+                    text = dateTimeText(entry.joinedAt),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(Modifier.height(Spacing.lg))
 
-                InfoRow(
-                    icon = Icons.Filled.ConfirmationNumber,
-                    label = stringResource(R.string.confirm_queue_number_label),
-                    value = entry.queueNumber
-                )
                 InfoRow(
                     icon = Icons.Filled.Groups,
                     label = stringResource(R.string.restaurant_party_size),
