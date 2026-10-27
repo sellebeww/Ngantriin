@@ -39,7 +39,7 @@ class SupabaseReviewRemoteDataSource(
             .decodeList<ReviewDto>()
             .map { it.toDomain() }
 
-    /** Column grants (0012) allow exactly rating and review to change. */
+    /** Column grant (0012) hanya mengizinkan rating dan review yang berubah. */
     override suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review =
         client.from("reviews")
             .update(ReviewUpdateDto(rating = rating.coerceIn(1, 5), review = comment.trim())) {
@@ -50,9 +50,9 @@ class SupabaseReviewRemoteDataSource(
             .toDomain()
 
     /**
-     * The insert is allowed only by the `reviews_insert_completed_only` policy,
-     * which re-checks that the ticket is the caller's and is COMPLETED
-     *. No client-side guard can be bypassed by skipping the UI.
+     * Insert hanya diizinkan policy `reviews_insert_completed_only`, yang
+     * mengecek ulang bahwa tiket milik pemanggil dan berstatus COMPLETED.
+     * Tidak ada guard di client yang bisa dilewati dengan melompati UI.
      */
     override suspend fun submitReview(
         queueId: String,

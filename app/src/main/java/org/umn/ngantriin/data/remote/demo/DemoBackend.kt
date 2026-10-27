@@ -33,17 +33,17 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * An in-process stand-in for the Supabase project, used when no credentials
- * are configured so that the app is runnable end to end on a fresh checkout.
+ * Pengganti in-process untuk proyek Supabase, dipakai saat kredensial
+ * belum diatur supaya aplikasi bisa jalan penuh setelah checkout baru.
  *
- * It is not a shortcut around the real backend. It enforces the same rules the
- * SQL functions do — server-allocated ticket numbers, one active queue per
- * customer, the queue transition table, the check-in window and its
- * expiry, early check-in going straight to TABLE_READY when called — and it
- * pushes change notifications through the same Flow contract Supabase
- * Realtime uses. Swapping the two out changes nothing above the data source.
+ * Ini bukan jalan pintas di luar backend asli. Aturannya sama dengan
+ * fungsi SQL: nomor tiket dari server, satu antrean aktif per pelanggan,
+ * tabel transisi antrean, jendela check-in beserta kedaluwarsanya, check-in
+ * lebih awal langsung ke TABLE_READY kalau sudah dipanggil. Notifikasi
+ * perubahan lewat kontrak Flow yang sama dengan Supabase Realtime. Menukar
+ * keduanya tidak mengubah apa pun di atas data source.
  *
- * State is mirrored into Room so a demo queue survives a restart.
+ * State dicerminkan ke Room supaya antrean demo bertahan setelah restart.
  */
 class DemoBackend(
     private val database: NgantriinDatabase,
@@ -58,20 +58,20 @@ class DemoBackend(
     private val reviews = LinkedHashMap<String, Review>()
     private val lastIssuedSequence = HashMap<String, Int>()
 
-    /** `userId|restaurantId`: who may run which venue. Nothing else grants access. */
+    /** `userId|restaurantId`: siapa boleh mengelola restoran mana. Tidak ada jalur akses lain. */
     private val staffMemberships = LinkedHashSet<String>()
 
-    /** restaurantId -> who applied and which proof files they sent (`restaurant_documents`). */
+    /** restaurantId -> siapa yang mengajukan dan berkas bukti apa yang dikirim (`restaurant_documents`). */
     private val applicationRecords = LinkedHashMap<String, DemoApplication>()
 
     private val _changes = MutableSharedFlow<Change>(extraBufferCapacity = 64)
 
-    /** Mirrors what Supabase Realtime would publish. */
+    /** Meniru apa yang akan dipublikasikan Supabase Realtime. */
     val changes: SharedFlow<Change> = _changes
 
     data class Change(val restaurantId: String?, val userIds: Set<String>)
 
-    /** A proof file already stored on the device; [uri] is where the reviewer opens it. */
+    /** Berkas bukti yang sudah tersimpan di perangkat, [uri] adalah tempat reviewer membukanya. */
     class ProofFile(val type: ProofType, val uri: String)
 
     // -------------------------------------------------------------------------
@@ -119,9 +119,9 @@ class DemoBackend(
     }
 
     /**
-     * Venues staff registered, who staffs what, and which sample venues were
-     * paused. Stored in preferences because Room only ever holds the active
-     * catalogue and would forget a paused venue.
+     * Restoran yang didaftarkan staf, siapa mengelola apa, dan restoran contoh
+     * mana yang dijeda. Disimpan di preferences karena Room hanya menyimpan
+     * katalog aktif dan akan melupakan restoran yang dijeda.
      */
     private suspend fun applyRegistry() {
         val saved = preferences.demoRestaurantsJson.first()
@@ -137,7 +137,7 @@ class DemoBackend(
         }
         staffMemberships += preferences.demoStaffMemberships.first()
 
-        // Room is the customer catalogue: active venues only.
+        // Room adalah katalog pelanggan: hanya restoran aktif.
         database.restaurantDao().upsertRestaurants(
             restaurants.values.filter { it.isActive }.map { it.toEntity() }
         )
@@ -185,19 +185,19 @@ class DemoBackend(
     // Reads
     // -------------------------------------------------------------------------
 
-    /** The customer catalogue: only approved venues, and paused ones are not listed. */
+    /** Katalog pelanggan: hanya restoran yang disetujui, yang dijeda tidak ditampilkan. */
     suspend fun allRestaurants(): List<Restaurant> {
         ensureReady()
         return restaurants.values.filter { it.isActive && it.isApproved }.sortedBy { it.name }
     }
 
-    /** Like `is_restaurant_staff()`: the link counts only once the venue is approved. */
+    /** Seperti `is_restaurant_staff()`: tautan baru berlaku setelah restoran disetujui. */
     suspend fun isStaff(userId: String, restaurantId: String): Boolean {
         ensureReady()
         return "$userId|$restaurantId" in staffMemberships && restaurants[restaurantId]?.isApproved == true
     }
 
-    /** Every venue this account runs, paused ones included. */
+    /** Semua restoran yang dikelola akun ini, termasuk yang dijeda. */
     suspend fun managedRestaurants(userId: String): List<Restaurant> {
         ensureReady()
         return restaurants.values
@@ -205,7 +205,7 @@ class DemoBackend(
             .sortedBy { it.name }
     }
 
-    /** An unreviewed venue is visible to its applicant only, like the RLS policy on `restaurants`. */
+    /** Restoran yang belum ditinjau hanya terlihat oleh pengajunya, seperti policy RLS di `restaurants`. */
     suspend fun restaurant(id: String, viewerId: String? = null): Restaurant {
         ensureReady()
         val venue = restaurants[id] ?: error("RESTAURANT_NOT_FOUND")
@@ -290,7 +290,7 @@ class DemoBackend(
     }
 
     // -------------------------------------------------------------------------
-    // Writes — these mirror 0012_check_in_window_and_table_ready.sql
+    // Penulisan, mencerminkan 0012_check_in_window_and_table_ready.sql
     // -------------------------------------------------------------------------
 
     suspend fun joinQueue(
@@ -351,7 +351,7 @@ class DemoBackend(
         expireOverdue(restaurantId)
         val next = QueueMath.nextToCall(queues.values.filter { it.restaurantId == restaurantId })
             ?: error("QUEUE_EMPTY")
-        // Already at the restaurant: nothing to wait for, the table is next.
+        // Sudah di restoran: tidak ada yang ditunggu, giliran meja berikutnya.
         val target = if (next.status == QueueStatus.CHECKED_IN) {
             QueueStatus.TABLE_READY
         } else {
@@ -360,7 +360,7 @@ class DemoBackend(
         return transition(next, target)
     }
 
-    /** Mirrors `expire_overdue_queues`: CALLED past its window -> EXPIRED. */
+    /** Mencerminkan `expire_overdue_queues`: CALLED yang lewat batas -> EXPIRED. */
     suspend fun expireOverdue(restaurantId: String) {
         ensureReady()
         val now = Instant.now()
@@ -375,8 +375,8 @@ class DemoBackend(
         transition(queue(queueId), status)
 
     /**
-     * Mirrors `register_restaurant`: the venue is created PENDING_VERIFICATION and
-     * unlisted, and stays that way until an admin approves it ([reviewRestaurant]).
+     * Mencerminkan `register_restaurant`: restoran dibuat PENDING_VERIFICATION dan
+     * belum tampil, tetap begitu sampai admin menyetujui ([reviewRestaurant]).
      */
     suspend fun registerRestaurant(
         userId: String,
@@ -402,7 +402,7 @@ class DemoBackend(
         val created = mutex.withLock {
             val owned = staffMemberships.count { it.startsWith("$userId|") && it.substringAfter('|') !in SEED_IDS }
             if (owned >= MAX_REGISTERED_PER_USER) error("TOO_MANY_RESTAURANTS")
-            // One application at a time, as in the database.
+            // Satu pengajuan dalam satu waktu, seperti di database.
             val hasPending = restaurants.values.any {
                 it.verificationStatus == VerificationStatus.PENDING_VERIFICATION &&
                     "$userId|${it.id}" in staffMemberships
@@ -447,14 +447,14 @@ class DemoBackend(
                     documents = proofs.map { proof -> proofRecord(proof, 1, now) }
                 )
                 persistRegistry()
-                // Room only ever holds the catalogue: an application is not in it.
+                // Room hanya menyimpan katalog, pengajuan tidak termasuk.
             }
         }
         emitChange(null, emptySet())
         return created
     }
 
-    /** Mirrors `resubmit_restaurant`: a REJECTED application goes back to review. */
+    /** Mencerminkan `resubmit_restaurant`: pengajuan REJECTED kembali ke review. */
     suspend fun resubmitRestaurant(
         userId: String,
         restaurantId: String,
@@ -495,8 +495,8 @@ class DemoBackend(
     }
 
     /**
-     * Mirrors `admin_review_restaurant`: only an admin, only a PENDING application,
-     * and a reason is required to reject. Approving lists the venue.
+     * Mencerminkan `admin_review_restaurant`: hanya admin, hanya pengajuan PENDING,
+     * dan menolak wajib pakai alasan. Menyetujui menampilkan restoran.
      */
     suspend fun reviewRestaurant(adminId: String, restaurantId: String, approve: Boolean, note: String?) {
         ensureReady()
@@ -523,7 +523,7 @@ class DemoBackend(
         emitChange(null, emptySet())
     }
 
-    /** Mirrors `admin_list_applications`: pending ones oldest first, the rest newest first. */
+    /** Mencerminkan `admin_list_applications`: yang pending terlama dulu, sisanya terbaru dulu. */
     suspend fun listApplications(adminId: String, status: VerificationStatus): List<RestaurantApplication> {
         ensureReady()
         requireAdmin(adminId)
@@ -555,7 +555,7 @@ class DemoBackend(
         }
     }
 
-    /** Mirrors `admin_application_documents`: newest submission first. */
+    /** Mencerminkan `admin_application_documents`: kiriman terbaru dulu. */
     suspend fun applicationDocuments(adminId: String, restaurantId: String): List<ApplicationDocument> {
         ensureReady()
         requireAdmin(adminId)
@@ -576,14 +576,14 @@ class DemoBackend(
         if (!DemoSeed.isAdminId(userId)) error("NOT_ADMIN")
     }
 
-    /** Same rule as the SQL: at least one business document, and every file readable. */
+    /** Aturan sama dengan SQL: minimal satu dokumen usaha, dan semua berkas harus terbaca. */
     private fun hasValidProof(documents: List<ProofDocument>): Boolean =
         documents.any { it.type == ProofType.BUSINESS_LICENSE } && documents.all { it.isValid }
 
     private fun proofRecord(proof: ProofFile, round: Int, createdAt: String) =
         DemoDocument(UUID.randomUUID().toString(), proof.type.name, proof.uri, round, createdAt)
 
-    /** Pause or resume a venue; only its own staff may. */
+    /** Jeda atau lanjutkan restoran, hanya stafnya sendiri yang boleh. */
     suspend fun setRestaurantActive(userId: String, restaurantId: String, active: Boolean): Restaurant {
         ensureReady()
         if (!isStaff(userId, restaurantId)) error("NOT_RESTAURANT_STAFF")
@@ -654,7 +654,7 @@ class DemoBackend(
     }
 
     // -------------------------------------------------------------------------
-    // Internals
+    // Internal
     // -------------------------------------------------------------------------
 
     private suspend fun transition(
@@ -691,9 +691,8 @@ class DemoBackend(
     }
 
     /**
-     * Runs [block] under the lock, persists the resulting ticket and publishes
-     * one change event — the same shape a Postgres trigger plus Realtime would
-     * produce.
+     * Menjalankan [block] di dalam lock, menyimpan tiket hasilnya dan menerbitkan
+     * satu event perubahan, bentuknya sama dengan hasil trigger Postgres plus Realtime.
      */
     private suspend fun mutate(
         restaurantId: String,
@@ -713,7 +712,7 @@ class DemoBackend(
         return result
     }
 
-    /** Tickets near the front move to ALMOST_THERE on their own. */
+    /** Tiket di barisan depan pindah ke ALMOST_THERE dengan sendirinya. */
     private fun promoteAlmostThere(restaurantId: String) {
         val live = queues.values.filter { it.restaurantId == restaurantId }
         live.filter { it.status == QueueStatus.WAITING }.forEach { entry ->

@@ -86,8 +86,8 @@ private val CATEGORIES = listOf(
 )
 
 /**
- * Staff put a venue on the app here. Nothing is listed to customers until this
- * succeeds, and the account becomes staff of exactly the venue it creates.
+ * Di sini staf memasukkan restoran ke aplikasi. Tidak ada yang tampil ke pelanggan
+ * sampai ini berhasil, dan akun menjadi staf tepat restoran yang dibuatnya.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -141,7 +141,7 @@ fun RegisterRestaurantScreen(
     }
 
     val locationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        // Denied is handled by the provider, which reports it as an error.
+        // Penolakan ditangani provider, yang melaporkannya sebagai error.
         viewModel.useCurrentLocation()
     }
 
@@ -492,9 +492,9 @@ private fun PhotoPicker(photoUri: Uri?, enabled: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * Downscales to 1600px on the long edge and re-encodes as JPEG, honouring the
- * EXIF rotation (gallery photos are often stored sideways). Null if the file
- * cannot be decoded.
+ * Memperkecil ke 1600px di sisi terpanjang lalu di-encode ulang sebagai JPEG,
+ * dengan memperhatikan rotasi EXIF (foto galeri sering tersimpan menyamping).
+ * Null kalau file tidak bisa di-decode.
  */
 private suspend fun readPhoto(context: Context, uri: Uri): ByteArray? = withContext(Dispatchers.IO) {
     runCatching {
@@ -541,7 +541,7 @@ private fun ApplicantRole.labelRes(): Int = when (this) {
     ApplicantRole.AUTHORIZED_STAFF -> R.string.applicant_role_authorized
 }
 
-/** One document slot: what it is for, the chosen file, and a way to swap or drop it. */
+/** Satu slot dokumen: untuk apa, berkas yang dipilih, dan cara menukar atau membuangnya. */
 @Composable
 private fun ProofPickerRow(
     title: String,
@@ -605,9 +605,9 @@ private fun displayName(context: Context, uri: Uri): String? =
     }.getOrNull() ?: uri.lastPathSegment
 
 /**
- * PDFs are sent as they are (5 MB cap, enforced again by the bucket); images
- * are downscaled and re-encoded as JPEG like the venue photo. Null when the
- * file is unreadable or too large.
+ * PDF dikirim apa adanya (batas 5 MB, ditegakkan lagi oleh bucket), gambar
+ * diperkecil dan di-encode ulang jadi JPEG seperti foto restoran. Null kalau
+ * file tidak terbaca atau terlalu besar.
  */
 private suspend fun readProof(context: Context, uri: Uri, type: ProofType): ProofDocument? {
     val isPdf = context.contentResolver.getType(uri) == "application/pdf"

@@ -1,13 +1,13 @@
 -- =============================================================================
--- NGANTRIIN — "kursi kosong" (walk-in availability), separate from the queue.
+-- NGANTRIIN: "kursi kosong" (ketersediaan walk-in), terpisah dari antrean.
 --
--- available_seats is how many tables/seats a restaurant currently has open
--- for a walk-in right now — orthogonal to queue_capacity, which caps how many
--- parties may WAIT in line. While a restaurant has seats open there is no
--- reason to make anyone queue for it: the client shows an info banner
--- ("N kursi kosong") instead of the Join Queue button, and joins only become
--- possible again once available_seats drops to 0. join_queue()
--- re-checks this itself so a stale client can't bypass the client-side gate.
+-- available_seats adalah jumlah meja/kursi yang sedang kosong untuk walk-in
+-- sekarang, tidak terkait queue_capacity yang membatasi berapa rombongan
+-- yang boleh MENUNGGU di antrean. Selama restoran punya kursi kosong tidak
+-- ada alasan menyuruh siapa pun antre: client menampilkan banner info
+-- ("N kursi kosong") menggantikan tombol Gabung Antrean, dan join baru
+-- bisa lagi setelah available_seats turun ke 0. join_queue()
+-- mengecek ulang sendiri supaya client basi tidak bisa melewati gerbang di sisi client.
 -- =============================================================================
 
 alter table public.restaurants
@@ -32,10 +32,10 @@ begin
         raise exception 'NOT_AUTHENTICATED' using errcode = '28000';
     end if;
 
-    -- Locked for the rest of this transaction: every other join_queue() call
-    -- against this same restaurant blocks here until this one commits or
-    -- rolls back, which is what makes the capacity/duplicate checks below
-    -- trustworthy rather than a race.
+    -- Terkunci sampai transaksi ini selesai: setiap panggilan join_queue() lain
+    -- ke restoran yang sama menunggu di sini sampai ini commit atau rollback,
+    -- dan itulah yang membuat pengecekan kapasitas/duplikat di bawah bisa
+    -- dipercaya, bukan race.
     select * into v_restaurant from public.restaurants
     where id = p_restaurant_id
     for update;
@@ -48,15 +48,15 @@ begin
         raise exception 'RESTAURANT_CLOSED' using errcode = 'check_violation';
     end if;
 
-    -- Walk in instead, there's nothing to queue for yet.
+    -- Datang langsung saja, belum ada yang perlu diantre.
     if v_restaurant.available_seats > 0 then
         raise exception 'SEATS_AVAILABLE' using errcode = 'check_violation';
     end if;
 
-    -- Surfaced as a friendly message by the client.
-    -- (queues_one_active_per_user_idx is the hard backstop if this is ever
-    -- bypassed; this check is what turns it into a message instead of a
-    -- raw constraint-violation error.)
+    -- Ditampilkan sebagai pesan ramah oleh client.
+    -- (queues_one_active_per_user_idx adalah pengaman terakhir kalau ini pernah
+    -- terlewati, pengecekan ini yang mengubahnya jadi pesan, bukan
+    -- error pelanggaran constraint mentah.)
     if exists (
         select 1 from public.queues
         where user_id = v_user
@@ -65,8 +65,8 @@ begin
         raise exception 'ALREADY_IN_QUEUE' using errcode = 'unique_violation';
     end if;
 
-    -- A brief cooldown after cancelling, so a customer can't
-    -- spam join -> cancel -> join at the same restaurant.
+    -- Cooldown singkat setelah membatalkan, supaya pelanggan tidak bisa
+    -- spam join -> cancel -> join di restoran yang sama.
     if exists (
         select 1 from public.queues
         where user_id = v_user
@@ -113,7 +113,7 @@ begin
 end;
 $$;
 
--- Existing seed restaurants: a couple start with open seats so the "kursi
--- kosong" banner has something to show right away.
+-- Restoran seed yang sudah ada: beberapa dimulai dengan kursi kosong supaya
+-- banner "kursi kosong" langsung punya sesuatu untuk ditampilkan.
 update public.restaurants set available_seats = 4 where queue_prefix = 'B'; -- Kopi Sempurna
 update public.restaurants set available_seats = 2 where queue_prefix = 'K'; -- Seoul Bunsik

@@ -89,12 +89,11 @@ fun InfoRow(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        // The label above is short and fixed; `value` is the one that varies
-        // in length (e.g. a full street address), so it gets the flexible
-        // weighted space and wraps into it instead. Giving the weight to
-        // `label` here would let a long `value` squeeze `label`'s available
-        // width toward zero, forcing Compose to wrap it one character per
-        // line.
+        // Label di atas pendek dan tetap, `value` yang panjangnya berubah
+        // (misalnya alamat lengkap), jadi ia yang dapat ruang fleksibel
+        // berbobot dan membungkus ke dalamnya. Kalau bobot diberikan ke `label`,
+        // `value` yang panjang bisa menekan lebar `label` mendekati nol sehingga
+        // Compose membungkusnya satu karakter per baris.
         Text(
             text = value,
             style = MaterialTheme.typography.titleSmall,
@@ -105,7 +104,7 @@ fun InfoRow(
     }
 }
 
-/** Destructive actions always ask first. */
+/** Aksi destruktif selalu bertanya dulu. */
 @Composable
 fun ConfirmDialog(
     title: String,
@@ -143,12 +142,12 @@ fun ConfirmDialog(
 }
 
 /**
- * A full-height column that keeps its trailing content — in
- * practice the screen's main button — against the bottom edge, but scrolls
- * rather than pushing it out of reach when everything does not fit: a short
- * phone, a large font scale, or an open keyboard.
+ * Kolom setinggi layar yang menjaga konten paling bawah (biasanya
+ * tombol utama layar) tetap di tepi bawah, tapi bisa di-scroll dan tidak
+ * mendorongnya keluar jangkauan saat semuanya tidak muat: HP pendek,
+ * skala font besar, atau keyboard terbuka.
  *
- * Use `Spacer(Modifier.weight(1f))` inside it exactly as with a plain Column.
+ * Pakai `Spacer(Modifier.weight(1f))` di dalamnya persis seperti Column biasa.
  */
 @Composable
 fun BottomAnchoredColumn(
@@ -157,8 +156,8 @@ fun BottomAnchoredColumn(
     content: @Composable ColumnScope.() -> Unit
 ) {
     BoxWithConstraints(modifier.fillMaxSize()) {
-        // Giving the column a minimum of the viewport height is what keeps the
-        // weights meaningful; past that it simply grows and scrolls.
+        // Memberi kolom tinggi minimum setinggi viewport membuat bobotnya
+        // tetap bermakna, lewat itu kolom tumbuh dan bisa di-scroll.
         val viewportHeight = maxHeight
         Column(
             modifier = Modifier
@@ -172,12 +171,13 @@ fun BottomAnchoredColumn(
 }
 
 /**
- * Lets a row inside a screen-gutter-padded column run edge to edge, the way a
- * scrolling chip row should: it is measured [inset] wider on both sides, so
- * its chips slide off the screen edge instead of being sliced at the gutter.
+ * Membuat baris di dalam kolom yang diberi padding gutter layar bisa penuh
+ * dari tepi ke tepi, seperti chip row yang di-scroll: ia diukur lebih lebar
+ * [inset] di kedua sisi, jadi chip-nya meluncur keluar dari tepi layar dan
+ * tidak terpotong di gutter.
  *
- * Add `.padding(horizontal = inset)` *after* `horizontalScroll` so the first
- * and last chip still rest on the gutter line when the row is not scrolled.
+ * Tambahkan `.padding(horizontal = inset)` *setelah* `horizontalScroll` supaya chip
+ * pertama dan terakhir tetap bersandar di garis gutter saat baris belum di-scroll.
  */
 fun Modifier.fullBleed(inset: Dp): Modifier = layout { measurable, constraints ->
     val extra = inset.roundToPx() * 2

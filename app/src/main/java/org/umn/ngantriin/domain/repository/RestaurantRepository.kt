@@ -14,41 +14,41 @@ import org.umn.ngantriin.domain.model.RestaurantRegistration
 interface RestaurantRepository {
 
     /**
-     * Cache-first stream of restaurants matching [filters], with distances
-     * resolved against [origin] when a location fix exists.
+     * Stream restoran sesuai [filters], cache dulu, dengan jarak dihitung
+     * terhadap [origin] kalau lokasi tersedia.
      *
-     * The flow emits whatever is cached immediately and again
-     * whenever a refresh or a realtime stats change lands, so the screen never
-     * shows a blank list while the network is slow.
+     * Flow langsung mengirim isi cache, lalu lagi setiap refresh atau perubahan
+     * statistik realtime masuk, jadi layar tidak pernah menampilkan daftar kosong
+     * saat network lambat.
      */
     fun observeRestaurants(
         origin: GeoPoint?,
         filters: RestaurantFilters
     ): Flow<List<RestaurantListing>>
 
-    /** Pulls the restaurant catalogue and queue counters from the backend. */
+    /** Mengambil katalog restoran dan counter antrean dari backend. */
     suspend fun refreshRestaurants(): Outcome<Unit>
 
     fun observeRestaurant(restaurantId: String): Flow<Restaurant?>
 
-    /** Live queue counters for one venue. */
+    /** Counter antrean live untuk satu restoran. */
     fun observeQueueStats(restaurantId: String): Flow<QueueStats?>
 
     suspend fun refreshRestaurant(restaurantId: String): Outcome<Restaurant>
 
-    /** The distinct categories present in the catalogue, for the filter sheet. */
+    /** Kategori berbeda yang ada di katalog, untuk sheet filter. */
     fun observeCategories(): Flow<List<String>>
 
-    /** The venues this staff account is allowed to manage, paused ones included. */
+    /** Restoran yang boleh dikelola akun staf ini, termasuk yang dijeda. */
     suspend fun managedRestaurants(userId: String): Outcome<List<Restaurant>>
 
     /**
-     * Puts a new venue on the app. The caller becomes its staff and the venue
-     * is listed to customers immediately; it is returned as stored.
+     * Memasukkan restoran baru ke aplikasi. Pemanggil menjadi stafnya dan
+     * restoran langsung tampil ke pelanggan, dikembalikan seperti yang tersimpan.
      */
     suspend fun registerRestaurant(registration: RestaurantRegistration): Outcome<Restaurant>
 
-    /** Lists ([active]) or pauses a venue the caller manages. */
+    /** Menampilkan ([active]) atau menjeda restoran yang dikelola pemanggil. */
     suspend fun setRestaurantActive(restaurantId: String, active: Boolean): Outcome<Restaurant>
 
     suspend fun resubmitRestaurant(

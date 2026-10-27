@@ -45,12 +45,11 @@ import org.umn.ngantriin.ui.splash.SplashScreen
 import org.umn.ngantriin.ui.theme.NgantriinTheme
 
 /**
- * The session and the onboarding flag decide which area of the app
- * you are in; individual screens never navigate across that boundary
- * themselves. Signing out anywhere therefore lands on login, and signing in
- * lands on the right home for the role.
+ * Sesi dan flag onboarding menentukan kamu ada di area aplikasi yang mana,
+ * layar tidak pernah berpindah melewati batas itu sendiri. Jadi logout di mana
+ * pun mendarat di login, dan login mendarat di beranda yang sesuai role.
  */
-/** A notification tap: which ticket, and what happened to it. */
+/** Ketukan notifikasi: tiket mana, dan apa yang terjadi padanya. */
 data class NotificationLaunch(val queueId: String, val type: NotificationType?)
 
 @Composable
@@ -79,8 +78,8 @@ fun NgantriinApp(
 
             val area = resolveArea(session, onboardingCompleted, recoveryPending)
 
-            // Ask for notification permission only once the user is actually
-            // in the app and a queue update could matter to them.
+            // Minta izin notifikasi hanya setelah pengguna benar-benar di dalam
+            // aplikasi dan update antrean mungkin penting baginya.
             RequestNotificationPermissionOnce(enabled = session is SessionState.SignedIn)
 
             if (area == null) {
@@ -92,8 +91,8 @@ fun NgantriinApp(
             LaunchedEffect(area) {
                 val previous = currentArea
                 currentArea = area
-                // The NavHost already starts in the first area; only later
-                // changes need an actual navigation.
+                // NavHost sudah mulai di area pertama, hanya perubahan berikutnya
+                // yang butuh navigasi sungguhan.
                 if (previous != null && previous != area) {
                     navController.navigate(area) {
                         popUpTo(navController.graph.id) { inclusive = true }
@@ -102,7 +101,7 @@ fun NgantriinApp(
                 }
             }
 
-            // Opened from a notification: jump straight to what it is about.
+            // Dibuka dari notifikasi: langsung ke hal yang dimaksud.
             LaunchedEffect(pendingLaunch, area) {
                 val launch = pendingLaunch ?: return@LaunchedEffect
                 if (area != Routes.HOME) return@LaunchedEffect
@@ -118,8 +117,8 @@ fun NgantriinApp(
 
             val signedInUserId = (session as? SessionState.SignedIn)?.user?.id
 
-            // Signed up as restaurant staff: the application is the next step.
-            // Matched on email so another account on this phone is not pulled in.
+            // Mendaftar sebagai staf restoran: pengajuan jadi langkah berikutnya.
+            // Dicocokkan dengan email supaya akun lain di HP ini tidak ikut terseret.
             val applicantEmail by container.userPreferencesRepository.staffApplicantEmail
                 .collectAsStateWithLifecycle(null)
             val sessionEmail = (session as? SessionState.SignedIn)?.user?.email
@@ -132,9 +131,9 @@ fun NgantriinApp(
                 }
             }
 
-            // The backend writes pushes in the language the app is showing.
-            // Re-run on every (re)composition root — a language change
-            // recreates the activity, so this follows it.
+            // Backend menulis push dengan bahasa yang sedang ditampilkan aplikasi.
+            // Dijalankan ulang di setiap composition root, karena ganti bahasa
+            // membuat activity dibuat ulang, jadi ini ikut berubah.
             LaunchedEffect(signedInUserId) {
                 if (signedInUserId != null) {
                     container.authRepository.syncLocale(LanguageManager.effective(context))
@@ -150,24 +149,24 @@ fun NgantriinApp(
                     ?: flowOf(null)
             }.collectAsStateWithLifecycle(null)
 
-            // A live ticket keeps tracking after the app leaves
-            // the screen. Started from here because Android only allows a
-            // foreground service to start while the app is visible.
+            // Tiket aktif tetap dilacak setelah aplikasi keluar dari layar.
+            // Dimulai dari sini karena Android hanya mengizinkan foreground
+            // service dimulai saat aplikasi terlihat.
             val liveTicketId = activeQueue?.entry?.id
             LaunchedEffect(liveTicketId) {
                 if (liveTicketId != null) QueueTrackingService.start(context)
             }
 
-            // React to the ticket *ending*: completed -> thank-you and review,
-            // expired or removed -> say so instead of silently emptying the
-            // queue tab.
+            // Bereaksi saat tiket *berakhir*: selesai -> terima kasih dan ulasan,
+            // kedaluwarsa atau dihapus -> beri tahu, jangan diam-diam
+            // mengosongkan tab antrean.
             val latestTicket by remember(container, signedInUserId) {
                 signedInUserId?.let { container.queueRepository.observeLatestTicket(it) }
                     ?: flowOf(null)
             }.collectAsStateWithLifecycle(null)
             var lastSeenTicket by remember { mutableStateOf<QueueEntry?>(null) }
-            // Resolved in composition (like NgantriinNavHost's errors) so the
-            // copy follows a language change instead of going stale.
+            // Diambil saat composition (seperti error di NgantriinNavHost) supaya
+            // teksnya ikut berubah saat ganti bahasa dan tidak basi.
             var outcomeMessage by remember { mutableStateOf<Pair<Int, String>?>(null) }
             val outcomeText = outcomeMessage?.let { (res, number) -> stringResource(res, number) }
             LaunchedEffect(outcomeText) {
@@ -217,9 +216,9 @@ fun NgantriinApp(
                             container.userPreferencesRepository.setOnboardingCompleted(true)
                         }
                     },
-                    // The window is edge to edge, so the keyboard does not
-                    // resize it. Without this the IME sits on top of whatever
-                    // is at the bottom of a screen — usually its main button.
+                    // Window-nya edge to edge, jadi keyboard tidak mengubah ukurannya.
+                    // Tanpa ini IME menutupi apa pun yang ada di bawah layar,
+                    // biasanya tombol utamanya.
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -232,8 +231,8 @@ fun NgantriinApp(
 }
 
 /**
- * Null means "not decided yet" — the splash stays up rather than flashing the
- * login screen at someone who is already signed in.
+ * Null berarti "belum diputuskan": splash tetap tampil, supaya login tidak
+ * berkedip di depan orang yang sebenarnya sudah masuk.
  */
 private fun resolveArea(
     session: SessionState,
@@ -242,11 +241,11 @@ private fun resolveArea(
 ): String? = when {
     onboardingCompleted == null || session is SessionState.Loading -> null
     !onboardingCompleted -> Routes.ONBOARDING
-    // The reset link signs the person in; hold them on the new-password
-    // screen rather than dropping them into the app with the old password.
+    // Tautan reset membuat orangnya login. Tahan di layar password baru,
+    // jangan lepas ke aplikasi dengan password lama.
     recoveryPending && session is SessionState.SignedIn -> Routes.RESET_PASSWORD
     session is SessionState.SignedOut -> Routes.LOGIN
-    // Routing only; what an admin can actually do is decided by the database.
+    // Hanya routing. Apa yang bisa dilakukan admin ditentukan database.
     session is SessionState.SignedIn && session.user.role == UserRole.ADMIN ->
         Routes.ADMIN_REVIEW
     session is SessionState.SignedIn && session.user.role == UserRole.STAFF ->

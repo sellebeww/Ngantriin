@@ -29,8 +29,8 @@ class SupabaseAuthRemoteDataSource(
                     ?.let { RemoteSession.SignedIn(it) }
                     ?: RemoteSession.SignedOut
             is SessionStatus.NotAuthenticated -> RemoteSession.SignedOut
-            // Initializing and RefreshFailure both mean "not decided yet"; a
-            // refresh failure resolves itself into NotAuthenticated shortly.
+            // Initializing dan RefreshFailure sama-sama berarti "belum diputuskan",
+            // kegagalan refresh akan segera jadi NotAuthenticated sendiri.
             else -> RemoteSession.Initializing
         }
     }
@@ -50,17 +50,17 @@ class SupabaseAuthRemoteDataSource(
         client.auth.signUpWith(Email) {
             this.email = email.trim()
             this.password = password
-            // Read by the handle_new_user trigger, so the profile row exists
-            // before the client ever asks for it. The role is not sent: the
-            // trigger always creates a CUSTOMER (0012), staff access is
-            // granted by an admin via restaurant_staff.
+            // Dibaca trigger handle_new_user, jadi baris profil sudah ada
+            // sebelum client memintanya. Role tidak dikirim: trigger selalu
+            // membuat CUSTOMER (0012), akses staf diberikan admin lewat
+            // restaurant_staff.
             data = buildJsonObject {
                 put("name", name.trim())
             }
         }
 
-        // With email confirmation enabled there is no session yet; hand back a
-        // provisional profile so the UI can tell the user to confirm.
+        // Kalau konfirmasi email aktif, belum ada sesi. Kembalikan profil
+        // sementara supaya UI bisa menyuruh pengguna konfirmasi.
         val id = currentUserId()
             ?: return User(id = "", name = name.trim(), email = email.trim())
         return fetchProfile(id)
@@ -104,7 +104,7 @@ class SupabaseAuthRemoteDataSource(
     }
 
     override suspend fun clearPushToken(userId: String) {
-        // The client JSON omits nulls, so a DTO cannot carry an explicit null.
+        // JSON client membuang null, jadi DTO tidak bisa membawa null eksplisit.
         client.from("users").update({ set<String?>("fcm_token", null) }) {
             filter { eq("id", userId) }
         }

@@ -24,8 +24,8 @@ interface QueueDao {
     fun observeById(queueId: String): Flow<QueueEntryEntity?>
 
     /**
-     * The customer's single live ticket. The schema guarantees at most one,
-     * but LIMIT 1 keeps the UI honest if a stale cached row lingers.
+     * Satu-satunya tiket aktif milik pelanggan. Skema menjamin paling banyak satu,
+     * tapi LIMIT 1 menjaga UI tetap benar kalau ada baris cache basi yang tersisa.
      */
     @Query(
         """
@@ -39,9 +39,9 @@ interface QueueDao {
     fun observeActive(userId: String): Flow<QueueEntryEntity?>
 
     /**
-     * The customer's most recent ticket, live or finished. This is what lets
-     * the app notice a ticket *ending* (completed, expired) — the moment it
-     * drops out of [observeActive].
+     * Tiket terbaru milik pelanggan, masih jalan atau sudah selesai. Dengan ini
+     * aplikasi bisa tahu kapan tiket *berakhir* (selesai, kedaluwarsa), yaitu saat
+     * tiket hilang dari [observeActive].
      */
     @Query("SELECT * FROM queue_entries WHERE userId = :userId ORDER BY joinedAt DESC LIMIT 1")
     fun observeLatest(userId: String): Flow<QueueEntryEntity?>

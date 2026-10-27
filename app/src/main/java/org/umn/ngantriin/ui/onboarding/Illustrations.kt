@@ -49,12 +49,12 @@ import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * The onboarding artwork is drawn rather than bundled: three small, themeable
- * vectors weigh nothing, adapt to dark mode, and cannot go stale against the
- * palette the way an exported PNG would.
+ * Ilustrasi onboarding digambar, bukan dibundel: tiga vektor kecil yang bisa
+ * di-tema tidak berat, menyesuaikan mode gelap, dan tidak bisa ketinggalan
+ * dari palet seperti PNG hasil ekspor.
  */
 
-/** Page 1 — the line stays, you don't. */
+/** Halaman 1: antreannya tetap di sana, kamu tidak. */
 @Composable
 fun LeaveTheLineIllustration(modifier: Modifier = Modifier) {
     val queueColor = MaterialTheme.colorScheme.outline
@@ -72,7 +72,7 @@ fun LeaveTheLineIllustration(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val unit = size.minDimension / 100f
 
-        // The queue rail everyone is standing on.
+        // Rel antrean tempat semua orang berdiri.
         drawRoundRect(
             color = surface,
             topLeft = Offset(6 * unit, 64 * unit),
@@ -89,7 +89,7 @@ fun LeaveTheLineIllustration(modifier: Modifier = Modifier) {
             )
         }
 
-        // The dashed path out of the queue.
+        // Jalur putus-putus keluar dari antrean.
         drawArc(
             color = brand.copy(alpha = 0.45f),
             startAngle = 190f,
@@ -103,7 +103,7 @@ fun LeaveTheLineIllustration(modifier: Modifier = Modifier) {
             )
         )
 
-        // The person who took their queue digitally.
+        // Orang yang mengambil antreannya secara digital.
         drawPerson(
             centerX = (76 + travel * 10) * unit,
             baselineY = (34 - travel * 4) * unit,
@@ -128,7 +128,7 @@ private fun DrawScope.drawPerson(
     )
 }
 
-/** Page 2 — the numbers the product is really about. */
+/** Halaman 2: angka-angka yang jadi inti produk. */
 @Composable
 fun TrackQueueIllustration(modifier: Modifier = Modifier) {
     val statusColors = LocalStatusColors.current
@@ -199,7 +199,7 @@ fun TrackQueueIllustration(modifier: Modifier = Modifier) {
     }
 }
 
-/** Page 3 — the notification that brings you back. */
+/** Halaman 3: notifikasi yang memanggilmu kembali. */
 @Composable
 fun ComeBackIllustration(modifier: Modifier = Modifier) {
     val brand = MaterialTheme.colorScheme.primary

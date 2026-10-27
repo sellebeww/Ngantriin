@@ -13,9 +13,9 @@ import org.umn.ngantriin.core.Constants
 import java.util.concurrent.TimeUnit
 
 /**
- * Both schedules carry a "needs network" constraint, which is what
- * makes the sync automatic — WorkManager wakes the worker when connectivity
- * comes back rather than the app having to watch for it.
+ * Kedua jadwal punya syarat "butuh jaringan", yang membuat sinkron
+ * otomatis: WorkManager membangunkan worker saat koneksi kembali, aplikasi
+ * tidak perlu memantaunya.
  */
 object SyncScheduler {
 
@@ -23,7 +23,7 @@ object SyncScheduler {
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    /** A safety net so a device that never reopens the app still catches up. */
+    /** Jaring pengaman supaya perangkat yang tidak pernah membuka aplikasi tetap menyusul. */
     fun schedulePeriodic(context: Context) {
         val request = PeriodicWorkRequestBuilder<SyncWorker>(6, TimeUnit.HOURS)
             .setConstraints(onlineConstraint)
@@ -37,7 +37,7 @@ object SyncScheduler {
         )
     }
 
-    /** Called after a write is parked, so it goes out the moment we are online. */
+    /** Dipanggil setelah penulisan ditahan, supaya keluar begitu kita online. */
     fun syncNow(context: Context) {
         val request = OneTimeWorkRequestBuilder<SyncWorker>()
             .setConstraints(onlineConstraint)

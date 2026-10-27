@@ -156,7 +156,7 @@ private fun HistoryCard(
     modifier: Modifier = Modifier
 ) {
     val entry = item.entry
-    // Only a completed visit can be reviewed, and only once.
+    // Hanya kunjungan yang selesai yang bisa diulas, dan hanya sekali.
     val canRate = entry.status == QueueStatus.COMPLETED && !item.hasReview
 
     Surface(
@@ -222,8 +222,8 @@ private fun HistoryCard(
                 )
 
                 when {
-                    // Nudged right by the button's own 12dp inset so "Rate visit"
-                    // ends where the status pill above it does.
+                    // Digeser ke kanan sebesar inset 12dp tombol supaya "Nilai kunjungan"
+                    // berakhir di tempat pill status di atasnya berakhir.
                     canRate -> TextButton(onClick = onRate, modifier = Modifier.offset(x = 12.dp)) {
                         Text(stringResource(R.string.history_rate_visit), style = MaterialTheme.typography.labelMedium)
                     }

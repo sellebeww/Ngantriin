@@ -1,62 +1,62 @@
 package org.umn.ngantriin.domain.model
 
 /**
- * The queue state machine. These names match the `queue_status`
- * Postgres enum one-for-one — that is the whole point of having an enum here
- * rather than passing raw strings around.
+ * State machine antrean. Nama-namanya sama satu-satu dengan enum Postgres
+ * `queue_status`, justru itu gunanya ada enum di sini daripada mengoper
+ * string mentah.
  *
- *   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
+ * WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
  *
- *   - WAITING / ALMOST_THERE may check in early (already at the restaurant).
- *   - CALLED that misses its check-in window becomes EXPIRED.
- *   - Any live state may be CANCELLED (customer leaves, or staff removes).
+ * - WAITING / ALMOST_THERE boleh check-in lebih awal (sudah di restoran).
+ * - CALLED yang melewatkan jendela check-in menjadi EXPIRED.
+ * - Status aktif mana pun bisa CANCELLED (pelanggan pergi, atau staf menghapus).
  */
 enum class QueueStatus {
-    /** In line, far enough from the front that the customer can be elsewhere. */
+    /** Dalam antrean, cukup jauh dari depan sehingga pelanggan boleh di tempat lain. */
     WAITING,
 
-    /** Within the notification threshold — time to head back. */
+    /** Sudah dalam ambang notifikasi, saatnya kembali. */
     ALMOST_THERE,
 
-    /** It's this ticket's turn; the check-in window is running. */
+    /** Giliran tiket ini, jendela check-in berjalan. */
     CALLED,
 
-    /** Customer is at the restaurant (photo verified), table being prepared. */
+    /** Pelanggan sudah di restoran (foto terverifikasi), meja sedang disiapkan. */
     CHECKED_IN,
 
-    /** Table is set; the customer goes to the host to be seated. */
+    /** Meja siap, pelanggan menuju host untuk didudukkan. */
     TABLE_READY,
 
-    /** Served. Terminal, and the only state that unlocks a review. */
+    /** Sudah dilayani. Status akhir, dan satu-satunya yang membuka ulasan. */
     COMPLETED,
 
-    /** Left the queue, or the restaurant dropped the ticket. Terminal. */
+    /** Keluar dari antrean, atau tiket dibuang restoran. Status akhir. */
     CANCELLED,
 
-    /** Called, but never checked in within the window. Terminal. */
+    /** Dipanggil tapi tidak check-in dalam jendela. Status akhir. */
     EXPIRED;
 
-    /** True while the customer still holds a ticket. */
+    /** True selama pelanggan masih memegang tiket. */
     val isActive: Boolean
         get() = this == WAITING || this == ALMOST_THERE || this == CALLED ||
             this == CHECKED_IN || this == TABLE_READY
 
-    /** Still holds a place in line in front of later tickets. */
+    /** Masih punya tempat di antrean, di depan tiket yang datang belakangan. */
     val isInLine: Boolean
         get() = this == WAITING || this == ALMOST_THERE || this == CALLED || this == CHECKED_IN
 
-    /** The customer may check in from here (early, or once called). */
+    /** Pelanggan boleh check-in dari sini (lebih awal, atau setelah dipanggil). */
     val allowsCheckIn: Boolean
         get() = this == WAITING || this == ALMOST_THERE || this == CALLED
 
-    /** The customer is physically at the restaurant. */
+    /** Pelanggan secara fisik ada di restoran. */
     val isAtRestaurant: Boolean
         get() = this == CHECKED_IN || this == TABLE_READY
 
     /**
-     * Mirrors `is_valid_queue_transition` in 0012_check_in_window_and_table_ready.sql.
-     * Keeping the rule in both places means an illegal move is rejected before
-     * it leaves the phone *and* if it somehow reaches the database.
+     * Meniru `is_valid_queue_transition` di 0012_check_in_window_and_table_ready.sql.
+     * Aturan ada di dua tempat supaya perpindahan ilegal ditolak sebelum
+     * keluar dari HP, *dan* kalau entah bagaimana sampai ke database.
      */
     fun canTransitionTo(next: QueueStatus): Boolean = when (this) {
         WAITING -> next == ALMOST_THERE || next == CALLED || next == CHECKED_IN || next == CANCELLED
@@ -67,19 +67,19 @@ enum class QueueStatus {
         COMPLETED, CANCELLED, EXPIRED -> false
     }
 
-    /** Wire name. Identical to [name]; spelled out so callers never guess. */
+    /** Nama di wire. Sama dengan [name], ditulis eksplisit supaya pemanggil tidak menebak. */
     val wireValue: String get() = name
 
     companion object {
         /**
-         * Decodes a status coming from the backend or a push payload. Unknown
-         * values fall back to [WAITING] rather than crashing the screen — an
-         * unrecognised state still means "you are in line".
+         * Membaca status dari backend atau payload push. Nilai yang tidak dikenal
+         * jatuh ke [WAITING] daripada membuat layar crash, karena status
+         * yang tidak dikenali tetap berarti "kamu ada di antrean".
          */
         fun fromWire(value: String?): QueueStatus =
             entries.firstOrNull { it.name.equals(value?.trim(), ignoreCase = true) } ?: WAITING
 
-        /** Statuses that still hold a ticket, as a list for queries. */
+        /** Status yang masih memegang tiket, dalam bentuk list untuk query. */
         val ACTIVE: List<QueueStatus> = entries.filter { it.isActive }
     }
 }

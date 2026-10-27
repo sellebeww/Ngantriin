@@ -11,12 +11,12 @@ import org.umn.ngantriin.domain.model.QueueMath
 import org.umn.ngantriin.domain.model.QueueStatus
 import java.time.Instant
 
-/** Wait estimates, using a worked example. */
+/** Estimasi waktu tunggu, dengan contoh hitungan. */
 class QueueMathTest {
 
     /**
-     * The worked example: A-020 is being seated, A-021 to A-026 are still
-     * in line, and the customer holds A-027.
+     * Contoh hitungan: A-020 sedang didudukkan, A-021 sampai A-026 masih
+     * mengantre, dan pelanggan memegang A-027.
      */
     private val sampleQueue = buildList {
         add(entry(20, QueueStatus.TABLE_READY))
@@ -49,7 +49,7 @@ class QueueMathTest {
 
     @Test
     fun `a group being seated no longer counts as ahead`() {
-        // A-020 is TABLE_READY: its table is taken but it is not in line.
+        // A-020 TABLE_READY: mejanya sudah terpakai tapi bukan lagi dalam antrean.
         assertEquals(0, QueueMath.peopleAhead(sampleQueue, ticketSequence = 21))
     }
 
@@ -93,7 +93,7 @@ class QueueMathTest {
     @Test
     fun `estimated wait never goes negative or multiplies by zero`() {
         assertEquals(0, QueueMath.estimatedWaitMinutes(peopleAhead = -3, averageServiceMinutes = 3))
-        // A misconfigured restaurant with 0 minutes still yields a real estimate.
+        // Restoran yang salah konfigurasi dengan 0 menit tetap menghasilkan estimasi yang nyata.
         assertEquals(4, QueueMath.estimatedWaitMinutes(peopleAhead = 4, averageServiceMinutes = 0))
     }
 
@@ -193,7 +193,7 @@ class QueueMathTest {
 
     @Test
     fun `checked in early does not nag the customer to head back`() {
-        // They're already there; the next thing they hear about is the table.
+        // Mereka sudah di sana, kabar berikutnya yang didengar adalah soal meja.
         assertEquals(
             NotificationType.CHECKED_IN,
             QueueMath.notificationMilestone(QueueStatus.CHECKED_IN, peopleAhead = 1)
@@ -217,7 +217,7 @@ class QueueMathTest {
         assertEquals(0L, called.checkInSecondsLeft(now.plusSeconds(601)))
         assertTrue(called.isCheckInOverdue(now.plusSeconds(601)))
 
-        // No window outside CALLED.
+        // Tidak ada jendela di luar CALLED.
         assertNull(entry(2, QueueStatus.WAITING).checkInSecondsLeft(now))
     }
 }

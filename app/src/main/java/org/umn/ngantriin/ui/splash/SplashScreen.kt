@@ -21,8 +21,8 @@ import org.umn.ngantriin.ui.components.NgantriinLogo
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * Shown only while the session is being restored — it is a state,
- * not a timed delay, so it disappears the moment the app knows where to go.
+ * Hanya tampil selama sesi dipulihkan. Ini state, bukan jeda berwaktu,
+ * jadi hilang begitu aplikasi tahu harus ke mana.
  */
 @Composable
 fun SplashScreen(modifier: Modifier = Modifier) {

@@ -104,8 +104,8 @@ fun NgantriinPasswordField(
             value = value,
             onValueChange = onValueChange,
             label = { Text(label) },
-            // Same leading icon slot as NgantriinTextField, so the two fields
-            // stacked on a form line their text up.
+            // Slot ikon depan sama dengan NgantriinTextField, supaya dua field
+            // yang bertumpuk di form lurus teksnya.
             leadingIcon = { Icon(Icons.Filled.LockOpen, contentDescription = null) },
             isError = errorText != null,
             singleLine = true,
@@ -152,14 +152,14 @@ fun NgantriinPasswordField(
     }
 }
 
-/** Read-only star row. */
+/** Baris bintang baca-saja. */
 @Composable
 fun RatingStars(
     rating: Double,
     modifier: Modifier = Modifier,
     starSize: androidx.compose.ui.unit.Dp = 16.dp
 ) {
-    // Formatters pins the locale; String.format would render "4,7" in id-ID.
+    // Formatters mengunci locale, String.format akan menulis "4,7" di id-ID.
     val description = stringResource(R.string.cd_rating, Formatters.rating(rating))
     Row(
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
@@ -180,7 +180,7 @@ fun RatingStars(
     }
 }
 
-/** Tap targets are a full 48dp so the stars are easy to hit. */
+/** Target sentuh penuh 48dp supaya bintang mudah ditekan. */
 @Composable
 fun RatingInput(
     rating: Int,

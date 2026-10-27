@@ -21,8 +21,8 @@ import java.time.Instant
 import java.time.LocalTime
 
 /**
- * The DAO queries that the UI depends on but a unit test cannot reach: the
- * active-ticket filter, the history join, and the catalogue replace.
+ * Query DAO yang dipakai UI tapi tidak terjangkau unit test: filter
+ * tiket aktif, join riwayat, dan penggantian katalog.
  */
 @RunWith(AndroidJUnit4::class)
 class NgantriinDatabaseTest {
@@ -92,7 +92,7 @@ class NgantriinDatabaseTest {
 
     @Test
     fun historySurvivesAMissingRestaurantRow() = runBlocking {
-        // The venue was never cached; the ticket must still be listed.
+        // Restoran tidak pernah di-cache, tapi tiketnya harus tetap muncul.
         database.queueDao().upsert(listOf(queue("q1", QueueStatus.COMPLETED, 1)))
         val history = database.queueDao().observeHistory(USER).first()
         assertEquals(1, history.size)

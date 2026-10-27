@@ -22,7 +22,7 @@ class ProofDocumentTest {
 
     @Test
     fun `a renamed file is refused`() {
-        // MZ header of a Windows executable, claimed to be a PDF and a photo.
+        // Header MZ executable Windows, diklaim sebagai PDF dan foto.
         val exe = byteArrayOf(0x4D, 0x5A, 0x90.toByte(), 0x00)
         assertFalse(pdf(*exe).isValid)
         assertFalse(jpeg(*exe).isValid)

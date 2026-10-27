@@ -303,7 +303,7 @@ private fun DetailHeader(
     }
 }
 
-/** Queue status card. */
+/** Kartu status antrean. */
 @Composable
 private fun QueueStatusCard(state: RestaurantDetailUiState) {
     val restaurant = state.restaurant ?: return
@@ -400,7 +400,7 @@ private fun QueueStatusCard(state: RestaurantDetailUiState) {
     }
 }
 
-/** The sticky call to action, plus the party-size stepper. */
+/** Tombol aksi yang menempel, ditambah stepper jumlah orang. */
 @Composable
 private fun JoinQueueBar(
     state: RestaurantDetailUiState,
@@ -446,8 +446,8 @@ private fun JoinQueueBar(
                     )
                 }
 
-                // Seats are open right now — a walk-in, not a
-                // queue. No button here on purpose; there's nothing to tap.
+                // Ada kursi kosong sekarang, jadi walk-in dan bukan antrean.
+                // Sengaja tanpa tombol, tidak ada yang bisa diketuk.
                 state.hasAvailableSeats && state.isOpen -> {
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -485,8 +485,8 @@ private fun JoinQueueBar(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(Spacing.md))
-                    // Disabled on purpose, but labelled with the reason: a
-                    // greyed-out "Join Queue" reads as a broken button.
+                    // Sengaja dinonaktifkan tapi diberi label alasannya: tombol "Gabung Antrean"
+                    // yang abu-abu terlihat seperti tombol rusak.
                     PrimaryButton(
                         text = stringResource(R.string.restaurant_closed_button),
                         onClick = {},

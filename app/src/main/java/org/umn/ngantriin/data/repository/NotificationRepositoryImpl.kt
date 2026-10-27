@@ -31,8 +31,8 @@ class NotificationRepositoryImpl(
     }
 
     override suspend fun markRead(notificationId: String): Outcome<Unit> = runCatchingOutcome {
-        // Local first so the badge clears immediately; the server call is
-        // best-effort and will be re-applied by the next refresh if it fails.
+        // Lokal dulu supaya badge langsung hilang. Panggilan ke server sebisanya
+        // dan akan diterapkan lagi di refresh berikutnya kalau gagal.
         dao.markRead(notificationId)
         remote.markRead(notificationId)
     }

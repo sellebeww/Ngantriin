@@ -2,7 +2,7 @@ package org.umn.ngantriin.domain.model
 
 import java.time.Instant
 
-/** Per-restaurant counters kept by the `queues_stats_sync` trigger. */
+/** Counter per restoran yang dijaga trigger `queues_stats_sync`. */
 data class QueueStats(
     val restaurantId: String,
     val currentServingNumber: String?,
@@ -24,9 +24,9 @@ data class QueueStats(
 }
 
 /**
- * Where one ticket stands right now. Computed by the backend (the
- * `queue_position` SQL function), because a customer cannot read other
- * customers' rows under RLS and so cannot count the line themselves.
+ * Posisi satu tiket saat ini. Dihitung backend (fungsi SQL
+ * `queue_position`), karena pelanggan tidak bisa membaca baris pelanggan lain
+ * di bawah RLS sehingga tidak bisa menghitung antrean sendiri.
  */
 data class QueuePosition(
     val peopleAhead: Int,

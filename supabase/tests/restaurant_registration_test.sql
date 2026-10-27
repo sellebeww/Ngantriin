@@ -1,9 +1,9 @@
 -- =============================================================================
--- NGANTRIIN — restaurant registration (0016). One transaction, ends in rollback.
---   psql "$DATABASE_URL" -f supabase/tests/restaurant_registration_test.sql
+-- NGANTRIIN: pendaftaran restoran (0016). Satu transaksi, berakhir dengan rollback.
+-- psql "$DATABASE_URL" -f supabase/tests/restaurant_registration_test.sql
 --
--- Covers the whole chain: register -> staff link -> visible to customers ->
--- other staff blocked -> pause hides it and blocks joins.
+-- Mencakup seluruh rantai: daftar -> tautan staf -> terlihat pelanggan ->
+-- staf lain diblokir -> jeda menyembunyikan dan memblokir join.
 -- =============================================================================
 begin;
 
@@ -21,10 +21,10 @@ insert into public.users (id, email, name, role) values
     ('f4000000-0000-4000-8000-0000000000f4', 'reg-late@example.com', 'Late', 'CUSTOMER')
 on conflict (id) do nothing;
 
--- A second venue's staff, who must NOT be able to touch the new one.
+-- Staf restoran kedua, yang TIDAK boleh bisa menyentuh restoran baru.
 select public.grant_staff('reg-other-staff@example.com', (select id from public.restaurants order by id limit 1));
 
--- Uploaded proof files (the app uploads these before calling the RPC).
+-- Berkas bukti yang diunggah (aplikasi mengunggahnya sebelum memanggil RPC).
 insert into storage.objects (bucket_id, name, owner)
 select 'restaurant-proofs', 'f1000000-0000-4000-8000-0000000000f1/p' || n || '.pdf', 'f1000000-0000-4000-8000-0000000000f1'
 from generate_series(1, 12) n;
@@ -40,7 +40,7 @@ grant execute on function pg_temp.docs(int) to authenticated, anon;
 create temp table t_ctx (restaurant_id uuid);
 grant all on t_ctx to authenticated, anon;
 
--- ---- Case 1: registering makes the caller staff of exactly that venue -------
+-- ---- Kasus 1: mendaftar menjadikan pemanggil staf restoran itu saja ---------
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"f1000000-0000-4000-8000-0000000000f1","role":"authenticated"}';
 
@@ -51,7 +51,7 @@ begin
     v_row := public.register_restaurant(
         'Warung Uji', 'Jl. Pengujian No. 1, Tangerang', 'Indonesian', 'Tempat uji',
         'https://example.com/foto.jpg', -6.2, 106.6, '00:00', '00:00', 4, 30,
-        '+62 812-3456-7890', 'OWNER', pg_temp.docs(1));  -- 24h: join works at any hour
+        '+62 812-3456-7890', 'OWNER', pg_temp.docs(1));  -- 24 jam: join bisa di jam berapa pun
     insert into t_ctx values (v_row.id);
 
     select count(*) into v_n from public.restaurant_staff
@@ -80,7 +80,7 @@ begin
 end;
 $$;
 
--- ---- Case 1c: while pending, nothing is manageable and nothing is listed ----
+-- ---- Kasus 1c: selama pending, tidak ada yang bisa dikelola dan tidak ada yang tampil ----
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"f1000000-0000-4000-8000-0000000000f1","role":"authenticated"}';
 do $$
@@ -120,7 +120,7 @@ begin
     end;
     if not v_failed then raise exception 'FAILED case 1c: app user can call review_restaurant'; end if;
 
-    -- a second application while one is pending
+    -- pengajuan kedua saat yang pertama masih pending
     v_failed := false;
     begin
         perform public.register_restaurant('Dua', 'Jl. Dua No. 2', 'Cafe', '', null, 1, 1, '09:00', '21:00', 4, 30,
@@ -142,7 +142,7 @@ begin
 end;
 $$;
 
--- ---- Case 1e: rejection (note required), resubmission, then approval --------
+-- ---- Kasus 1e: penolakan (catatan wajib), pengajuan ulang, lalu persetujuan --
 reset role;
 reset request.jwt.claims;
 do $$
@@ -170,7 +170,7 @@ begin
         raise exception 'FAILED case 1e: applicant cannot read the rejection reason';
     end if;
 
-    -- cannot resubmit someone else's proof file
+    -- tidak bisa mengajukan ulang dengan berkas bukti milik orang lain
     begin
         perform public.resubmit_restaurant(v_row.id, '081234567890', 'OWNER', jsonb_build_array(
             jsonb_build_object('type', 'BUSINESS_LICENSE', 'path', 'f2000000-0000-4000-8000-0000000000f2/other.pdf')));
@@ -198,7 +198,7 @@ begin
 end;
 $$;
 
--- ---- Case 2: a customer sees the new venue ----------------------------------
+-- ---- Kasus 2: pelanggan melihat restoran baru -------------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"f3000000-0000-4000-8000-0000000000f3","role":"authenticated"}';
 do $$
@@ -210,7 +210,7 @@ begin
 end;
 $$;
 
--- ---- Case 3: a customer can join it; other venues' staff cannot manage it ---
+-- ---- Kasus 3: pelanggan bisa join, staf restoran lain tidak bisa mengelolanya --
 do $$
 declare v_q public.queues;
 begin
@@ -240,7 +240,7 @@ begin
 end;
 $$;
 
--- ---- Case 4: owner pauses; customers without a ticket stop seeing it --------
+-- ---- Kasus 4: pemilik menjeda, pelanggan tanpa tiket tidak lagi melihatnya ---
 set local request.jwt.claims = '{"sub":"f1000000-0000-4000-8000-0000000000f1","role":"authenticated"}';
 do $$
 declare v_n int; v_count int;
@@ -269,7 +269,7 @@ begin
 end;
 $$;
 
--- The customer who already holds a ticket keeps seeing it (history stays whole).
+-- Pelanggan yang sudah memegang tiket tetap melihatnya (riwayat tetap utuh).
 set local request.jwt.claims = '{"sub":"f3000000-0000-4000-8000-0000000000f3","role":"authenticated"}';
 do $$
 begin
@@ -280,7 +280,7 @@ begin
 end;
 $$;
 
--- ---- Case 6: validation and abuse limits ------------------------------------
+-- ---- Kasus 6: validasi dan batas penyalahgunaan -----------------------------
 set local request.jwt.claims = '{"sub":"f1000000-0000-4000-8000-0000000000f1","role":"authenticated"}';
 do $$
 declare v_failed boolean; i int;
@@ -299,7 +299,7 @@ begin
     end;
     if not v_failed then raise exception 'FAILED case 6: non-https photo accepted'; end if;
 
-    -- bad phone, no proof, license missing, foreign folder
+    -- nomor salah, tanpa bukti, izin usaha tidak ada, folder milik orang lain
     v_failed := false;
     begin
         perform public.register_restaurant('Telp', 'Jl. Telepon 1', 'Cafe', '', null, 1, 1, '09:00', '21:00', 4, 30, '12ab', 'OWNER', pg_temp.docs(4));
@@ -341,7 +341,7 @@ begin
     for i in 2..5 loop
         perform public.register_restaurant('Cabang ' || i, 'Jl. Cabang ' || i, 'Cafe', '', null, 1, 1, '09:00', '21:00', 4, 30,
             '081234567890', 'OWNER', pg_temp.docs(4 + i));
-        -- A reviewer clears each one so the next application is allowed.
+        -- Reviewer membersihkan satu per satu supaya pengajuan berikutnya diizinkan.
         perform set_config('role', 'postgres', true);
         perform public.review_restaurant(
             (select id from public.restaurants where name = 'Cabang ' || i), true, null);
@@ -357,7 +357,7 @@ begin
 end;
 $$;
 
--- ---- Case 7: anonymous callers cannot register ------------------------------
+-- ---- Kasus 7: pemanggil anonim tidak bisa mendaftar -------------------------
 reset request.jwt.claims;
 set local role anon;
 do $$

@@ -18,13 +18,13 @@ class ServerClockTest {
     @Test
     fun `a phone running 5 minutes fast still counts the server's window`() {
         val phoneNow = Instant.now()
-        // Server says it is 5 minutes earlier than the phone believes.
+        // Server bilang 5 menit lebih awal dari yang dikira HP.
         ServerClock.sync(serverNow = phoneNow.minus(Duration.ofMinutes(5)), receivedAt = phoneNow)
 
         val called = QueueEntry(
             id = "q", restaurantId = "r", userId = "u", queueNumber = "A-001", ticketSequence = 1,
             partySize = 1, status = QueueStatus.CALLED, joinedAt = phoneNow,
-            // Deadline is 10 minutes after the server's call, i.e. 5 minutes from the phone's "now".
+            // Batas waktu 10 menit setelah panggilan server, yaitu 5 menit dari "sekarang" menurut HP.
             checkInDeadline = phoneNow.plus(Duration.ofMinutes(5))
         )
         val left = called.checkInSecondsLeft()!!

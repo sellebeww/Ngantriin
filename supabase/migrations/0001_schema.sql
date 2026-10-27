@@ -1,6 +1,6 @@
 -- =============================================================================
--- NGANTRIIN — Core schema
--- Run in the Supabase SQL editor (or `supabase db push`) before running the app.
+-- NGANTRIIN: Skema inti
+-- Jalankan di SQL editor Supabase (atau `supabase db push`) sebelum menjalankan aplikasi.
 -- =============================================================================
 
 create extension if not exists "pgcrypto";
@@ -8,7 +8,7 @@ create extension if not exists "cube";
 create extension if not exists "earthdistance";
 
 -- -----------------------------------------------------------------------------
--- Enums — the app relies on these exact spellings (see QueueStatus.kt)
+-- Enum: aplikasi bergantung pada ejaan persis ini (lihat QueueStatus.kt)
 -- -----------------------------------------------------------------------------
 do $$ begin
     create type user_role as enum ('CUSTOMER', 'STAFF');
@@ -28,7 +28,7 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- -----------------------------------------------------------------------------
--- users — mirrors auth.users, holds the app-level profile
+-- users: mencerminkan auth.users, menyimpan profil tingkat aplikasi
 -- -----------------------------------------------------------------------------
 create table if not exists public.users (
     id          uuid primary key references auth.users (id) on delete cascade,
@@ -41,8 +41,8 @@ create table if not exists public.users (
     created_at  timestamptz not null default now()
 );
 
--- Profile row is created automatically on sign-up. `name` and `role` are read
--- from the sign-up metadata so the client never has to write this table itself.
+-- Baris profil dibuat otomatis saat daftar. `name` dan `role` dibaca dari
+-- metadata pendaftaran supaya client tidak pernah perlu menulis tabel ini sendiri.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -83,7 +83,7 @@ create table if not exists public.restaurants (
     opening_time            time    not null default '10:00',
     closing_time            time    not null default '22:00',
     is_open                 boolean not null default true,
-    -- Queue configuration (estimate = avg service time x people ahead)
+    -- Konfigurasi antrean (estimasi = rata-rata waktu layanan x orang di depan)
     average_service_minutes integer not null default 3,
     queue_prefix            text    not null default 'A',
     queue_capacity          integer not null default 50,
@@ -94,7 +94,7 @@ create table if not exists public.restaurants (
 create index if not exists restaurants_position_idx
     on public.restaurants using gist (ll_to_earth(latitude, longitude));
 
--- Staff <-> restaurant membership. A staff account manages one or more venues.
+-- Keanggotaan staf <-> restoran. Akun staf mengelola satu restoran atau lebih.
 create table if not exists public.restaurant_staff (
     restaurant_id uuid not null references public.restaurants (id) on delete cascade,
     user_id       uuid not null references public.users (id) on delete cascade,
@@ -103,7 +103,7 @@ create table if not exists public.restaurant_staff (
 );
 
 -- -----------------------------------------------------------------------------
--- queues — one row per customer group per visit
+-- queues: satu baris per rombongan pelanggan per kunjungan
 -- -----------------------------------------------------------------------------
 create table if not exists public.queues (
     id              uuid primary key default gen_random_uuid(),
@@ -127,14 +127,14 @@ create index if not exists queues_restaurant_active_idx
     on public.queues (restaurant_id, ticket_sequence)
     where status in ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN');
 
--- One active queue per customer, enforced by the database
--- rather than by a client-side check.
+-- Satu antrean aktif per pelanggan, ditegakkan database
+-- dan bukan oleh pengecekan di client.
 create unique index if not exists queues_one_active_per_user_idx
     on public.queues (user_id)
     where status in ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN');
 
 -- -----------------------------------------------------------------------------
--- queue_stats — denormalised per-restaurant counters, kept by trigger
+-- queue_stats: counter per restoran yang didenormalisasi, dijaga trigger
 -- -----------------------------------------------------------------------------
 create table if not exists public.queue_stats (
     restaurant_id           uuid primary key references public.restaurants (id) on delete cascade,
@@ -214,7 +214,7 @@ create trigger queues_stats_sync
     for each row execute function public.on_queue_change();
 
 -- -----------------------------------------------------------------------------
--- reviews — only for a COMPLETED queue, one review per queue
+-- reviews: hanya untuk antrean COMPLETED, satu ulasan per antrean
 -- -----------------------------------------------------------------------------
 create table if not exists public.reviews (
     id            uuid primary key default gen_random_uuid(),
@@ -254,7 +254,7 @@ create trigger reviews_rating_sync
     for each row execute function public.refresh_restaurant_rating();
 
 -- -----------------------------------------------------------------------------
--- notifications — every push is persisted so it can be tracked and de-duplicated
+-- notifications: setiap push disimpan supaya bisa dilacak dan dideduplikasi
 -- -----------------------------------------------------------------------------
 create table if not exists public.notifications (
     id         uuid primary key default gen_random_uuid(),
@@ -265,7 +265,7 @@ create table if not exists public.notifications (
     type       notification_type not null,
     is_read    boolean           not null default false,
     created_at timestamptz       not null default now(),
-    -- Guarantees a given milestone fires at most once per ticket.
+    -- Menjamin satu milestone terkirim paling banyak sekali per tiket.
     unique (queue_id, type)
 );
 

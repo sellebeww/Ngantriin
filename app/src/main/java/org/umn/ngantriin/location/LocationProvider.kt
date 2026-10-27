@@ -19,8 +19,8 @@ import org.umn.ngantriin.domain.model.GeoPoint
 import kotlin.coroutines.resume
 
 /**
- * The only place in the app that touches Play Services location,
- * so permission handling and the Android Location type stop at this boundary.
+ * Satu-satunya tempat di aplikasi yang menyentuh lokasi Play Services,
+ * jadi penanganan izin dan tipe Location Android berhenti di batas ini.
  */
 class LocationProvider(context: Context) {
 
@@ -33,7 +33,7 @@ class LocationProvider(context: Context) {
             PackageManager.PERMISSION_GRANTED
     }
 
-    /** Precise permission specifically, which check-in prefers. */
+    /** Khusus izin lokasi presisi, yang lebih disukai check-in. */
     fun hasPrecisePermission(): Boolean =
         ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
@@ -45,10 +45,10 @@ class LocationProvider(context: Context) {
     }
 
     /**
-     * A fresh fix, falling back to the last known one.
+     * Lokasi baru, jatuh ke lokasi terakhir yang diketahui kalau gagal.
      *
-     * `getCurrentLocation` can sit there for a long time indoors, so it is
-     * bounded: a slightly stale fix beats a spinner that never resolves.
+     * `getCurrentLocation` bisa menggantung lama di dalam ruangan, jadi
+     * dibatasi: lokasi yang sedikit basi lebih baik daripada spinner yang tak selesai.
      */
     @SuppressLint("MissingPermission")
     suspend fun currentLocation(

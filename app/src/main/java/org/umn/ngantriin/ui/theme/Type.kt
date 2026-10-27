@@ -9,9 +9,9 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.sp
 import org.umn.ngantriin.R
 
-// Poppins is the brand typeface (see the Figma source), bundled as static
-// weights rather than fetched via the downloadable-fonts API so it renders
-// identically with or without Play Services / network access.
+// Poppins adalah font merek (lihat sumber Figma), dibundel sebagai bobot
+// statis, bukan diambil lewat API downloadable fonts, supaya tampil
+// sama dengan atau tanpa Play Services / jaringan.
 private val Sans = FontFamily(
     Font(R.font.poppins_regular, FontWeight.Normal),
     Font(R.font.poppins_medium, FontWeight.Medium),
@@ -21,19 +21,18 @@ private val Sans = FontFamily(
 )
 
 /**
- * Line breaking, set once for the whole app instead of per Text:
- *  - headings balance their lines, so a title never leaves one orphan word on
- *    the last line;
- *  - body copy uses the high-quality paragraph breaker, which avoids a lone
- *    short word hanging below a block of text ("...something\nelse.").
+ * Pemotongan baris, diatur sekali untuk seluruh aplikasi, bukan per Text:
+ * - judul menyeimbangkan barisnya, jadi tidak ada satu kata yatim di baris terakhir;
+ * - teks isi memakai pemotong paragraf berkualitas tinggi, yang menghindari
+ * satu kata pendek menggantung di bawah blok teks ("...sesuatu\nlain.").
  */
 private fun TextStyle.heading() = copy(lineBreak = LineBreak.Heading)
 private fun TextStyle.paragraph() = copy(lineBreak = LineBreak.Paragraph)
 
 /**
- * For multi-line text that is centred: balances the lines so the last one is
- * never a single hanging word. Left-aligned prose keeps the default breaker,
- * where a ragged right edge is expected.
+ * Untuk teks multibaris yang rata tengah: menyeimbangkan baris supaya
+ * yang terakhir tidak jadi satu kata menggantung. Teks rata kiri memakai pemotong
+ * bawaan, karena tepi kanan yang tidak rata memang wajar.
  */
 fun TextStyle.balanced(): TextStyle = copy(lineBreak = LineBreak.Heading)
 
@@ -101,9 +100,9 @@ val NgantriinTypography = Typography(
 )
 
 /**
- * The queue number is the single largest element on the active-queue screen
- *, so it gets a style of its own rather than borrowing
- * displayLarge, which is also used for onboarding.
+ * Nomor antrean adalah elemen terbesar di layar antrean aktif, jadi
+ * punya gaya sendiri dan tidak meminjam displayLarge,
+ * yang juga dipakai di onboarding.
  */
 val QueueNumberStyle = TextStyle(
     fontFamily = Sans,

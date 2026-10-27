@@ -1,5 +1,5 @@
-// Run from the repository root: swift scripts/prepare-branding.swift
-// Mechanical cropping/resizing only; artwork comes from the approved reference.
+// Jalankan dari root repo: swift scripts/prepare-branding.swift
+// Hanya crop/resize mekanis, gambarnya berasal dari referensi yang disetujui.
 import Foundation
 import CoreGraphics
 import ImageIO
@@ -49,11 +49,11 @@ let mark = master.cropping(to: CGRect(x: 398, y: 128, width: 456, height: 670))!
 save(logo, "app/src/main/res/drawable-nodpi/ngantriin_logo.png")
 for (density, size) in [("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)] {
     let scale = Double(size) / 48
-    // Adaptive foreground: 108dp canvas, artwork inside the central 66dp circle.
+    // Foreground adaptif: kanvas 108dp, gambar di dalam lingkaran tengah 66dp.
     save(canvas(mark, size: Int(108 * scale), contentHeight: 0.54),
          "app/src/main/res/drawable-\(density)/ic_launcher_foreground.png")
-    // System splash uses the complete logo from the first frame, including its
-    // wordmark and tagline. Fit the square inside Android's 192dp circular mask.
+    // Splash sistem memakai logo lengkap dari frame pertama, termasuk
+    // wordmark dan tagline. Masukkan persegi itu ke mask lingkaran 192dp Android.
     save(canvas(logo, size: Int(288 * scale), contentHeight: 0.46),
          "app/src/main/res/drawable-\(density)/ic_splash_icon.png")
     for round in [false, true] {

@@ -71,7 +71,6 @@ import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
-/** Screen 20. */
 @Composable
 fun StaffDashboardScreen(
     onOpenQueue: (String) -> Unit,
@@ -92,7 +91,7 @@ fun StaffDashboardScreen(
 
     var confirmSignOut by remember { mutableStateOf(false) }
 
-    // Coming back from the registration form: pick up the new venue.
+    // Kembali dari form pendaftaran: ambil restoran barunya.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshManaged() }
 
     LaunchedEffect(viewModel) {
@@ -186,8 +185,8 @@ fun StaffDashboardScreen(
         }
 
         val restaurant = state.selectedRestaurant
-        // Nothing here is manageable until the application is approved; the
-        // server enforces it too (is_restaurant_staff), this just says why.
+        // Belum ada yang bisa dikelola sampai pengajuan disetujui. Server juga
+        // menegakkannya (is_restaurant_staff), ini hanya menjelaskan alasannya.
         if (restaurant != null && !restaurant.isApproved) {
             Text(
                 text = restaurant.name,
@@ -300,7 +299,7 @@ fun StaffDashboardScreen(
 
 private const val UPCOMING_PREVIEW = 3
 
-/** Whether customers can find this venue and take tickets there. */
+/** Apakah pelanggan bisa menemukan restoran ini dan mengambil tiket di sana. */
 @Composable
 private fun ListingToggle(listed: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
     Surface(
@@ -331,7 +330,7 @@ private fun ListingToggle(listed: Boolean, enabled: Boolean, onChange: (Boolean)
     }
 }
 
-/** One line of the "up next" preview: who is next and how long they've waited. */
+/** Satu baris pratinjau "berikutnya": siapa selanjutnya dan sudah berapa lama menunggu. */
 @Composable
 private fun UpcomingRow(index: Int, entry: QueueEntry) {
     Surface(
@@ -399,8 +398,8 @@ private fun NowServingCard(state: StaffQueueUiState) {
                 val serving = state.nowServing?.queueNumber
                 Text(
                     text = serving ?: "—",
-                    // The placeholder must not borrow the "being served" green;
-                    // an empty board is not a ticket.
+                    // Placeholder tidak boleh meminjam hijau "sedang dilayani",
+                    // papan kosong bukan tiket.
                     style = if (serving != null) {
                         QueueNumberStyle.copy(
                             fontSize = MaterialTheme.typography.displayMedium.fontSize
@@ -487,7 +486,7 @@ private fun StaffStat(
 }
 
 
-/** Pending: wait. Rejected: here is why, and a way to fix it. */
+/** Pending: tunggu. Ditolak: ini alasannya, dan cara memperbaikinya. */
 @Composable
 private fun VerificationCard(
     restaurant: Restaurant,

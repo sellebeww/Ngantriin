@@ -1,8 +1,8 @@
 package org.umn.ngantriin.core
 
 /**
- * A result that carries a typed [AppError] instead of a Throwable, so the
- * UI layer never has to interpret exceptions.
+ * Hasil yang membawa [AppError] bertipe, bukan Throwable, jadi lapisan
+ * UI tidak perlu menafsirkan exception.
  */
 sealed interface Outcome<out T> {
     data class Success<out T>(val data: T) : Outcome<T>

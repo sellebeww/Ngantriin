@@ -4,10 +4,10 @@ import androidx.annotation.StringRes
 import org.umn.ngantriin.R
 
 /**
- * Form rules, kept out of the ViewModels so they can be unit tested. Returns
- * a `@StringRes` id rather than raw text — mirroring [AppError] — so the
- * screen resolves it through `stringResource()` and picks up whichever
- * language Settings -> Language selected.
+ * Aturan form, dipisah dari ViewModel supaya bisa dites unit. Mengembalikan
+ * id `@StringRes`, bukan teks mentah (sama seperti [AppError]), jadi layar
+ * memakai `stringResource()` dan otomatis mengikuti bahasa yang dipilih di
+ * Pengaturan -> Bahasa.
  */
 object Validators {
 

@@ -16,6 +16,6 @@ interface NotificationRepository {
 
     suspend fun markAllRead(userId: String): Outcome<Unit>
 
-    /** Records a notification that arrived by FCM while the app was running. */
+    /** Mencatat notifikasi yang masuk lewat FCM saat aplikasi berjalan. */
     suspend fun record(notification: AppNotification)
 }

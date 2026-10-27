@@ -1,31 +1,29 @@
 -- =============================================================================
--- NGANTRIIN — RLS isolation tests.
+-- NGANTRIIN: tes isolasi RLS.
 --
--- HOW TO RUN: paste into the Supabase SQL editor of a real project (after
--- applying all migrations through 0012), or `psql "$DATABASE_URL" -f
--- supabase/tests/rls_test.sql`. Everything runs inside one transaction and
--- ends with `rollback`, so it never leaves fixture data behind — safe to run
--- against a project with real data, including production, though a scratch/
--- staging project is still the sane choice.
+-- CARA MENJALANKAN: tempel ke SQL editor Supabase di proyek asli (setelah
+-- semua migrasi sampai 0012 diterapkan), atau `psql "$DATABASE_URL" -f
+-- supabase/tests/rls_test.sql`. Semuanya jalan dalam satu transaksi dan
+-- berakhir dengan `rollback`, jadi tidak pernah meninggalkan data fixture.
+-- Aman dijalankan di proyek berisi data asli, termasuk produksi, walau
+-- proyek scratch/staging tetap pilihan yang waras.
 --
--- NOT EXECUTED IN THIS SANDBOX: there is no Supabase CLI, Docker, or psql
--- available in the environment this file was written in, so this has been
--- reviewed carefully but not run. Please run it before trusting it.
+-- Juga dijalankan otomatis oleh scripts/sql-tests.sh pada Postgres sementara.
 --
--- Technique: `auth.uid()` (used throughout 0002/0003) reads
--- `request.jwt.claims ->> 'sub'`, so a session is simulated with
--- `set local role authenticated; set local request.jwt.claims = ...` rather
--- than a real signed JWT — this is the standard way to exercise RLS policies
--- from plain SQL. Switching back to a superuser role between cases is what
--- lets the test itself insert fixtures that RLS would otherwise block.
+-- Teknik: `auth.uid()` (dipakai di 0002/0003) membaca
+-- `request.jwt.claims ->> 'sub'`, jadi sesi disimulasikan dengan
+-- `set local role authenticated; set local request.jwt.claims = ...` dan
+-- bukan JWT bertanda tangan sungguhan. Ini cara standar menguji policy RLS
+-- dari SQL biasa. Kembali ke role superuser di antara kasus membuat tes
+-- sendiri bisa meng-insert fixture yang akan diblokir RLS.
 -- =============================================================================
 
 begin;
 
 -- -----------------------------------------------------------------------------
--- Fixtures: two customers, two staff accounts, two restaurants, one ticket
--- each. Ids are fixed, obviously-fake uuids so a failed run is easy to spot
--- and clean up by hand if the final rollback somehow doesn't fire.
+-- Fixture: dua pelanggan, dua akun staf, dua restoran, masing-masing satu tiket.
+-- Id-nya uuid tetap yang jelas palsu, supaya run yang gagal mudah dikenali
+-- dan dibersihkan manual kalau rollback terakhir entah kenapa tidak jalan.
 -- -----------------------------------------------------------------------------
 insert into auth.users (id, email) values
     ('a0000000-0000-4000-8000-00000000000a', 'rls-test-customer-a@example.com'),
@@ -50,14 +48,14 @@ insert into public.restaurants (
      0, 0, '00:00', '23:59', true, 3, 'Y', 50, 150)
 on conflict (id) do nothing;
 
--- Staff X manages restaurant X only.
+-- Staf X hanya mengelola restoran X.
 insert into public.restaurant_staff (restaurant_id, user_id) values
     ('d0000000-0000-4000-8000-0000000000d1', 'c0000000-0000-4000-8000-00000000000c')
 on conflict do nothing;
 
--- Customer B holds a ticket at restaurant Y. This is the row Customer A must
--- never be able to see, and Staff X (who only manages X) must never be able
--- to see or touch either.
+-- Pelanggan B memegang tiket di restoran Y. Ini baris yang tidak boleh pernah
+-- bisa dilihat Pelanggan A, dan Staf X (yang hanya mengelola X) tidak boleh
+-- melihat atau menyentuh keduanya.
 insert into public.queues (
     id, restaurant_id, user_id, queue_number, ticket_sequence, party_size, status
 ) values (
@@ -68,7 +66,7 @@ insert into public.queues (
 ) on conflict (id) do nothing;
 
 -- -----------------------------------------------------------------------------
--- Case 1: Customer A cannot see Customer B's ticket.
+-- Kasus 1: Pelanggan A tidak bisa melihat tiket Pelanggan B.
 -- -----------------------------------------------------------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "a0000000-0000-4000-8000-00000000000a"}';
@@ -90,10 +88,10 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 2: a plain customer cannot insert themselves into restaurant_staff.
--- Expected: the insert itself raises (no INSERT policy on this table, and
--- RLS defaults to deny), so this whole block only reaches its own
--- "should not happen" line if the vulnerability exists.
+-- Kasus 2: pelanggan biasa tidak bisa meng-insert dirinya ke restaurant_staff.
+-- Yang diharapkan: insert itu sendiri melempar error (tidak ada policy INSERT
+-- di tabel ini, dan RLS menolak secara default), jadi seluruh blok ini hanya
+-- sampai ke baris "tidak boleh terjadi" kalau kerentanannya memang ada.
 -- -----------------------------------------------------------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "a0000000-0000-4000-8000-00000000000a"}';
@@ -104,7 +102,7 @@ begin
         insert into public.restaurant_staff (restaurant_id, user_id)
         values ('d0000000-0000-4000-8000-0000000000d2', 'a0000000-0000-4000-8000-00000000000a');
 
-        -- Only reached if the insert above did NOT raise — that's the failure.
+        -- Hanya sampai di sini kalau insert di atas TIDAK melempar error, itulah kegagalannya.
         raise exception 'FAILED case 2: a plain customer inserted itself into restaurant_staff';
     exception
         when insufficient_privilege or others then
@@ -117,7 +115,7 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 3: staff of restaurant X cannot see or update restaurant Y's queue.
+-- Kasus 3: staf restoran X tidak bisa melihat atau mengubah antrean restoran Y.
 -- -----------------------------------------------------------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "c0000000-0000-4000-8000-00000000000c"}';
@@ -134,8 +132,8 @@ begin
         raise exception 'FAILED case 3a: staff of restaurant X could see restaurant Y''s ticket';
     end if;
 
-    -- Since 0012 nobody may UPDATE queues directly (every change goes
-    -- through an RPC), so this is either refused outright or matches 0 rows.
+    -- Sejak 0012 tidak ada yang boleh UPDATE queues langsung (setiap perubahan
+    -- lewat RPC), jadi ini langsung ditolak atau cocok dengan 0 baris.
     begin
         update public.queues set party_size = 99
         where id = 'e0000000-0000-4000-8000-00000000000e';
@@ -154,7 +152,7 @@ end $$;
 reset role;
 reset request.jwt.claims;
 
--- All three cases raise on failure, so reaching here means everything passed.
+-- Ketiga kasus melempar error kalau gagal, jadi sampai di sini berarti semuanya lolos.
 do $$ begin raise notice 'All RLS isolation cases passed.'; end $$;
 
 rollback;

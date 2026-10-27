@@ -26,19 +26,18 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Local half.
+ * Sisi lokal.
  *
- * Push is the primary delivery channel: a Supabase Edge Function watches the
- * `queues` table and sends through FCM, which reaches the phone whether or not
- * the app is running. This scheduler covers the case where push is not wired
- * up — no google-services.json, or demo mode — by deriving the same milestones
- * from the same queue state while the process is alive. [QueueTrackingService]
- * is what keeps the process alive once the app is backgrounded.
+ * Push adalah jalur utama: Edge Function Supabase memantau tabel `queues` dan
+ * mengirim lewat FCM, yang sampai ke HP baik aplikasi jalan maupun tidak. Scheduler
+ * ini menutup kasus saat push belum terpasang (tanpa google-services.json, atau
+ * mode demo) dengan menurunkan milestone yang sama dari state antrean yang
+ * sama selama proses hidup. [QueueTrackingService] yang menjaga proses tetap
+ * hidup setelah aplikasi masuk background.
  *
- * Both paths write through [NotificationRepository] with the id
- * `"<queueId>:<TYPE>"`, the client-side mirror of the `unique (queue_id, type)`
- * constraint. That is what stops a notification firing again every time the
- * position happens to tick.
+ * Kedua jalur menulis lewat [NotificationRepository] dengan id
+ * `"<queueId>:<TYPE>"`, cermin di sisi client dari constraint `unique (queue_id, type)`.
+ * Itulah yang mencegah notifikasi muncul lagi tiap posisi kebetulan berubah.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class QueueNotificationScheduler(
@@ -62,7 +61,7 @@ class QueueNotificationScheduler(
             .map { (it as? SessionState.SignedIn)?.user?.id }
             .distinctUntilChanged()
 
-        // Live milestones: these need the line around the ticket.
+        // Milestone live: butuh antrean di sekitar tiket.
         scope.launch {
             userIds
                 .flatMapLatest { id -> id?.let { queueRepository.observeActiveQueue(it) } ?: flowOf(null) }
@@ -70,8 +69,8 @@ class QueueNotificationScheduler(
                 .collect { queue -> queue?.let { notifyMilestone(it) } }
         }
 
-        // Endings: a finished ticket drops out of the active flow, so watch
-        // the latest ticket instead.
+        // Akhir tiket: tiket yang selesai keluar dari flow aktif, jadi pantau
+        // tiket terbaru.
         scope.launch {
             userIds
                 .flatMapLatest { id -> id?.let { queueRepository.observeLatestTicket(it) } ?: flowOf(null) }
@@ -82,24 +81,24 @@ class QueueNotificationScheduler(
 
     private suspend fun notifyMilestone(queue: ActiveQueue) {
         val userId = authRepository.currentUserOrNull()?.id ?: return
-        // A guessed position must not burn a once-only milestone: with no
-        // counters yet it reads "0 ahead" and would fire "head back now" the
-        // moment the ticket is created.
+        // Posisi tebakan tidak boleh menghabiskan milestone sekali pakai: tanpa
+        // counter, hasilnya "0 di depan" dan "segera kembali" langsung terkirim
+        // begitu tiket dibuat.
         if (!queue.isPositionConfirmed && queue.entry.isWaitingToBeCalled) return
 
-        // Join confirmation. Recent tickets only, so restoring an old ticket
-        // on a fresh install does not announce a join from hours ago.
+        // Konfirmasi join. Hanya tiket baru, supaya memulihkan tiket lama di
+        // instalasi baru tidak mengumumkan join berjam-jam lalu.
         val justJoined = Duration.between(queue.entry.joinedAt, Instant.now()) <= JOIN_RECENT &&
             emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.QUEUE_JOINED))
 
         val milestone = QueueMath.notificationMilestone(queue.status, queue.peopleAhead) ?: return
-        // Joining a short line already said how many are ahead; record the
-        // milestone so it can't fire later, but don't buzz twice at once.
+        // Join ke antrean pendek sudah menyebut berapa yang di depan. Catat
+        // milestone supaya tidak terkirim lagi nanti, tapi jangan bunyi dua kali sekaligus.
         emit(QueueNotificationCopy.build(context, userId, queue, milestone), silent = justJoined)
 
-        // Reaching CALLED implies the earlier milestones happened, even if the
-        // app was closed when they did. Backfilling keeps the in-app list
-        // readable as a history rather than a single orphaned entry.
+        // Mencapai CALLED berarti milestone sebelumnya sudah terjadi, walau aplikasi
+        // tertutup saat itu. Mengisi ulang membuat daftar di aplikasi terbaca sebagai
+        // riwayat, bukan satu entri yatim.
         if (milestone == NotificationType.CALLED) {
             emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.RETURN_NOW), silent = true)
             emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.ALMOST_THERE), silent = true)
@@ -110,13 +109,13 @@ class QueueNotificationScheduler(
         val type = when (entry.status) {
             QueueStatus.COMPLETED -> NotificationType.COMPLETED
             QueueStatus.EXPIRED -> NotificationType.EXPIRED
-            // Leaving on purpose needs no "your queue was cancelled" ping.
+            // Pergi dengan sengaja tidak perlu notifikasi "antreanmu dibatalkan".
             QueueStatus.CANCELLED ->
                 if (queueRepository.wasLeftByCustomer(entry.id)) return else NotificationType.CANCELLED
             else -> return
         }
-        // Only news if it just happened — a fresh install syncing last week's
-        // history must not light up the tray.
+        // Baru jadi kabar kalau baru saja terjadi. Instalasi baru yang menyinkronkan
+        // riwayat minggu lalu tidak boleh menyalakan tray.
         val finishedAt = entry.finishedAt ?: return
         if (Duration.between(finishedAt, Instant.now()) > RECENT) return
 
@@ -133,8 +132,8 @@ class QueueNotificationScheduler(
     ): Boolean {
         if (notificationDao.countById(notification.id) > 0) return false
         notificationRepository.record(notification)
-        // Settings -> Queue notifications: the in-app list still records it,
-        // only the system tray stays quiet.
+        // Pengaturan -> Notifikasi antrean: daftar di aplikasi tetap mencatatnya,
+        // hanya system tray yang diam.
         if (!silent && preferences.notificationsEnabled.first()) {
             notificationHelper.show(notification)
         }

@@ -21,7 +21,7 @@ data class LoginUiState(
     @param:StringRes val passwordError: Int? = null,
     val isSubmitting: Boolean = false,
     val error: AppError? = null,
-    /** Set by [LoginViewModel.sendPasswordReset]; the screen fills in the email. */
+    /** Diisi oleh [LoginViewModel.sendPasswordReset], layar yang mengisi emailnya. */
     val resetEmailSent: String? = null
 ) {
     val canSubmit: Boolean
@@ -45,15 +45,15 @@ class LoginViewModel(
     }
 
     /**
-     * Navigation is not triggered from here: the session flow is the single
-     * source of truth for where the app should be, so a
-     * successful sign-in simply lets that flow move the user.
+     * Navigasi tidak dipicu dari sini: flow sesi adalah sumber tunggal untuk
+     * posisi aplikasi, jadi login yang berhasil cukup membiarkan flow itu
+     * memindahkan pengguna.
      */
     fun signIn() {
         val state = _uiState.value
         val emailError = Validators.emailError(state.email)
-        // Only shape is checked on sign-in. A length rule here would reject
-        // valid older passwords; the server decides whether it is right.
+        // Saat login hanya bentuknya yang dicek. Aturan panjang di sini akan menolak
+        // password lama yang valid, server yang memutuskan benar atau tidaknya.
         val passwordError = if (state.password.isBlank()) {
             R.string.validation_password_required
         } else {

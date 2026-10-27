@@ -9,27 +9,26 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 
 /**
- * Per-app language, independent of the device's system language.
+ * Bahasa per aplikasi, terpisah dari bahasa sistem perangkat.
  *
- * Talks to the platform's `LocaleManager` directly on API 33+ rather than
- * through `AppCompatDelegate.setApplicationLocales()`: on this project's
- * ComponentActivity (not an AppCompatActivity), AppCompatDelegate's bridge to
- * the platform API turned out not to round-trip reliably — `setApplicationLocales`
- * would return without error, but `cmd locale get-app-locales` still showed
- * nothing set, and `getApplicationLocales()` kept reading back empty. Setting
- * `LocaleManager.applicationLocales` straight from here is exactly what `adb
- * shell cmd locale set-app-locales` does under the hood, confirmed to persist
- * and to trigger the automatic activity recreation on its own.
+ * Di API 33+ langsung memakai `LocaleManager` milik platform, bukan lewat
+ * `AppCompatDelegate.setApplicationLocales()`. Di ComponentActivity proyek ini
+ * (bukan AppCompatActivity), jembatan AppCompatDelegate ke API platform ternyata
+ * tidak konsisten: `setApplicationLocales` kembali tanpa error, tapi
+ * `cmd locale get-app-locales` tetap kosong dan `getApplicationLocales()` terus
+ * membaca kosong. Mengisi `LocaleManager.applicationLocales` langsung dari sini
+ * sama dengan `adb shell cmd locale set-app-locales`, dan sudah dicek bahwa
+ * tersimpan dan activity otomatis dibuat ulang.
  *
- * AppCompatDelegate is kept only for API < 33, where there is no platform
- * LocaleManager and its ContentProvider-backed storage plus a manual
- * [Activity.recreate] is the only way to make the change stick and show.
+ * AppCompatDelegate hanya dipakai untuk API < 33, yang tidak punya LocaleManager.
+ * Di sana penyimpanan berbasis ContentProvider ditambah [Activity.recreate]
+ * manual adalah satu-satunya cara supaya perubahan bertahan dan terlihat.
  */
 object LanguageManager {
     const val ENGLISH = "en"
     const val INDONESIAN = "id"
 
-    /** [Locale.getLanguage] normalises "id" to the legacy "in" code on some runtimes. */
+    /** [Locale.getLanguage] di beberapa runtime mengubah "id" jadi kode lama "in". */
     private const val INDONESIAN_LEGACY = "in"
 
     fun current(context: Context): String {
@@ -45,9 +44,9 @@ object LanguageManager {
     }
 
     /**
-     * The language the UI is actually rendering in: the per-app choice when
-     * one is set, otherwise the device language. Only "id" or "en" — the two
-     * the app ships — so the backend can write pushes in the same language.
+     * Bahasa yang benar-benar dipakai UI: pilihan per aplikasi kalau ada,
+     * kalau tidak bahasa perangkat. Hanya "id" atau "en", dua bahasa yang
+     * disediakan, supaya backend bisa menulis push dengan bahasa yang sama.
      */
     fun effective(context: Context): String {
         val language = context.resources.configuration.locales.get(0)?.language

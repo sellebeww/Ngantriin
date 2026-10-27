@@ -15,17 +15,17 @@ import org.umn.ngantriin.domain.model.NotificationType
 import java.time.Instant
 
 /**
- * Receives pushes sent by the backend when queue state changes.
+ * Menerima push yang dikirim backend saat state antrean berubah.
  *
- * The payload is read from `data`, not `notification`, so the app controls
- * rendering in both the foreground and the background and can persist the
- * event before showing it.
+ * Payload dibaca dari `data`, bukan `notification`, supaya aplikasi yang
+ * mengatur tampilan di foreground maupun background dan bisa menyimpan
+ * event sebelum menampilkannya.
  *
- * Expected data keys:
- *   id, user_id, queue_id, title, body, type
- *   and, from 0012 on: queue_number, people_ahead, estimated_wait,
- *   check_in_minutes — so the text is rendered in the app's own language
- *   rather than whatever the server wrote.
+ * Key data yang diharapkan:
+ * id, user_id, queue_id, title, body, type
+ * dan, sejak 0012: queue_number, people_ahead, estimated_wait,
+ * check_in_minutes, supaya teksnya dibuat dengan bahasa aplikasi sendiri,
+ * bukan apa pun yang ditulis server.
  */
 class NgantriinMessagingService : FirebaseMessagingService() {
 
@@ -63,13 +63,13 @@ class NgantriinMessagingService : FirebaseMessagingService() {
             if (container.userPreferencesRepository.notificationsEnabled.first()) {
                 container.notificationHelper.show(notification)
             }
-            // The push is a hint that something changed; the authoritative
-            // state still comes from the queue tables.
+            // Push hanyalah petunjuk bahwa ada yang berubah, state yang otoritatif
+            // tetap dari tabel antrean.
             container.queueRepository.refreshHistory(userId)
         }
     }
 
-    /** Re-renders the push from its raw values, in the app's language. */
+    /** Membuat ulang push dari nilai mentahnya, dengan bahasa aplikasi. */
     private fun localized(data: Map<String, String>, userId: String): AppNotification? {
         val queueId = data[Constants.EXTRA_QUEUE_ID] ?: return null
         val queueNumber = data["queue_number"] ?: return null

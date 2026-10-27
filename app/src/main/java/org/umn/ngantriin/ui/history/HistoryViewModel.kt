@@ -23,7 +23,7 @@ enum class HistoryFilter {
     ALL,
     COMPLETED,
 
-    /** Cancelled or expired — visits that didn't end at a table. */
+    /** Dibatalkan atau kedaluwarsa, yaitu kunjungan yang tidak berakhir di meja. */
     ENDED;
 
     fun matches(item: QueueHistoryItem): Boolean = when (this) {
@@ -42,12 +42,12 @@ data class HistoryUiState(
 ) {
     val items: List<QueueHistoryItem> get() = allItems.filter { filter.matches(it) }
 
-    /** Nothing at all yet — as opposed to nothing in this filter. */
+    /** Belum ada apa pun sama sekali, bukan sekadar kosong di filter ini. */
     val isEmpty: Boolean get() = !isLoading && allItems.isEmpty()
     val isFilterEmpty: Boolean get() = !isEmpty && items.isEmpty()
 }
 
-/** Room backs the list, so history opens instantly and offline. */
+/** Room menopang daftar, jadi riwayat terbuka instan dan tetap ada saat offline. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryViewModel(
     private val authRepository: AuthRepository,
@@ -93,8 +93,8 @@ class HistoryViewModel(
         viewModelScope.launch {
             authRepository.currentUserOrNull()?.let { user ->
                 queueRepository.refreshHistory(user.id)
-                // So "Reviewed" is right on a fresh install, not only on the
-                // device that wrote the review.
+                // Supaya "Sudah diulas" benar di instalasi baru, bukan hanya
+                // di perangkat yang menulis ulasannya.
                 reviewRepository.refreshUserReviews(user.id)
             }
             refreshing.value = false

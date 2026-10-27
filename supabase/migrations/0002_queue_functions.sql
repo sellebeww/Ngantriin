@@ -1,15 +1,15 @@
 -- =============================================================================
--- NGANTRIIN — Queue state machine (server side)
+-- NGANTRIIN: State machine antrean (sisi server)
 --
--- Queue numbers are allocated by the database, never by the
--- client. Every transition below is a single atomic statement, so two phones
--- pressing "Join Queue" at the same instant can never receive the same number.
+-- Nomor antrean dibuat oleh database, tidak pernah oleh client.
+-- Setiap transisi di bawah adalah satu statement atomik, jadi dua HP yang
+-- menekan "Gabung Antrean" bersamaan tidak akan pernah mendapat nomor yang sama.
 -- =============================================================================
 
--- The only legal transitions:
---   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> COMPLETED
---   WAITING | ALMOST_THERE | CALLED -> CANCELLED
---   (CANCELLED and COMPLETED are terminal)
+-- Satu-satunya transisi yang sah:
+-- WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> COMPLETED
+-- WAITING | ALMOST_THERE | CALLED -> CANCELLED
+-- (CANCELLED dan COMPLETED adalah status akhir)
 create or replace function public.is_valid_queue_transition(
     p_from queue_status,
     p_to   queue_status
@@ -45,7 +45,7 @@ create trigger queues_transition_guard
     for each row execute function public.enforce_queue_transition();
 
 -- -----------------------------------------------------------------------------
--- join_queue — allocates the next ticket for the calling user
+-- join_queue: membuat tiket berikutnya untuk pengguna yang memanggil
 -- -----------------------------------------------------------------------------
 create or replace function public.join_queue(
     p_restaurant_id uuid,
@@ -75,7 +75,7 @@ begin
         raise exception 'RESTAURANT_CLOSED' using errcode = 'check_violation';
     end if;
 
-    -- Surfaced as a friendly message by the client.
+    -- Ditampilkan sebagai pesan ramah oleh client.
     if exists (
         select 1 from public.queues
         where user_id = v_user
@@ -93,8 +93,8 @@ begin
         raise exception 'QUEUE_FULL' using errcode = 'check_violation';
     end if;
 
-    -- Reserve the ticket number under a row lock on queue_stats so that
-    -- concurrent joins serialise on this restaurant only.
+    -- Pesan nomor tiket dengan row lock di queue_stats supaya
+    -- join bersamaan antre berurutan hanya di restoran ini.
     insert into public.queue_stats (restaurant_id)
     values (p_restaurant_id)
     on conflict (restaurant_id) do nothing;
@@ -123,7 +123,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- cancel_queue — customer leaves the queue
+-- cancel_queue: pelanggan keluar dari antrean
 -- -----------------------------------------------------------------------------
 create or replace function public.cancel_queue(p_queue_id uuid)
 returns public.queues
@@ -148,10 +148,10 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- check_in — GPS-verified arrival
+-- check_in: kedatangan yang diverifikasi GPS
 --
--- The distance is recomputed here from the restaurant row, so a client that
--- lies about its distance still cannot check in from the other side of town.
+-- Jarak dihitung ulang di sini dari baris restoran, jadi client yang
+-- berbohong soal jaraknya tetap tidak bisa check-in dari seberang kota.
 -- -----------------------------------------------------------------------------
 create or replace function public.check_in_queue(
     p_queue_id  uuid,
@@ -199,7 +199,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Staff transitions
+-- Transisi staf
 -- -----------------------------------------------------------------------------
 create or replace function public.is_restaurant_staff(p_restaurant_id uuid)
 returns boolean
@@ -211,8 +211,8 @@ as $$
     );
 $$;
 
--- Calls the longest-waiting ticket. Any ticket already CALLED but never checked
--- in is left alone; staff resolve it explicitly.
+-- Memanggil tiket yang paling lama menunggu. Tiket yang sudah CALLED tapi belum
+-- check-in dibiarkan, staf menyelesaikannya secara eksplisit.
 create or replace function public.call_next(p_restaurant_id uuid)
 returns public.queues
 language plpgsql
@@ -277,8 +277,8 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Position + wait estimate, computed server side so the phone and
--- the dashboard can never disagree.
+-- Posisi + estimasi tunggu, dihitung di server supaya HP dan
+-- dashboard tidak pernah berbeda.
 -- -----------------------------------------------------------------------------
 create or replace function public.queue_position(p_queue_id uuid)
 returns table (
@@ -314,8 +314,8 @@ as $$
     left join public.queue_stats s on s.restaurant_id = t.restaurant_id;
 $$;
 
--- Promotes tickets that are now near the front. Called by the
--- Edge Function after every queue change; safe to run repeatedly.
+-- Menaikkan tiket yang sekarang dekat dengan depan. Dipanggil oleh
+-- Edge Function setelah setiap perubahan antrean, aman dijalankan berulang.
 create or replace function public.promote_almost_there(p_restaurant_id uuid)
 returns setof public.queues
 language plpgsql

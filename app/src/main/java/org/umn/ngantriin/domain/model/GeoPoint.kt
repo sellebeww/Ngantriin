@@ -6,7 +6,7 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-/** A plain lat/lng pair, so the domain layer never imports Android's Location. */
+/** Pasangan lat/lng biasa, supaya lapisan domain tidak pernah meng-import Location Android. */
 data class GeoPoint(
     val latitude: Double,
     val longitude: Double
@@ -15,8 +15,8 @@ data class GeoPoint(
         private const val EARTH_RADIUS_METERS = 6_371_000.0
 
         /**
-         * Great-circle distance in metres (haversine). Accurate to well under
-         * a metre at city scale, which is all a check-in radius needs.
+         * Jarak great-circle dalam meter (haversine). Akurasinya jauh di bawah
+         * satu meter untuk skala kota, cukup untuk radius check-in.
          */
         fun distanceMeters(from: GeoPoint, to: GeoPoint): Double {
             val dLat = Math.toRadians(to.latitude - from.latitude)

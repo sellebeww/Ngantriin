@@ -33,8 +33,8 @@ import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * Every status carries an icon and a word, so the state is still
- * readable if the colour is not.
+ * Setiap status membawa ikon dan kata, jadi statusnya tetap
+ * terbaca walau warnanya tidak terlihat.
  */
 @Composable
 fun QueueStatusPill(

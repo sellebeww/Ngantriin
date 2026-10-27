@@ -3,31 +3,31 @@ package org.umn.ngantriin.domain.repository
 import kotlinx.coroutines.flow.Flow
 import org.umn.ngantriin.domain.model.GeoPoint
 
-/** Small, device-local settings. Nothing here is user data worth syncing. */
+/** Pengaturan kecil milik perangkat. Tidak ada yang perlu disinkronkan. */
 interface UserPreferencesRepository {
 
     val onboardingCompleted: Flow<Boolean>
     suspend fun setOnboardingCompleted(completed: Boolean)
 
-    /** Whether the location rationale has already been shown. */
+    /** Apakah penjelasan izin lokasi sudah pernah ditampilkan. */
     val locationRationaleShown: Flow<Boolean>
     suspend fun setLocationRationaleShown(shown: Boolean)
 
     val notificationsEnabled: Flow<Boolean>
     suspend fun setNotificationsEnabled(enabled: Boolean)
 
-    /** Last good fix, so the first frame after launch can already show distances. */
+    /** Lokasi terakhir yang baik, supaya frame pertama setelah launch sudah bisa menampilkan jarak. */
     val lastKnownLocation: Flow<GeoPoint?>
     suspend fun setLastKnownLocation(point: GeoPoint)
 
-    /** Restaurants the customer starred. Device-local, like the other settings. */
+    /** Restoran yang dibintangi pelanggan. Milik perangkat, seperti pengaturan lain. */
     val favoriteRestaurantIds: Flow<Set<String>>
     suspend fun toggleFavoriteRestaurant(restaurantId: String)
 
     /**
-     * Email of an account that signed up as restaurant staff and has not yet
-     * filled in the restaurant application. Lets the app open the application
-     * after the first sign-in, even if email confirmation came in between.
+     * Email akun yang mendaftar sebagai staf restoran dan belum mengisi
+     * pengajuan restoran. Dengan ini aplikasi bisa membuka pengajuan setelah
+     * login pertama, walau konfirmasi email terjadi di antaranya.
      */
     val staffApplicantEmail: Flow<String?>
     suspend fun setStaffApplicantEmail(email: String?)

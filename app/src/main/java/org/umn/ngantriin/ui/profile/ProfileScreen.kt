@@ -55,7 +55,6 @@ import org.umn.ngantriin.ui.components.message
 import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
-/** Screen 17. */
 @Composable
 fun ProfileScreen(
     onOpenSettings: () -> Unit,
@@ -194,8 +193,8 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(Spacing.lg))
 
-        // IntrinsicSize.Max + fillMaxHeight: every tile is as tall as the
-        // tallest, so one that wraps its label doesn't leave the others ragged.
+        // IntrinsicSize.Max + fillMaxHeight: semua tile setinggi yang tertinggi,
+        // jadi satu yang labelnya membungkus tidak membuat yang lain tidak rata.
         Row(
             modifier = Modifier.height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(Spacing.md)
@@ -251,7 +250,7 @@ fun ProfileScreen(
                         onClick = onOpenStaffDashboard
                     )
                 } else if (state.user?.role != UserRole.ADMIN) {
-                    // An admin reviews applications and never registers a venue.
+                    // Admin meninjau pengajuan dan tidak pernah mendaftarkan restoran.
                     ProfileRow(
                         icon = Icons.Filled.Storefront,
                         label = stringResource(R.string.profile_register_restaurant),

@@ -51,29 +51,29 @@ import org.umn.ngantriin.work.OfflineWriteQueue
 import org.umn.ngantriin.work.PendingActionQueue
 
 /**
- * Manual dependency injection.
+ * Dependency injection manual.
  *
- * The graph is small, fixed and known at startup, so a container of `by lazy`
- * properties gives the same wiring a DI framework would without an annotation
- * processor in the build or generated code to step through. Everything is
- * constructor-injected below this point, so swapping an implementation in a
- * test is a matter of calling a different constructor.
+ * Grafnya kecil, tetap, dan sudah diketahui saat startup, jadi container berisi
+ * properti `by lazy` memberi wiring yang sama dengan framework DI, tanpa annotation
+ * processor di build atau kode hasil generate yang harus ditelusuri. Semua di bawah
+ * ini memakai constructor injection, jadi mengganti implementasi di tes cukup dengan
+ * memanggil constructor lain.
  */
 class AppContainer(private val context: Context) {
 
     val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     /**
-     * True when no Supabase credentials are configured. Everything still
-     * works, backed by [DemoBackend]; the UI says so rather than pretending
-     * it is talking to a server.
+     * True kalau kredensial Supabase tidak diatur. Semuanya tetap jalan dengan
+     * [DemoBackend], dan UI mengatakannya terus terang, bukan pura-pura
+     * terhubung ke server.
      */
     val isDemoMode: Boolean = !SupabaseClientFactory.isConfigured
 
     private val supabase: SupabaseClient? by lazy { SupabaseClientFactory.createOrNull() }
 
-    // Sample mode gets its own database file, so demo venues and tickets can never
-    // sit in the cache of a build that talks to a real project.
+    // Mode contoh punya file database sendiri, supaya restoran dan tiket demo
+    // tidak pernah ada di cache build yang terhubung ke proyek asli.
     val database: NgantriinDatabase by lazy { NgantriinDatabase.get(context, demo = isDemoMode) }
 
     val preferences: UserPreferencesDataStore by lazy { UserPreferencesDataStore(context) }

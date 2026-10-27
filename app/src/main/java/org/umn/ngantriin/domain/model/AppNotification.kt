@@ -3,9 +3,9 @@ package org.umn.ngantriin.domain.model
 import java.time.Instant
 
 /**
- * Every push is persisted with its type so a given milestone can
- * fire at most once per ticket — the `(queue_id, type)` unique index in the
- * schema is what actually enforces that.
+ * Setiap push disimpan beserta tipenya supaya satu milestone paling banyak
+ * sekali per tiket. Yang benar-benar menegakkannya adalah unique index
+ * `(queue_id, type)` di skema.
  */
 enum class NotificationType {
     QUEUE_JOINED,

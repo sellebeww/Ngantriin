@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import org.umn.ngantriin.R
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Help, privacy and terms in one static page, reached from Settings. */
+/** Bantuan, privasi, dan ketentuan dalam satu halaman statis, dibuka dari Pengaturan. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(

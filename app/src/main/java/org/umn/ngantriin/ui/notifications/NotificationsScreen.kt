@@ -48,7 +48,6 @@ import org.umn.ngantriin.ui.components.relativeText
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 16. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(
@@ -198,7 +197,7 @@ private fun NotificationRow(
             Text(
                 text = relativeText(notification.createdAt),
                 style = MaterialTheme.typography.bodySmall,
-                // `outline` is a border colour; as text it was ~1.4:1 on the card.
+                // `outline` itu warna border, sebagai teks kontrasnya hanya ~1,4:1 di kartu.
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

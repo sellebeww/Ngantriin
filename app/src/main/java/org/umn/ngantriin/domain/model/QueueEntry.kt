@@ -3,14 +3,14 @@ package org.umn.ngantriin.domain.model
 import java.time.Duration
 import java.time.Instant
 
-/** One customer group's ticket for one visit. */
+/** Tiket satu rombongan pelanggan untuk satu kunjungan. */
 data class QueueEntry(
     val id: String,
     val restaurantId: String,
     val userId: String,
-    /** Human-facing label, e.g. "A-027". Always allocated by the backend. */
+    /** Label untuk pengguna, misalnya "A-027". Selalu dibuat backend. */
     val queueNumber: String,
-    /** Monotonic per-restaurant counter behind [queueNumber]; drives ordering. */
+    /** Counter naik per restoran di balik [queueNumber], dipakai untuk urutan. */
     val ticketSequence: Int,
     val partySize: Int,
     val status: QueueStatus,
@@ -20,47 +20,47 @@ data class QueueEntry(
     val checkedInAt: Instant? = null,
     val completedAt: Instant? = null,
     val cancelledAt: Instant? = null,
-    /** Storage path of the check-in verification photo, set once CHECKED_IN. */
+    /** Path storage foto verifikasi check-in, terisi sekali saat CHECKED_IN. */
     val checkInPhotoUrl: String? = null,
-    /** Set when CALLED: check in before this or the ticket EXPIRES. */
+    /** Terisi saat CALLED: check-in sebelum ini atau tiket EXPIRED. */
     val checkInDeadline: Instant? = null,
     val tableReadyAt: Instant? = null,
     val expiredAt: Instant? = null
 ) {
     val isActive: Boolean get() = status.isActive
 
-    /** The restaurant has reached this ticket at least once. */
+    /** Restoran sudah pernah sampai ke tiket ini. */
     val hasBeenCalled: Boolean get() = calledAt != null
 
     /**
-     * Still waiting for the restaurant to reach it — including a customer who
-     * checked in early and is sitting in the waiting area.
+     * Masih menunggu restoran sampai ke tiketnya, termasuk pelanggan yang
+     * check-in lebih awal dan duduk di ruang tunggu.
      */
     val isWaitingToBeCalled: Boolean
         get() = status == QueueStatus.WAITING || status == QueueStatus.ALMOST_THERE ||
             (status == QueueStatus.CHECKED_IN && !hasBeenCalled)
 
-    /** Checked in before the restaurant called the ticket. */
+    /** Check-in sebelum tiket dipanggil restoran. */
     val checkedInEarly: Boolean
         get() = status == QueueStatus.CHECKED_IN && !hasBeenCalled
 
-    /** When the ticket reached its terminal state, if it has. */
+    /** Kapan tiket mencapai status akhir, kalau sudah. */
     val finishedAt: Instant? get() = completedAt ?: cancelledAt ?: expiredAt
 
-    /** Seconds left in the check-in window, or null when no window is running. */
+    /** Sisa detik di jendela check-in, atau null kalau tidak ada jendela yang berjalan. */
     fun checkInSecondsLeft(now: Instant = ServerClock.now()): Long? {
         if (status != QueueStatus.CALLED) return null
         val deadline = checkInDeadline ?: return null
         return Duration.between(now, deadline).seconds.coerceAtLeast(0)
     }
 
-    /** True when a CALLED ticket has run out its window (expiry may lag). */
+    /** True kalau tiket CALLED sudah melewati jendelanya (kedaluwarsa bisa telat). */
     fun isCheckInOverdue(now: Instant = ServerClock.now()): Boolean =
         checkInSecondsLeft(now) == 0L
 
     /**
-     * How long the customer actually waited — joined until called, or until
-     * the ticket ended if it was never called.
+     * Berapa lama pelanggan sebenarnya menunggu: dari join sampai dipanggil,
+     * atau sampai tiket berakhir kalau tidak pernah dipanggil.
      */
     val waitedMinutes: Int?
         get() {
@@ -70,47 +70,47 @@ data class QueueEntry(
 }
 
 /**
- * Everything the Active Queue screen needs in one object, so the UI never has
- * to join three flows together itself.
+ * Semua yang dibutuhkan layar Antrean Aktif dalam satu objek, supaya UI tidak
+ * perlu menggabungkan tiga flow sendiri.
  */
 data class ActiveQueue(
     val entry: QueueEntry,
     val restaurant: Restaurant,
     val stats: QueueStats,
-    /** Groups still in front of this ticket. */
+    /** Rombongan yang masih di depan tiket ini. */
     val peopleAhead: Int,
     val estimatedWaitMinutes: Int,
     /**
-     * False while [peopleAhead] is only a guess from cached counters (the
-     * server position has not arrived yet). Good enough to draw, not good
-     * enough to fire a "head back now" notification on.
+     * False selama [peopleAhead] baru perkiraan dari counter cache (posisi
+     * dari server belum datang). Cukup untuk ditampilkan, belum cukup untuk
+     * memicu notifikasi "segera kembali".
      */
     val isPositionConfirmed: Boolean = true
 ) {
-    /** 1-based place in line — "#7" when six groups are ahead. */
+    /** Urutan mulai dari 1: "#7" kalau ada enam rombongan di depan. */
     val position: Int get() = peopleAhead + 1
 
     val queueNumber: String get() = entry.queueNumber
     val status: QueueStatus get() = entry.status
 
     /**
-     * The customer can check in as soon as they're at the
-     * restaurant — early, or once called and still inside the window.
+     * Pelanggan bisa check-in begitu sudah di restoran, lebih awal atau
+     * setelah dipanggil selama masih dalam jendela.
      */
     val canCheckIn: Boolean
         get() = entry.status.allowsCheckIn && !entry.isCheckInOverdue()
 
-    /** It's this ticket's turn and the clock is running. */
+    /** Sekarang giliran tiket ini dan waktunya berjalan. */
     val isCheckInCountdown: Boolean get() = entry.status == QueueStatus.CALLED
 
-    /** Any live ticket can be given up. */
+    /** Tiket yang masih aktif boleh dilepas. */
     val canLeave: Boolean get() = entry.status.isActive
 
-    /** Position and wait only mean something until the restaurant calls you. */
+    /** Posisi dan waktu tunggu baru berarti sampai restoran memanggilmu. */
     val showsLinePosition: Boolean get() = entry.isWaitingToBeCalled
 }
 
-/** A past ticket, as rendered by the history screen. */
+/** Tiket lama, seperti ditampilkan di layar riwayat. */
 data class QueueHistoryItem(
     val entry: QueueEntry,
     val restaurantName: String,

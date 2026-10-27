@@ -7,11 +7,11 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 /**
- * Turns whatever the network layer throws into an [AppError].
+ * Mengubah apa pun yang dilempar lapisan network menjadi [AppError].
  *
- * Supabase surfaces a `raise exception 'QUEUE_FULL'` from Postgres as an HTTP
- * error whose body contains that token, so matching on the token is how the
- * server-side rules in 0002_queue_functions.sql reach the user as real copy.
+ * Supabase mengirim `raise exception 'QUEUE_FULL'` dari Postgres sebagai
+ * error HTTP yang body-nya memuat token itu, jadi mencocokkan token itulah
+ * cara aturan di 0002_queue_functions.sql sampai ke pengguna sebagai pesan.
  */
 object ErrorMapper {
 
@@ -80,7 +80,7 @@ object ErrorMapper {
     }
 }
 
-/** Runs [block], converting any throw into an [Outcome.Failure]. */
+/** Menjalankan [block], dan melempar apa pun diubah jadi [Outcome.Failure]. */
 inline fun <T> runCatchingOutcome(block: () -> T): Outcome<T> = try {
     Outcome.Success(block())
 } catch (cancellation: CancellationException) {

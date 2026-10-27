@@ -15,10 +15,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.R
 
-/** Original wordmark and tagline, loaded locally for first-frame branding. */
+/** Wordmark dan tagline asli, dimuat lokal untuk branding di frame pertama. */
 @Composable
 fun NgantriinLogo(modifier: Modifier = Modifier) {
-    // Preserve the supplied dark lettering on a light backing in dark mode.
+    // Pertahankan huruf gelap bawaan di atas latar terang saat mode gelap.
     val backing = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
         Modifier.background(Color.White, RoundedCornerShape(20.dp)).padding(12.dp)
     } else {

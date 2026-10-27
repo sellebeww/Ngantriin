@@ -23,18 +23,18 @@ import org.umn.ngantriin.domain.model.NotificationType
 import org.umn.ngantriin.domain.model.QueueStatus
 
 /**
- * Owns the notification channels and turns an [AppNotification]
- * into something the system tray can show.
+ * Memegang channel notifikasi dan mengubah [AppNotification] menjadi
+ * sesuatu yang bisa tampil di system tray.
  *
- * Urgency is split across two channels on purpose: "your turn is coming" and
- * "your table is ready" are not the same interruption, and a user who mutes
- * the first should still hear the second.
+ * Urgensi sengaja dibagi dua channel: "giliranmu hampir tiba" dan
+ * "mejamu siap" bukan gangguan yang sama, dan pengguna yang membisukan
+ * yang pertama tetap harus mendengar yang kedua.
  */
 class NotificationHelper(private val context: Context) {
 
     private val manager = NotificationManagerCompat.from(context)
 
-    /** True once a google-services.json has been wired up. */
+    /** True kalau google-services.json sudah terpasang. */
     val isPushConfigured: Boolean
         get() = FirebaseApp.getApps(context).isNotEmpty()
 
@@ -56,8 +56,8 @@ class NotificationHelper(private val context: Context) {
             enableVibration(true)
         }
 
-        // Silent and low: it updates every time the line moves, and must
-        // never buzz for that. The milestones above do the interrupting.
+        // Senyap dan rendah: ia berubah tiap antrean bergerak dan tidak boleh
+        // bergetar untuk itu. Yang mengganggu adalah milestone di atas.
         val live = NotificationChannel(
             Constants.CHANNEL_QUEUE_LIVE,
             context.getString(R.string.channel_live_name),
@@ -77,15 +77,15 @@ class NotificationHelper(private val context: Context) {
             PackageManager.PERMISSION_GRANTED
 
     /**
-     * Posts [notification]. Silently does nothing when the user declined the
-     * permission — the in-app notification list still has the
-     * record, so nothing is lost.
+     * Menampilkan [notification]. Tidak melakukan apa-apa kalau pengguna menolak
+     * izin, daftar notifikasi di dalam aplikasi tetap punya catatannya,
+     * jadi tidak ada yang hilang.
      */
     @SuppressLint("MissingPermission")
     fun show(notification: AppNotification) {
-        // hasPermission() is the check lint is asking for; it cannot see
-        // through the helper, hence the suppression rather than a duplicate
-        // inline check.
+        // hasPermission() adalah pengecekan yang diminta lint, tapi lint tidak bisa
+        // melihat lewat helper, makanya pakai suppress dan bukan pengecekan
+        // inline ganda.
         if (!hasPermission()) return
 
         val channel = if (notification.type.isUrgent) {
@@ -105,12 +105,12 @@ class NotificationHelper(private val context: Context) {
             .setContentIntent(openAppIntent(notification))
             .build()
 
-        // One notification per ticket per milestone: the id is stable, so a
-        // repeat of the same event replaces rather than stacks.
+        // Satu notifikasi per tiket per milestone: id-nya tetap, jadi event yang
+        // sama diulang menggantikan, bukan menumpuk.
         runCatching { manager.notify(notification.id.hashCode(), built) }
     }
 
-    /** Replaces the ongoing live-queue notification in place. */
+    /** Mengganti notifikasi antrean live yang sedang berjalan di tempat. */
     @SuppressLint("MissingPermission")
     fun updateLive(notification: Notification) {
         if (!hasPermission()) return
@@ -118,10 +118,10 @@ class NotificationHelper(private val context: Context) {
     }
 
     /**
-     * The ongoing "live queue" notification held by [QueueTrackingService]:
-     * number, what to do now, and a running countdown while the check-in
-     * window is open. Like every other notification here it never names the
-     * restaurant.
+     * Notifikasi "antrean live" yang dipegang [QueueTrackingService]:
+     * nomor, apa yang harus dilakukan sekarang, dan hitung mundur selama jendela
+     * check-in terbuka. Seperti notifikasi lain di sini, ia tidak pernah
+     * menyebut nama restoran.
      */
     fun buildLive(queue: ActiveQueue): Notification {
         val entry = queue.entry
@@ -152,7 +152,7 @@ class NotificationHelper(private val context: Context) {
 
         val deadline = entry.checkInDeadline
         if (entry.status == QueueStatus.CALLED && deadline != null) {
-            // The system ticks the countdown itself; no wake-ups needed.
+            // Sistem yang menjalankan hitung mundurnya sendiri, tidak perlu wake-up.
             builder.setWhen(deadline.toEpochMilli())
                 .setShowWhen(true)
                 .setUsesChronometer(true)

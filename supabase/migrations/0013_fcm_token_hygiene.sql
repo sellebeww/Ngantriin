@@ -1,17 +1,17 @@
 -- =============================================================================
--- NGANTRIIN — 0013: one device token belongs to one account.
+-- NGANTRIIN: 0013: satu token perangkat milik satu akun.
 --
--- Before this, users.fcm_token was a plain column. When customer A signed out
--- and customer B signed in on the same phone, B's row received the phone's
--- token but A's row kept it too, so A's queue pushes kept landing on a phone
--- now held by B. Two guards:
---   * a BEFORE trigger that takes the token away from any other account the
---     moment someone claims it;
---   * a partial unique index so the table can never hold a duplicate again.
--- The app additionally clears the token on sign-out (AuthRepositoryImpl).
+-- Sebelumnya users.fcm_token hanya kolom biasa. Saat pelanggan A keluar dan
+-- pelanggan B masuk di HP yang sama, baris B menerima token HP itu tapi
+-- baris A tetap memilikinya juga, jadi push antrean A terus mendarat di HP
+-- yang sekarang dipegang B. Dua pengaman:
+-- * trigger BEFORE yang mengambil token dari akun lain
+-- begitu seseorang mengklaimnya;
+-- * partial unique index supaya tabel tidak pernah bisa menyimpan duplikat lagi.
+-- Aplikasi juga mengosongkan token saat logout (AuthRepositoryImpl).
 -- =============================================================================
 
--- Existing duplicates would make the index below fail: keep one owner each.
+-- Duplikat yang sudah ada akan membuat index di bawah gagal: sisakan satu pemilik.
 update public.users u
 set fcm_token = null
 where u.fcm_token is not null

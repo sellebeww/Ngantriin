@@ -94,7 +94,7 @@ class LoginViewModelTest {
         assertFalse(vm.uiState.value.isSubmitting)
         assertTrue(vm.uiState.value.canSubmit)
 
-        // Editing a field dismisses the stale error.
+        // Mengedit field menghapus error yang basi.
         vm.onPasswordChange("right")
         assertNull(vm.uiState.value.error)
     }

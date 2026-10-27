@@ -39,9 +39,9 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * The customer journey from the concept, as five steps:
- * In line -> Near -> Check in -> Table -> Done. Gives every screen state a
- * place on one map, so "what happens next" is never a mystery.
+ * Perjalanan pelanggan dari konsep, lima langkah:
+ * Antre -> Dekat -> Check-in -> Meja -> Selesai. Memberi setiap state layar
+ * tempat di satu peta, jadi "apa selanjutnya" tidak pernah jadi misteri.
  */
 @Composable
 fun QueueJourney(
@@ -89,8 +89,8 @@ private fun JourneyStep(
     )
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        // A fixed-height slot: the active dot is bigger than the others, and
-        // without this every label under it sat a few pixels lower.
+        // Slot tinggi tetap: titik aktif lebih besar dari yang lain, dan
+        // tanpa ini setiap label di bawahnya turun beberapa piksel.
         Box(Modifier.height(26.dp), contentAlignment = Alignment.Center) {
             Box(
                 modifier = Modifier
@@ -126,7 +126,7 @@ private fun JourneyStep(
     }
 }
 
-/** Where each status sits on the five-step journey. */
+/** Posisi tiap status di perjalanan lima langkah. */
 fun QueueStatus.journeyStep(): Int = when (this) {
     QueueStatus.WAITING -> 0
     QueueStatus.ALMOST_THERE -> 1
@@ -136,8 +136,8 @@ fun QueueStatus.journeyStep(): Int = when (this) {
 }
 
 /**
- * Seconds left until [deadline], ticking once a second, or null without one.
- * [onFinished] fires once when it reaches zero.
+ * Sisa detik sampai [deadline], berdetak tiap detik, atau null kalau tidak ada.
+ * [onFinished] dipanggil sekali saat mencapai nol.
  */
 @Composable
 fun rememberSecondsLeft(
@@ -157,7 +157,7 @@ fun rememberSecondsLeft(
                     notified = true
                     finished()
                 }
-                // Keep nudging while the backend catches up with the expiry.
+                // Terus dorong selama backend menyusul kedaluwarsanya.
                 delay(5_000)
                 finished()
             } else {

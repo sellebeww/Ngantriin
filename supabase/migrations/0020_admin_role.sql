@@ -1,9 +1,9 @@
 -- =============================================================================
--- NGANTRIIN — ADMIN role (enum value only)
+-- NGANTRIIN: role ADMIN (hanya nilai enum)
 --
--- Kept in its own file on purpose: Postgres will not let a new enum value be
--- used in the transaction that adds it, and 0021 uses it straight away.
--- Nobody becomes ADMIN from the app; see grant_admin() in 0021.
+-- Sengaja di file sendiri: Postgres tidak mengizinkan nilai enum baru dipakai
+-- di transaksi yang menambahkannya, dan 0021 langsung memakainya.
+-- Tidak ada yang jadi ADMIN dari aplikasi, lihat grant_admin() di 0021.
 -- =============================================================================
 
 alter type public.user_role add value if not exists 'ADMIN';

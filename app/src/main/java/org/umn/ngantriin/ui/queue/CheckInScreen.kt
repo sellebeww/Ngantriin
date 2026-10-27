@@ -67,7 +67,7 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 import java.io.File
 
-/** The customer photographs themselves at the restaurant. */
+/** Pelanggan memotret dirinya di restoran. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckInScreen(
@@ -224,8 +224,8 @@ fun CheckInScreen(
                         }
                     }
                 } else {
-                    // With a photo on screen the ticket shrinks to one line, so
-                    // the photo and the Submit button both fit above the fold.
+                    // Saat foto tampil, tiket diringkas jadi satu baris supaya
+                    // foto dan tombol Kirim sama-sama muat di layar pertama.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
@@ -335,7 +335,7 @@ private fun Context.hasCameraPermission(): Boolean =
         android.Manifest.permission.CAMERA
     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-/** A fresh cache file per attempt, handed out as a content:// Uri via FileProvider. */
+/** File cache baru tiap percobaan, diberikan sebagai Uri content:// lewat FileProvider. */
 private fun createCheckInPhotoUri(context: Context): Uri {
     val dir = File(context.cacheDir, "checkin").apply { mkdirs() }
     val file = File(dir, "checkin_${System.currentTimeMillis()}.jpg")
@@ -380,8 +380,8 @@ private fun CheckedInState(
         modifier = modifier.padding(horizontal = Spacing.screenGutter),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Centred in the space above the button; weighted slightly high, which
-        // is where the eye expects the middle of a success screen to be.
+        // Di tengah ruang di atas tombol, digeser sedikit ke atas, tempat
+        // mata mengharapkan tengah layar sukses.
         Spacer(Modifier.weight(0.8f))
 
         Box(

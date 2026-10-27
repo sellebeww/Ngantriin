@@ -28,18 +28,18 @@ import org.umn.ngantriin.core.Constants
 import org.umn.ngantriin.domain.repository.SessionState
 
 /**
- * The "you can leave" promise when there is no push.
+ * Janji "boleh ditinggal" saat tidak ada push.
  *
- * While a ticket is live this foreground service keeps the process — and so
- * the Realtime subscription and [QueueNotificationScheduler] — alive after the
- * app is backgrounded or swiped away, and shows the line moving in an ongoing
- * notification (with a system-ticked countdown once the ticket is called).
+ * Selama tiket aktif, foreground service ini menjaga proses, dan juga
+ * langganan Realtime serta [QueueNotificationScheduler], tetap hidup setelah
+ * aplikasi masuk background atau di-swipe, lalu menampilkan antrean bergerak di
+ * notifikasi yang terus tampil (dengan hitung mundur dari sistem setelah tiket dipanggil).
  *
- * FCM is still the right channel: it survives a force-stop and a reboot, this
- * does not. With push configured both run; the service then is purely the
- * "live activity" view of the queue.
+ * FCM tetap saluran yang tepat: ia bertahan setelah force-stop dan reboot,
+ * service ini tidak. Kalau push terpasang keduanya jalan, dan service ini
+ * murni jadi tampilan "live activity" untuk antrean.
  *
- * It stops itself the moment there is no live ticket.
+ * Service berhenti sendiri begitu tidak ada tiket aktif.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class QueueTrackingService : Service() {
@@ -52,8 +52,8 @@ class QueueTrackingService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Every startForegroundService() must be answered with startForeground()
-        // within a few seconds, even when we are already running.
+        // Setiap startForegroundService() harus dijawab startForeground()
+        // dalam beberapa detik, walau kita sudah berjalan.
         if (!goForeground(current ?: placeholder())) {
             stopSelf()
             return START_NOT_STICKY
@@ -75,8 +75,8 @@ class QueueTrackingService : Service() {
             }
             .collect { queue ->
                 if (queue == null) {
-                    // A null can be a cache gap (venue row not loaded yet)
-                    // rather than "no ticket"; only stop if it persists.
+                    // Null bisa berarti cache belum lengkap (baris restoran belum dimuat),
+                    // bukan "tidak ada tiket". Berhenti hanya kalau tetap begitu.
                     if (pendingStop == null) {
                         pendingStop = scope.launch {
                             delay(STOP_GRACE_MILLIS)
@@ -102,8 +102,8 @@ class QueueTrackingService : Service() {
         ServiceCompat.startForeground(this, Constants.LIVE_NOTIFICATION_ID, notification, type)
         true
     } catch (error: Exception) {
-        // ForegroundServiceStartNotAllowedException and friends: the app was
-        // not in a state that may start one. Nothing to show; just give up.
+        // ForegroundServiceStartNotAllowedException dan sejenisnya: aplikasi sedang
+        // tidak dalam keadaan yang boleh memulainya. Tidak ada yang ditampilkan, menyerah saja.
         Log.w(TAG, "Live queue tracking could not start", error)
         false
     }
@@ -134,8 +134,8 @@ class QueueTrackingService : Service() {
         private const val STOP_GRACE_MILLIS = 5_000L
 
         /**
-         * Safe to call repeatedly. Only ever called while the app is in the
-         * foreground — Android does not allow starting this from background.
+         * Aman dipanggil berulang. Hanya dipanggil saat aplikasi di foreground,
+         * karena Android tidak mengizinkan memulainya dari background.
          */
         fun start(context: Context) {
             runCatching {

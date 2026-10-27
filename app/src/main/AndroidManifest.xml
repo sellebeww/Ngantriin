@@ -5,27 +5,33 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
-    <!-- Nearby discovery and distance sorting (Home/Search/Detail).
-         No longer used for check-in verification — see CAMERA below. -->
+    <!--
+         Penemuan restoran terdekat dan urut jarak (Beranda/Cari/Detail).
+         Tidak lagi dipakai untuk verifikasi check-in, lihat CAMERA di bawah.
+    -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-    <!-- Optional: a refusal only silences the system tray. -->
+    <!-- Opsional: kalau ditolak, hanya notifikasi di system tray yang mati. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <!-- Live queue tracking while the app is in the background:
-         keeps the queue moving in an ongoing notification and lets the local
-         milestone alerts fire without the app on screen. -->
+    <!--
+         Pelacakan antrean saat aplikasi di background: antrean tetap
+         berjalan lewat notifikasi yang terus tampil, dan pengingat lokal
+         tetap bunyi walau aplikasi tidak sedang dibuka.
+    -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
-    <!-- Check-in verification: the customer photographs themselves at the
-         restaurant instead of relying on a GPS distance check. -->
+    <!--
+         Verifikasi check-in: pelanggan memotret dirinya di restoran
+         sebagai pengganti pengecekan jarak lewat GPS.
+    -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
 
-    <!-- The app is useful without GPS hardware, just without distances. -->
+    <!-- Aplikasi tetap berguna tanpa GPS, hanya tanpa info jarak. -->
     <uses-feature
             android:name="android.hardware.location.gps"
             android:required="false"/>
@@ -54,7 +60,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Password-reset link from the Supabase email. -->
+            <!-- Tautan reset password dari email Supabase. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -63,7 +69,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Queue pushes sent by the backend. -->
+        <!-- Push antrean yang dikirim backend. -->
         <service
                 android:name=".notification.NgantriinMessagingService"
                 android:exported="false">
@@ -72,7 +78,7 @@
             </intent-filter>
         </service>
 
-        <!-- The live queue while the customer is away. -->
+        <!-- Antrean live saat pelanggan sedang tidak di aplikasi. -->
         <service
                 android:name=".notification.QueueTrackingService"
                 android:exported="false"
@@ -93,9 +99,11 @@
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="queue_updates"/>
 
-        <!-- Lets AppCompatDelegate remember the chosen app
-             language (Settings -> Language) across process restarts on API
-             levels below 33, without a DataStore entry of our own. -->
+        <!--
+             Supaya AppCompatDelegate mengingat bahasa aplikasi yang dipilih
+             (Pengaturan -> Bahasa) setelah proses di-restart di API di bawah 33,
+             tanpa perlu entri DataStore sendiri.
+        -->
         <service
                 android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
                 android:enabled="false"
@@ -105,8 +113,10 @@
                     android:value="true"/>
         </service>
 
-        <!-- Hands the camera a content:// Uri for the check-in photo instead
-             of a raw file:// path, which Android has forbidden since N. -->
+        <!--
+             Memberi kamera Uri content:// untuk foto check-in, bukan path
+             file:// mentah yang sudah dilarang Android sejak N.
+        -->
         <provider
                 android:name="androidx.core.content.FileProvider"
                 android:authorities="${applicationId}.fileprovider"

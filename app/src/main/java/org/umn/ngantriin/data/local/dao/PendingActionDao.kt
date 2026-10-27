@@ -21,7 +21,7 @@ interface PendingActionDao {
     @Query("UPDATE pending_actions SET attempts = attempts + 1 WHERE id = :id")
     suspend fun recordAttempt(id: Long)
 
-    /** Gives up on an action after enough failures so it cannot loop forever. */
+    /** Menyerah pada sebuah aksi setelah cukup banyak gagal supaya tidak berulang selamanya. */
     @Query("DELETE FROM pending_actions WHERE attempts >= :maxAttempts")
     suspend fun dropExhausted(maxAttempts: Int)
 

@@ -14,8 +14,8 @@ import org.umn.ngantriin.domain.model.VerificationStatus
 import kotlin.time.Duration.Companion.minutes
 
 /**
- * Talks to the `admin_*` functions from 0021. They check `is_admin()` inside the
- * database, so nothing here decides who may review.
+ * Memanggil fungsi `admin_*` dari 0021. Fungsi itu mengecek `is_admin()` di dalam
+ * database, jadi tidak ada yang menentukan siapa boleh me-review di sini.
  */
 class SupabaseAdminRemoteDataSource(
     private val client: SupabaseClient
@@ -33,8 +33,8 @@ class SupabaseAdminRemoteDataSource(
             parameters = buildJsonObject { put("p_restaurant_id", restaurantId) }
         ).decodeList<ApplicationDocumentDto>().map { it.toDomain() }
 
-    // Private bucket: a signed URL that lapses in minutes, minted per view. The
-    // storage policy lets only an admin sign a proof path.
+    // Bucket privat: signed URL yang habis dalam hitungan menit, dibuat tiap kali
+    // dilihat. Policy storage hanya membolehkan admin menandatangani path bukti.
     override suspend fun documentUrl(document: ApplicationDocument): String =
         client.storage.from(PROOFS_BUCKET).createSignedUrl(document.path, 5.minutes)
 

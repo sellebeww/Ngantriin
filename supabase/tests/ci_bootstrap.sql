@@ -1,7 +1,7 @@
--- Stand-ins for the parts of a hosted Supabase project that the stock
--- supabase/postgres image does not create (those come from separate services:
--- storage-api creates the storage tables, GoTrue ships a newer auth.uid()).
--- Used only by scripts/sql-tests.sh and CI, never against a real project.
+-- Pengganti bagian proyek Supabase hosted yang tidak dibuat oleh image
+-- supabase/postgres bawaan (bagian itu datang dari service terpisah:
+-- storage-api membuat tabel storage, GoTrue membawa auth.uid() yang lebih baru).
+-- Hanya dipakai scripts/sql-tests.sh dan CI, tidak pernah ke proyek asli.
 create table if not exists storage.buckets (
     id text primary key, name text, public bool default false,
     file_size_limit bigint, allowed_mime_types text[]

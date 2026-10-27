@@ -1,20 +1,20 @@
 -- =============================================================================
--- NGANTRIIN — new queue states: TABLE_READY and EXPIRED.
+-- NGANTRIIN: status antrean baru TABLE_READY dan EXPIRED.
 --
--- Kept in a file of its own on purpose: Postgres refuses to *use* an enum
--- value in the same transaction that added it, and every migration file runs
--- in one transaction. 0012 is where these values are actually used.
+-- Sengaja di file sendiri: Postgres menolak *memakai* nilai enum di
+-- transaksi yang sama dengan penambahannya, dan setiap file migrasi jalan di
+-- satu transaksi. 0012 adalah tempat nilai-nilai ini benar-benar dipakai.
 --
--- The journey this enables:
+-- Perjalanan yang dimungkinkan:
 --
---   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
+-- WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
 --
---   * CALLED       — it's your turn; you have the restaurant's check-in window
---                    (10 minutes by default) to arrive and check in.
---   * CHECKED_IN   — you're physically at the restaurant (photo verified).
---                    May happen early, straight from WAITING / ALMOST_THERE.
---   * TABLE_READY  — staff have prepared your table; head to the host.
---   * EXPIRED      — called, but never checked in within the window. Terminal.
+-- * CALLED       giliranmu, kamu punya jendela check-in restoran
+-- (bawaan 10 menit) untuk datang dan check-in.
+-- * CHECKED_IN   kamu sudah di restoran (foto terverifikasi).
+-- Boleh lebih awal, langsung dari WAITING / ALMOST_THERE.
+-- * TABLE_READY  staf sudah menyiapkan mejamu, menuju host.
+-- * EXPIRED      dipanggil tapi tidak check-in dalam jendela. Status akhir.
 -- =============================================================================
 
 alter type public.queue_status add value if not exists 'TABLE_READY' after 'CHECKED_IN';

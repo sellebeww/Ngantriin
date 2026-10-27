@@ -6,21 +6,21 @@ import org.umn.ngantriin.domain.model.RestaurantApplication
 import org.umn.ngantriin.domain.model.VerificationStatus
 
 /**
- * Restaurant review for administrators. The app never decides who is an admin:
- * every call is checked by the database, so a non-admin gets `NOT_ADMIN` here
- * however they reached it.
+ * Review restoran untuk admin. Aplikasi tidak pernah menentukan siapa admin:
+ * setiap panggilan dicek database, jadi non-admin mendapat `NOT_ADMIN` di sini
+ * bagaimanapun cara masuknya.
  */
 interface AdminRepository {
 
-    /** Applications in one state; pending ones oldest first. */
+    /** Pengajuan dalam satu status, yang pending terlama dulu. */
     suspend fun applications(status: VerificationStatus): Outcome<List<RestaurantApplication>>
 
-    /** Every proof file of an application, newest submission first. */
+    /** Semua berkas bukti sebuah pengajuan, kiriman terbaru dulu. */
     suspend fun documents(restaurantId: String): Outcome<List<ApplicationDocument>>
 
-    /** A short-lived URL a viewer can open; proof files are private. */
+    /** URL berumur pendek yang bisa dibuka, berkas bukti bersifat privat. */
     suspend fun documentUrl(document: ApplicationDocument): Outcome<String>
 
-    /** Approves, or rejects with a reason the applicant will read. */
+    /** Menyetujui, atau menolak dengan alasan yang akan dibaca pendaftar. */
     suspend fun review(restaurantId: String, approve: Boolean, note: String?): Outcome<Unit>
 }

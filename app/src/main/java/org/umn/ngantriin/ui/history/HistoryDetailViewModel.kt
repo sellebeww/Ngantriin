@@ -26,9 +26,9 @@ data class HistoryDetailUiState(
 }
 
 /**
- * One visit, end to end — when it was joined, called, checked
- * in, seated or ended, and what the customer said about it. Served from Room
- * so it opens instantly; refreshed from the backend in the background.
+ * Satu kunjungan dari awal sampai akhir: kapan join, dipanggil, check-in,
+ * didudukkan atau berakhir, dan apa kata pelanggan. Diambil dari Room supaya
+ * terbuka instan, lalu di-refresh dari backend di background.
  */
 class HistoryDetailViewModel(
     private val queueId: String,

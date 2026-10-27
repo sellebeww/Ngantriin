@@ -29,7 +29,7 @@ import org.umn.ngantriin.location.LocationTracker
 import java.time.LocalTime
 
 data class HomeUiState(
-    /** Hour of day (0-23); the screen picks the localized greeting from it. */
+    /** Jam dalam sehari (0-23), layar memilih sapaan yang sesuai dari sini. */
     val greetingHour: Int = 12,
     val userName: String = "",
     val isLoading: Boolean = true,
@@ -45,7 +45,7 @@ data class HomeUiState(
 ) {
     val isEmpty: Boolean get() = !isLoading && all.isEmpty()
 
-    /** Starred restaurants, in the list's current (nearest-first) order. */
+    /** Restoran favorit, dengan urutan daftar saat ini (terdekat dulu). */
     val favorites: List<RestaurantListing> get() = all.filter { it.id in favoriteIds }
 }
 
@@ -63,9 +63,9 @@ class HomeViewModel(
     private val refreshing = MutableStateFlow(false)
 
     /**
-     * Flips once the first catalogue fetch has come back, successfully or
-     * not. Until then an empty list means "still loading"; afterwards it
-     * means "there is nothing here", and those need different screens.
+     * Berubah setelah fetch katalog pertama kembali, berhasil atau tidak.
+     * Sebelum itu daftar kosong berarti "masih loading", sesudahnya
+     * berarti "memang tidak ada", dan keduanya butuh layar berbeda.
      */
     private val firstLoadDone = MutableStateFlow(false)
 
@@ -159,9 +159,9 @@ class HomeViewModel(
     }
 
     /**
-     * "Near You" is the first thing on the screen, so it stays short and only
-     * shows venues that really are nearby. Without a fix we fall back to the
-     * top of the list rather than showing nothing.
+     * "Dekat Anda" adalah hal pertama di layar, jadi dibuat pendek dan hanya
+     * menampilkan restoran yang benar-benar dekat. Tanpa lokasi, kita jatuh ke
+     * bagian atas daftar daripada menampilkan kosong.
      */
     private fun List<RestaurantListing>.nearby(origin: GeoPoint?): List<RestaurantListing> {
         if (origin == null) return take(NEARBY_LIMIT)

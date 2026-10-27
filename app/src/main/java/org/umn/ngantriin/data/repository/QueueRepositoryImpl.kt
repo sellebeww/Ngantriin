@@ -36,9 +36,9 @@ import org.umn.ngantriin.work.OfflineWriteQueue
 import org.umn.ngantriin.work.PendingAction
 
 /**
- * Room is the render source and Supabase Realtime is what
- * keeps it current, so the UI has data on the first frame and updates without
- * anyone pulling to refresh.
+ * Room jadi sumber tampilan dan Supabase Realtime yang menjaganya tetap
+ * mutakhir, jadi UI sudah punya data di frame pertama dan ikut berubah
+ * tanpa perlu tarik untuk refresh.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class QueueRepositoryImpl(
@@ -50,13 +50,13 @@ class QueueRepositoryImpl(
 ) : QueueRepository {
 
     /**
-     * Server-computed positions, keyed by queue id. Held in memory rather than
-     * Room because it is derived data with a short shelf life — if it is
-     * missing we fall back to the counters, which are cached.
+     * Posisi hitungan server, dengan key id antrean. Disimpan di memori, bukan
+     * Room, karena datanya turunan dan cepat basi. Kalau tidak ada, kita
+     * jatuh ke counter yang di-cache.
      */
     private val positions = MutableStateFlow<Map<String, QueuePosition>>(emptyMap())
 
-    /** Tickets this device cancelled — see [wasLeftByCustomer]. */
+    /** Tiket yang dibatalkan dari perangkat ini, lihat [wasLeftByCustomer]. */
     private val leftByCustomer = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     override fun observeActiveQueue(userId: String): Flow<ActiveQueue?> = channelFlow {
@@ -64,16 +64,16 @@ class QueueRepositoryImpl(
             .map { it?.toDomain() }
             .distinctUntilChanged()
 
-        // 1. The ticket row itself, kept in step with the backend.
+        // 1. Baris tiket itu sendiri, dijaga sinkron dengan backend.
         launch {
             remote.observeUserQueueChanges(userId)
                 .onStart { emit(Unit) }
                 .collect { syncUserQueues(userId) }
         }
 
-        // 2. The line in front of the ticket. Other customers' rows are not
-        //    readable, so both the counters and the position come from the
-        //    server, re-read whenever this venue's counters change.
+        // 2. Antrean di depan tiket. Baris pelanggan lain tidak bisa dibaca, jadi
+        // counter dan posisi sama-sama dari server, dibaca ulang tiap counter
+        // restoran ini berubah.
         launch {
             entryFlow
                 .flatMapLatest { entry ->
@@ -91,7 +91,7 @@ class QueueRepositoryImpl(
                 }
         }
 
-        // 3. Render, purely from cache.
+        // 3. Tampilan, murni dari cache.
         launch {
             entryFlow
                 .flatMapLatest { entry ->
@@ -164,7 +164,7 @@ class QueueRepositoryImpl(
         partySize: Int,
         note: String?
     ): Outcome<QueueEntry> = runCatchingOutcome {
-        // The number comes back from the backend; nothing is generated here.
+        // Nomornya datang dari backend, tidak ada yang dibuat di sini.
         val entry = remote.joinQueue(restaurantId, partySize, note)
         queueDao.upsert(entry.toEntity())
         syncPosition(entry.id)
@@ -184,9 +184,9 @@ class QueueRepositoryImpl(
             entry
         }
 
-        // Offline: park it rather than cancelling locally. Showing a ticket as
-        // cancelled and then having it reappear would break the one promise
-        // the state machine makes — CANCELLED is final.
+        // Offline: tahan dulu, jangan batalkan secara lokal. Menampilkan tiket
+        // sebagai batal lalu muncul lagi melanggar satu janji state machine:
+        // CANCELLED itu final.
         if (outcome is Outcome.Failure && outcome.error is AppError.Network) {
             offlineWriteQueue.park(PendingAction.LeaveQueue(queueId))
             return Outcome.Failure(AppError.OfflineActionQueued)
@@ -228,9 +228,9 @@ class QueueRepositoryImpl(
 
     override suspend fun expireOverdue(restaurantId: String): Outcome<Unit> = runCatchingOutcome {
         remote.expireOverdue(restaurantId)
-        // Realtime delivers the change too; re-reading the called tickets we
-        // hold just means the screen settles without waiting for it. RLS
-        // decides which of them this account may see.
+        // Realtime juga mengirim perubahannya. Membaca ulang tiket CALLED yang
+        // dipegang membuat layar stabil tanpa menunggu itu. RLS yang menentukan
+        // mana yang boleh dilihat akun ini.
         queueDao.findAllForRestaurant(restaurantId)
             .filter { it.status == QueueStatus.CALLED.wireValue }
             .forEach { cached ->
@@ -243,9 +243,9 @@ class QueueRepositoryImpl(
     // -------------------------------------------------------------------------
 
     /**
-     * Combines a ticket with everything around it. [serverPosition] is
-     * authoritative when present; otherwise we fall back to what is cached,
-     * which keeps the screen sensible offline.
+     * Menggabungkan tiket dengan semua yang ada di sekitarnya. [serverPosition]
+     * menjadi acuan kalau ada, kalau tidak pakai yang di-cache supaya layar
+     * tetap masuk akal saat offline.
      */
     private fun buildActiveQueue(
         entry: QueueEntry,
@@ -276,11 +276,11 @@ class QueueRepositoryImpl(
     }
 
     /**
-     * Two fallbacks, in order of trust:
-     *  1. Count the cached tickets ahead — exact when we can see them, which
-     *     is the case for staff and in demo mode.
-     *  2. Otherwise derive from the counters: how far this ticket is past the
-     *     one being served, never more than the number still waiting.
+     * Dua cadangan, urut dari yang paling bisa dipercaya:
+     * 1. Hitung tiket di cache yang ada di depan. Tepat kalau kita bisa
+     * melihatnya, yaitu untuk staf dan di mode demo.
+     * 2. Kalau tidak, turunkan dari counter: seberapa jauh tiket ini dari yang
+     * sedang dilayani, tidak pernah lebih dari jumlah yang masih menunggu.
      */
     private fun fallbackPeopleAhead(
         entry: QueueEntry,
@@ -314,9 +314,9 @@ class QueueRepositoryImpl(
     }
 
     /**
-     * Pulls the counters, and the venue itself if it is not cached yet — a
-     * ticket can outlive the catalogue that introduced it, and the active
-     * queue screen cannot render without the restaurant row.
+     * Mengambil counter, dan restorannya kalau belum di-cache. Tiket bisa
+     * hidup lebih lama dari katalog yang memperkenalkannya, dan layar antrean
+     * aktif tidak bisa tampil tanpa baris restoran.
      */
     private suspend fun syncRestaurant(restaurantId: String) {
         runCatching {

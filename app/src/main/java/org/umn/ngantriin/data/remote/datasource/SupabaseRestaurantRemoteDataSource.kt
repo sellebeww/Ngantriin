@@ -28,8 +28,8 @@ class SupabaseRestaurantRemoteDataSource(
 ) : RestaurantRemoteDataSource {
 
     override suspend fun fetchRestaurants(): List<Restaurant> =
-        // Explicit even though RLS also hides paused venues: staff and past
-        // ticket holders can still read them, and they must not show up in search.
+        // Dibuat eksplisit walau RLS juga menyembunyikan restoran yang dijeda: staf
+        // dan pemegang tiket lama masih bisa membacanya, tapi tidak boleh muncul di pencarian.
         client.from("restaurants")
             .select {
                 filter { eq("is_active", true) }
@@ -78,8 +78,8 @@ class SupabaseRestaurantRemoteDataSource(
 
     override suspend fun registerRestaurant(registration: RestaurantRegistration): Restaurant {
         val userId = client.auth.currentUserOrNull()?.id ?: error("NOT_AUTHENTICATED")
-        // Uploaded first: the RPC stores only the public URL. A failed RPC
-        // leaves an orphan photo in the user's own folder, which is harmless.
+        // Diunggah dulu karena RPC hanya menyimpan URL publik. Kalau RPC gagal,
+        // foto yatim tertinggal di folder pengguna sendiri, tidak masalah.
         val proofs = uploadProofs(userId, registration.documents)
         val imageUrl = registration.photo?.let { bytes ->
             val bucket = client.storage.from(RESTAURANT_PHOTOS_BUCKET)
@@ -129,8 +129,8 @@ class SupabaseRestaurantRemoteDataSource(
     }
 
     /**
-     * Proofs go to a private bucket, inside the uploader's own folder; the RPC
-     * then checks each path really exists there before recording it.
+     * Bukti masuk ke bucket privat, di folder milik pengunggah. RPC lalu
+     * mengecek tiap path memang ada di sana sebelum mencatatnya.
      */
     private suspend fun uploadProofs(userId: String, documents: List<ProofDocument>): JsonArray {
         val bucket = client.storage.from(PROOFS_BUCKET)
@@ -155,8 +155,8 @@ class SupabaseRestaurantRemoteDataSource(
                 filter { eq("id", restaurantId) }
                 select()
             }
-            // RLS filters out venues the caller does not staff, so a foreign id
-            // comes back empty rather than updated.
+            // RLS menyaring restoran yang bukan dikelola pemanggil, jadi id milik
+            // orang lain kembali kosong, bukan ter-update.
             .decodeList<RestaurantDto>()
             .firstOrNull()
             ?.toDomain()

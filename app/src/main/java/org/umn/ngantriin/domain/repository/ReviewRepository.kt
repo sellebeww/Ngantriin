@@ -11,10 +11,9 @@ interface ReviewRepository {
     suspend fun refreshReviews(restaurantId: String): Outcome<Unit>
 
     /**
-     * Creates the review, or updates rating and text if this
-     * visit was already reviewed. Rejected with
-     * [org.umn.ngantriin.core.AppError.ReviewNotAllowed] unless the ticket
-     * belongs to the caller and is COMPLETED.
+     * Membuat ulasan, atau memperbarui rating dan teks kalau kunjungan ini
+     * sudah diulas. Ditolak dengan [org.umn.ngantriin.core.AppError.ReviewNotAllowed]
+     * kecuali tiket milik pemanggil dan berstatus COMPLETED.
      */
     suspend fun submitReview(
         queueId: String,
@@ -25,12 +24,12 @@ interface ReviewRepository {
 
     suspend fun reviewForQueue(queueId: String): Outcome<Review?>
 
-    /** Live view of the review written for one visit, if any. */
+    /** Tampilan live ulasan untuk satu kunjungan, kalau ada. */
     fun observeReviewForQueue(queueId: String): Flow<Review?>
 
     /**
-     * Pulls every review this customer has written into the cache, so
-     * history marks reviewed visits correctly on a fresh install too.
+     * Menarik semua ulasan yang pernah ditulis pelanggan ke cache, supaya
+     * riwayat menandai kunjungan yang sudah diulas dengan benar di instalasi baru juga.
      */
     suspend fun refreshUserReviews(userId: String): Outcome<Unit>
 }

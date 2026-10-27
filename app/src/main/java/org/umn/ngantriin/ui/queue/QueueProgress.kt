@@ -33,8 +33,8 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Progress section: where the restaurant is now, where this
- * ticket sits, and how much of the gap has closed.
+ * Bagian progres: posisi restoran sekarang, posisi tiket ini,
+ * dan seberapa banyak jarak yang sudah menutup.
  */
 @Composable
 fun QueueProgressTrack(
@@ -43,8 +43,8 @@ fun QueueProgressTrack(
 ) {
     val statusColors = LocalStatusColors.current
 
-    // Progress is measured against the gap this ticket started with, so the
-    // bar only ever moves forward as the line shortens.
+    // Progres diukur terhadap jarak awal tiket ini, jadi bar
+    // hanya maju saat antrean memendek.
     val startingGap = rememberStartingGap(queue)
     val progress = if (startingGap <= 0) {
         1f
@@ -104,8 +104,8 @@ fun QueueProgressTrack(
 }
 
 /**
- * The number of groups that were ahead when this screen first saw the ticket.
- * Kept per ticket so the bar has a stable denominator even as the queue moves.
+ * Jumlah rombongan di depan saat layar ini pertama melihat tiket.
+ * Disimpan per tiket supaya bar punya penyebut yang stabil walau antrean bergerak.
  */
 @Composable
 private fun rememberStartingGap(queue: ActiveQueue): Int {
@@ -147,7 +147,7 @@ private fun ProgressEndpoint(
     }
 }
 
-/** Small stat block used under the queue number. */
+/** Blok statistik kecil di bawah nomor antrean. */
 @Composable
 fun QueueStat(
     value: String,
@@ -160,7 +160,7 @@ fun QueueStat(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.xxs)
     ) {
-        // The line only ever moves forward, so a new value rolls in from below.
+        // Antrean hanya maju, jadi nilai baru masuk dari bawah.
         AnimatedContent(
             targetState = value,
             transitionSpec = {

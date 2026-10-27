@@ -69,10 +69,10 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * The screen the whole product exists for.
+ * Layar yang menjadi alasan produk ini ada.
  *
- * The layout answers three questions top to bottom, in one
- * glance: what is my number, how many are ahead, when do I come back.
+ * Tata letaknya menjawab tiga pertanyaan dari atas ke bawah, sekali
+ * lihat: nomorku berapa, berapa yang di depan, kapan aku kembali.
  */
 @Composable
 fun ActiveQueueScreen(
@@ -224,8 +224,8 @@ private fun ActiveQueueContent(
             }
 
             QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> {
-                // Already at the restaurant? Check in early and
-                // keep your place.
+                // Sudah di restoran? Check-in lebih awal dan
+                // tetap pegang tempatmu.
                 SecondaryButton(
                     text = stringResource(R.string.active_queue_im_here),
                     onClick = { onCheckIn(queue.entry.id) },
@@ -293,8 +293,8 @@ private fun ActiveQueueContent(
 }
 
 /**
- * It's this ticket's turn and the check-in window is running.
- * The countdown is the biggest thing on screen — missing it costs the ticket.
+ * Sekarang giliran tiket ini dan jendela check-in berjalan.
+ * Hitung mundur jadi elemen terbesar di layar, karena terlewat berarti kehilangan tiket.
  */
 @Composable
 private fun CheckInCountdownCard(queue: ActiveQueue, onFinished: () -> Unit) {
@@ -360,7 +360,7 @@ private fun CheckInCountdownCard(queue: ActiveQueue, onFinished: () -> Unit) {
     }
 }
 
-/** The moment the whole queue was for. */
+/** Saat yang ditunggu seluruh antrean. */
 @Composable
 private fun TableReadyCard(queue: ActiveQueue) {
     val statusColors = LocalStatusColors.current
@@ -406,8 +406,8 @@ private fun TableReadyCard(queue: ActiveQueue) {
 }
 
 /**
- * The queue number is the single biggest element on the screen,
- * with the two numbers that qualify it directly underneath.
+ * Nomor antrean adalah elemen terbesar di layar, dengan dua angka
+ * yang melengkapinya tepat di bawahnya.
  */
 @Composable
 private fun QueueNumberCard(queue: ActiveQueue) {
@@ -459,8 +459,8 @@ private fun QueueNumberCard(queue: ActiveQueue) {
             Spacer(Modifier.height(Spacing.xl))
 
             if (!queue.showsLinePosition) {
-                // Called and checked in: the line no longer matters, the
-                // table does.
+                // Sudah dipanggil dan check-in: antreannya tidak penting lagi,
+                // mejanya yang penting.
                 Text(
                     text = stringResource(R.string.waiting_for_table_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -513,7 +513,7 @@ private fun QueueNumberCard(queue: ActiveQueue) {
     }
 }
 
-/** Says plainly whether the customer can be somewhere else. */
+/** Menyatakan dengan jelas apakah pelanggan boleh berada di tempat lain. */
 @Composable
 private fun GuidanceCard(queue: ActiveQueue) {
     val statusColors = LocalStatusColors.current

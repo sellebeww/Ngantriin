@@ -44,9 +44,9 @@ class AuthRepositoryImpl(
                     val known = cachedUser.value?.takeIf { it.id == session.userId }
                     val user = known
                         ?: runCatching { remote.fetchProfile(session.userId) }.getOrNull()
-                        // Offline with a valid session: route into the app on a
-                        // placeholder rather than stranding the user on the
-                        // splash screen waiting for a profile fetch.
+                        // Offline tapi sesi masih valid: masuk ke aplikasi dengan profil
+                        // sementara, jangan biarkan pengguna tertahan di splash menunggu
+                        // profil diambil.
                         ?: User(id = session.userId, name = "", email = "")
                     cachedUser.value = user
                     SessionState.SignedIn(user)
@@ -54,9 +54,9 @@ class AuthRepositoryImpl(
             }
         }
 
-    // A refreshed profile has to reach navigation too: registering a restaurant
-    // changes the role without touching the auth session, and the role decides
-    // which half of the app you are in.
+    // Profil yang diperbarui harus sampai ke navigasi juga: mendaftarkan restoran
+    // mengubah role tanpa menyentuh sesi auth, dan role menentukan kamu ada di
+    // bagian aplikasi yang mana.
     override val sessionState: Flow<SessionState> = combine(restoredSession, cachedUser) { state, user ->
         if (state is SessionState.SignedIn && user != null && user.id == state.user.id) {
             SessionState.SignedIn(user)
@@ -80,15 +80,15 @@ class AuthRepositoryImpl(
         }
 
     override suspend fun signOut(): Outcome<Unit> = runCatchingOutcome {
-        // Best effort, and before the session goes away: without it this
-        // phone keeps receiving the previous account's queue pushes. The
-        // 0013 trigger covers the case where the call never gets through.
+        // Sebisanya, dan sebelum sesi hilang: kalau tidak, HP ini terus menerima
+        // push antrean akun sebelumnya. Trigger 0013 menutup kasus saat
+        // panggilan ini tidak sampai.
         remote.currentUserId()?.let { id -> runCatching { remote.clearPushToken(id) } }
         remote.signOut()
         cachedUser.value = null
-        // Explicitly signing out is the one time it is right to drop the
-        // cache: leaving another account's tickets on the device would be
-        // both confusing and a small privacy leak.
+        // Keluar secara eksplisit adalah satu-satunya saat yang tepat untuk membuang
+        // cache: membiarkan tiket akun lain di perangkat membingungkan dan
+        // sedikit membocorkan privasi.
         database.queueDao().clear()
         database.notificationDao().clear()
         database.reviewDao().clear()

@@ -64,7 +64,7 @@ class CheckInViewModel(
         settled
     ) { queue, currentStep, hasSettled ->
         CheckInUiState(
-            // Only the ticket this screen was opened for.
+            // Hanya tiket yang menjadi tujuan layar ini dibuka.
             queue = queue?.takeIf { it.entry.id == queueId },
             step = currentStep,
             isLoading = queue == null && !hasSettled
@@ -72,9 +72,9 @@ class CheckInViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CheckInUiState())
 
     /**
-     * Verification: the customer photographs themselves at the
-     * restaurant. The backend rejects the transition to CHECKED_IN if the
-     * upload's path never reaches it, so a client cannot skip this step.
+     * Verifikasi: pelanggan memotret dirinya di restoran. Backend menolak
+     * transisi ke CHECKED_IN kalau path upload tidak pernah sampai, jadi
+     * client tidak bisa melewati langkah ini.
      */
     fun checkIn(photo: ByteArray) {
         val queue = uiState.value.queue ?: return
@@ -87,8 +87,8 @@ class CheckInViewModel(
             ) {
                 is Outcome.Success -> CheckInStep.Success
                 is Outcome.Failure -> {
-                    // The window closed while the photo was uploading: settle
-                    // the expiry now so the queue screen shows it straight away.
+                    // Jendela tertutup saat foto diunggah: selesaikan kedaluwarsanya
+                    // sekarang supaya layar antrean langsung menampilkannya.
                     if (result.error == AppError.CheckInExpired) {
                         queueRepository.expireOverdue(queue.restaurant.id)
                     }
@@ -98,7 +98,7 @@ class CheckInViewModel(
         }
     }
 
-    /** The countdown on this screen reached zero. */
+    /** Hitung mundur di layar ini sampai nol. */
     fun onCheckInWindowClosed() {
         val restaurantId = uiState.value.queue?.restaurant?.id ?: return
         viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }

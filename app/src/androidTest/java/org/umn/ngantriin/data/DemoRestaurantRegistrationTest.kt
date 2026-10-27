@@ -34,13 +34,13 @@ import java.io.File
 import java.time.LocalTime
 
 /**
- * Sample mode has to follow the same rules the SQL does (0016): registering
- * lists a venue and makes the caller its staff, staff reach only their own
- * venues, and a paused venue disappears from the catalogue and takes no
- * tickets.
+ * Mode demo harus mengikuti aturan yang sama dengan SQL (0016): mendaftar
+ * memunculkan restoran di daftar dan menjadikan pendaftar stafnya, staf hanya
+ * bisa mengakses restorannya sendiri, dan restoran yang dijeda hilang dari
+ * katalog serta tidak menerima tiket.
  *
- * Uses the test APK's own context so its DataStore file is separate from the
- * app's real preferences.
+ * Pakai context milik APK tes supaya file DataStore-nya terpisah dari
+ * preferensi asli aplikasi.
  */
 @RunWith(AndroidJUnit4::class)
 class DemoRestaurantRegistrationTest {
@@ -55,7 +55,7 @@ class DemoRestaurantRegistrationTest {
     fun setUp() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         database = Room.inMemoryDatabaseBuilder(instrumentation.targetContext, NgantriinDatabase::class.java).build()
-        // The test APK's context has no application context; wrap it so DataStore can find files.
+        // Context APK tes tidak punya application context, jadi dibungkus agar DataStore bisa menemukan file.
         val testContext = object : ContextWrapper(instrumentation.context) {
             override fun getApplicationContext(): Context = this
         }
@@ -69,7 +69,7 @@ class DemoRestaurantRegistrationTest {
         admin = DemoAdminRemoteDataSource(backend, auth)
     }
 
-    /** What the reviewer does in the app, then back to the applicant's own session. */
+    /** Aksi reviewer di aplikasi, lalu kembali ke sesi pendaftar. */
     private suspend fun approveAsAdmin(venueId: String, thenSignInAs: String) {
         auth.signIn("admin@ngantriin.id", "")
         admin.review(venueId, approve = true, note = null)
@@ -78,7 +78,7 @@ class DemoRestaurantRegistrationTest {
 
     @After
     fun tearDown() = runBlocking {
-        // setUp may have failed before these exist; do not mask its error.
+        // setUp bisa saja gagal sebelum ini ada, jangan sampai errornya tertutup.
         if (::auth.isInitialized) auth.signOut()
         if (::database.isInitialized) database.close()
     }
@@ -94,7 +94,7 @@ class DemoRestaurantRegistrationTest {
         photo = byteArrayOf(1, 2, 3),
         latitude = -6.2,
         longitude = 106.6,
-        // Midnight to midnight is "24 hours", so joining works whatever time the test runs.
+        // Tengah malam ke tengah malam dianggap "24 jam", jadi bisa antre kapan pun tes dijalankan.
         openingTime = LocalTime.MIDNIGHT,
         closingTime = LocalTime.MIDNIGHT,
         averageServiceMinutes = 3,
@@ -118,14 +118,14 @@ class DemoRestaurantRegistrationTest {
         val waroeng = auth.signIn("staff@ngantriin.id", "")
         assertEquals(UserRole.STAFF, waroeng.role)
         assertEquals(
-            listOf(DemoSeed.WAROENG_ID),
+            listOf(DemoSeed.FIRST_ID),
             restaurants.fetchManagedRestaurants(waroeng.id).map { it.id }
         )
 
-        val kopiId = "22222222-2222-4222-8222-222222222222"
+        val kopiId = "00000002-0000-4000-8000-000000000000"
         expectFailure("NOT_RESTAURANT_STAFF") { queues.callNext(kopiId) }
 
-        // An unlisted "staff…" login runs nothing until it registers a venue.
+        // Login "staff…" yang belum terdaftar tidak mengelola apa-apa sampai mendaftarkan restoran.
         val stranger = auth.signIn("staff.new@example.com", "")
         assertTrue(restaurants.fetchManagedRestaurants(stranger.id).isEmpty())
     }
@@ -137,7 +137,7 @@ class DemoRestaurantRegistrationTest {
 
         val venue = restaurants.registerRestaurant(registration("Warung Uji"))
 
-        // Pending: unlisted, and the applicant sees it but cannot run it yet.
+        // Pending: belum tampil di daftar, pendaftar bisa melihatnya tapi belum bisa mengelola.
         assertEquals(VerificationStatus.PENDING_VERIFICATION, venue.verificationStatus)
         assertFalse(venue.isActive)
         assertFalse(restaurants.fetchRestaurants().any { it.id == venue.id })
@@ -153,12 +153,12 @@ class DemoRestaurantRegistrationTest {
         assertNotNull(venue.imageUrl)
         assertTrue(restaurants.fetchRestaurants().any { it.id == venue.id })
         assertEquals(listOf(venue.id), restaurants.fetchManagedRestaurants(owner.id).map { it.id })
-        // The account is promoted, and stays promoted across a sign-out and back in.
+        // Akun naik jadi staf dan tetap staf setelah keluar lalu masuk lagi.
         assertEquals(UserRole.STAFF, auth.fetchProfile(owner.id).role)
         auth.signOut()
         assertEquals(UserRole.STAFF, auth.signIn("owner@example.com", "").role)
 
-        // Another account sees the venue but cannot run it.
+        // Akun lain bisa melihat restoran tapi tidak bisa mengelolanya.
         val customer = auth.signIn("someone@example.com", "")
         assertTrue(restaurants.fetchManagedRestaurants(customer.id).isEmpty())
         expectFailure("NOT_RESTAURANT_STAFF") { queues.callNext(venue.id) }
@@ -199,14 +199,14 @@ class DemoRestaurantRegistrationTest {
         assertFalse(paused.isActive)
         assertFalse(restaurants.fetchRestaurants().any { it.id == venue.id })
         assertFalse(restaurants.fetchAllQueueStats().any { it.restaurantId == venue.id })
-        // Staff still see it, and a direct lookup (ticket history) still works.
+        // Staf tetap bisa melihatnya, dan pencarian langsung (riwayat tiket) tetap jalan.
         assertEquals(listOf(venue.id), restaurants.fetchManagedRestaurants(owner.id).map { it.id })
         assertEquals(venue.id, restaurants.fetchRestaurant(venue.id).id)
 
         auth.signIn("diner@example.com", "")
         expectFailure("RESTAURANT_CLOSED") { queues.joinQueue(venue.id, 2, null) }
 
-        // Resume it and the full path works: list, join, owner calls, isolation holds.
+        // Setelah dilanjutkan, alurnya jalan penuh: tampil, antre, dipanggil pemilik, isolasi tetap terjaga.
         auth.signIn("owner3@example.com", "")
         restaurants.setRestaurantActive(venue.id, true)
         assertTrue(restaurants.fetchRestaurants().any { it.id == venue.id })
@@ -215,7 +215,7 @@ class DemoRestaurantRegistrationTest {
         val ticket = queues.joinQueue(venue.id, 2, null)
         assertEquals("K-001", ticket.queueNumber)
 
-        // Not staff of the venue: cannot read the line, only their own ticket.
+        // Bukan staf restoran ini: tidak bisa melihat antrean, hanya tiketnya sendiri.
         assertEquals(listOf(ticket.id), queues.fetchRestaurantQueue(venue.id).map { it.id })
         expectFailure("NOT_RESTAURANT_STAFF") { queues.callNext(venue.id) }
         expectFailure("NOT_RESTAURANT_STAFF") { queues.updateStatus(ticket.id, QueueStatus.CALLED) }
@@ -225,13 +225,13 @@ class DemoRestaurantRegistrationTest {
         assertEquals(QueueStatus.CALLED, called.status)
         assertEquals(diner.id, called.userId)
 
-        // Another venue's staff cannot touch it.
+        // Staf restoran lain tidak boleh menyentuhnya.
         auth.signIn("staff@ngantriin.id", "")
         expectFailure("NOT_RESTAURANT_STAFF") { queues.callNext(venue.id) }
     }
 
     private companion object {
-        /** "%PDF-1": enough of a header to be a readable proof file. */
+        /** "%PDF-1": header sekadar cukup supaya terbaca sebagai berkas bukti. */
         val PDF_BYTES = byteArrayOf(0x25, 0x50, 0x44, 0x46, 0x2D, 0x31)
     }
 }

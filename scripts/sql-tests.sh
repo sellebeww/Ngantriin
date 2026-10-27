@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Applies every migration to a throwaway Postgres (the Supabase image) and runs
-# the SQL tests against it. Nothing touches a real Supabase project.
-#   ./scripts/sql-tests.sh
+# Menerapkan semua migrasi ke Postgres sementara (image Supabase) lalu menjalankan
+# tes SQL di sana. Tidak ada yang menyentuh proyek Supabase asli.
+# ./scripts/sql-tests.sh
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -19,7 +19,7 @@ for _ in $(seq 1 60); do
   docker exec "$NAME" pg_isready -U supabase_admin -d postgres >/dev/null 2>&1 && break
   sleep 2
 done
-# The image restarts once while initialising; wait for it to settle.
+# Image restart sekali saat inisialisasi, tunggu sampai tenang.
 sleep 5
 until docker exec "$NAME" pg_isready -U supabase_admin -d postgres >/dev/null 2>&1; do sleep 2; done
 

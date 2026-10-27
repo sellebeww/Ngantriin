@@ -36,28 +36,28 @@ data class StaffQueueUiState(
     val isWorking: Boolean = false,
     val error: AppError? = null
 ) {
-    /** Not called yet, in ticket order — early arrivals included. */
+    /** Belum dipanggil, urut tiket, termasuk yang datang lebih awal. */
     val waiting: List<QueueEntry>
         get() = entries.filter { it.isWaitingToBeCalled }.sortedBy { it.ticketSequence }
 
-    /** Their turn; the check-in window is running. */
+    /** Giliran mereka, jendela check-in berjalan. */
     val called: List<QueueEntry>
         get() = entries.filter { it.status == QueueStatus.CALLED }
 
-    /** Called and checked in: prepare their table. */
+    /** Sudah dipanggil dan check-in: siapkan meja mereka. */
     val arrived: List<QueueEntry>
         get() = entries.filter { it.status == QueueStatus.CHECKED_IN && it.hasBeenCalled }
 
-    /** Table set, being seated: complete once they sit down. */
+    /** Meja siap, sedang didudukkan: selesaikan setelah mereka duduk. */
     val tableReady: List<QueueEntry>
         get() = entries.filter { it.status == QueueStatus.TABLE_READY }
 
-    /** Everyone physically at the restaurant right now. */
+    /** Semua yang sedang berada di restoran saat ini. */
     val atRestaurant: Int get() = entries.count { it.status.isAtRestaurant }
 
     val nowServing: QueueEntry? get() = QueueMath.currentServing(entries)
 
-    /** What call_next would pick. */
+    /** Yang akan dipilih call_next. */
     val next: QueueEntry? get() = QueueMath.nextToCall(entries)
 
     val canCallNext: Boolean get() = next != null && !isWorking
@@ -91,8 +91,8 @@ class StaffQueueViewModel(
             settled.value = true
         }
 
-        // Keep the board honest while it's open. The backend's
-        // own sweep may be minutes away (or absent without pg_cron).
+        // Jaga papan tetap jujur selama terbuka. Sapuan backend sendiri
+        // bisa beberapa menit lagi (atau tidak ada tanpa pg_cron).
         viewModelScope.launch {
             while (isActive) {
                 delay(SWEEP_INTERVAL_MILLIS)
@@ -111,8 +111,8 @@ class StaffQueueViewModel(
             is Outcome.Success -> {
                 val before = managed.value.map { it.id }.toSet()
                 managed.value = outcome.data
-                // A venue that just appeared was registered a moment ago, so
-                // that is the one to show; otherwise keep the current choice.
+                // Restoran yang baru muncul baru saja didaftarkan, jadi itu yang
+                // ditampilkan. Kalau tidak, pertahankan pilihan sekarang.
                 val added = outcome.data.firstOrNull { it.id !in before && before.isNotEmpty() }
                 when {
                     added != null -> selectedId.value = added.id
@@ -125,12 +125,12 @@ class StaffQueueViewModel(
         }
     }
 
-    /** Re-reads which venues this account runs, e.g. after registering one. */
+    /** Membaca ulang restoran yang dikelola akun ini, misalnya setelah mendaftarkan satu. */
     fun refreshManaged() {
         viewModelScope.launch { loadManaged() }
     }
 
-    /** Lists the selected venue to customers, or pauses it. */
+    /** Menampilkan restoran terpilih ke pelanggan, atau menjedanya. */
     fun setListed(active: Boolean) {
         val restaurantId = selectedId.value ?: return
         if (working.value) return
@@ -179,7 +179,7 @@ class StaffQueueViewModel(
         selectedId.value = restaurantId
     }
 
-    /** WAITING/ALMOST_THERE -> CALLED for the longest-waiting ticket. */
+    /** WAITING/ALMOST_THERE -> CALLED untuk tiket yang paling lama menunggu. */
     fun callNext() {
         val restaurantId = selectedId.value ?: return
         if (working.value) return
@@ -205,7 +205,7 @@ class StaffQueueViewModel(
         }
     }
 
-    /** A CALLED row's countdown reached zero on screen. */
+    /** Hitung mundur baris CALLED sampai nol di layar. */
     fun onCheckInWindowClosed() {
         val restaurantId = selectedId.value ?: return
         viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
@@ -216,9 +216,9 @@ class StaffQueueViewModel(
     }
 
     /**
-     * Resolves a ticket's stored check-in photo reference into something a
-     * viewer can actually load (a signed Storage URL for a real backend, a
-     * local Uri passthrough in demo mode — see [QueueRepository]).
+     * Mengubah referensi foto check-in tiket menjadi sesuatu yang bisa
+     * dimuat (signed URL Storage di backend asli, Uri lokal apa adanya di
+     * mode demo, lihat [QueueRepository]).
      */
     suspend fun resolveCheckInPhotoUrl(photoUrl: String): String? =
         when (val outcome = queueRepository.resolveCheckInPhotoUrl(photoUrl)) {
@@ -227,8 +227,8 @@ class StaffQueueViewModel(
         }
 
     /**
-     * Signing out is all this screen has to do: the session flow in
-     * NgantriinApp is what moves the app back to login.
+     * Logout satu-satunya tugas layar ini: flow sesi di
+     * NgantriinApp yang memindahkan aplikasi kembali ke login.
      */
     fun signOut() {
         viewModelScope.launch { authRepository.signOut() }

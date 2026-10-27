@@ -35,8 +35,8 @@ fun NgantriinBottomBar(
                     selected = selected,
                     onClick = { onTabSelected(tab) },
                     icon = {
-                        // A live ticket is flagged on the tab itself, so
-                        // it is visible from anywhere in the app.
+                        // Tiket aktif ditandai di tab-nya sendiri, jadi
+                        // terlihat dari mana pun di aplikasi.
                         if (tab == BottomTab.QUEUE && hasActiveQueue) {
                             BadgedBox(badge = { Badge() }) {
                                 Icon(

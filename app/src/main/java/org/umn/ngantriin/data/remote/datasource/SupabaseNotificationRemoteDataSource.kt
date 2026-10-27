@@ -37,9 +37,9 @@ class SupabaseNotificationRemoteDataSource(
     }
 
     /**
-     * Notifications are written by the backend, not the client — the row
-     * already exists by the time the push arrives, so there is nothing to
-     * insert here. The local mirror is handled by the repository.
+     * Notifikasi ditulis oleh backend, bukan client. Barisnya sudah ada
+     * saat push tiba, jadi tidak ada yang perlu di-insert di sini. Cermin
+     * lokalnya diurus repository.
      */
     override suspend fun record(notification: AppNotification) = Unit
 }

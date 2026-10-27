@@ -98,9 +98,11 @@ Jalankan perintah berikut dari direktori utama proyek:
 
 **Kebutuhan:** JDK 17+, Android SDK, serta emulator atau perangkat Android yang kompatibel.
 
+**Backend:** skema dan data awal Supabase ada di `supabase/migrations/` (0001–0022; `0022_real_restaurants.sql` mengganti restoran contoh dengan 22 restoran nyata), dengan pengujian SQL di `supabase/tests/`.
+
 Jika konfigurasi backend belum tersedia, aplikasi dapat berjalan dalam **mode contoh** dengan data restoran dan antrean simulasi. Mode ini dapat digunakan untuk mencoba alur utama aplikasi.
 
-Di mode contoh tersedia 8 restoran (Waroeng Nusantara, Kopi Sempurna, Sakura Tei, Seoul Bunsik, Bakmi Pelita, Taco Libre, Nasi Goreng Midnight, Warkop 24 Jam Gading). Akun staf contoh, masing-masing hanya mengelola satu restoran: `staff@ngantriin.id` (Waroeng Nusantara), `staff.kopi@`, `staff.sakura@`, `staff.seoul@`, `staff.bakmi@`, `staff.taco@` (semuanya `@ngantriin.id`). Email lain bebas; untuk mencoba pendaftaran, masuk dengan email apa pun lalu buka **Profil → Daftarkan restoranmu**.
+Di mode contoh tersedia 22 restoran nyata di Serpong, BSD, Gading Serpong, Alam Sutera, Bintaro, dan Jakarta (misalnya Gubug Berkah Resto, Sushi Tei, Bebek Bengil, Bandar Djakarta, Social House, dan Café Batavia). **HAKA Dimsum Shop BSD** dan **McDonald’s BSD Sunburst** diatur buka 24 jam. Koordinat masih perkiraan tingkat area/mal, sedangkan jam buka dan foto bersifat sementara; rating mulai dari 0 sampai ada ulasan sungguhan. Setiap restoran punya akun staf sendiri yang hanya mengelola restoran itu: `staff@ngantriin.id` (Gubug Berkah Resto) dan `staff.<nama>@ngantriin.id` untuk yang lain, misalnya `staff.remboelan@`, `staff.bengil@`, `staff.sushitei@`, `staff.haka@`, `staff.mcd@`, `staff.batavia@`. Email lain bebas; untuk mencoba pendaftaran, masuk dengan email apa pun lalu buka **Profil → Daftarkan restoranmu**.
 
 ## Anggota Kelompok
 

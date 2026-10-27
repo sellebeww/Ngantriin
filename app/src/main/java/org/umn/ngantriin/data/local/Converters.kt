@@ -12,7 +12,7 @@ class Converters {
     @TypeConverter
     fun epochToInstant(value: Long?): Instant? = value?.let(Instant::ofEpochMilli)
 
-    /** Stored as seconds-of-day so times sort correctly in SQL. */
+    /** Disimpan sebagai detik dalam sehari supaya urutan waktu benar di SQL. */
     @TypeConverter
     fun localTimeToSeconds(value: LocalTime?): Int? = value?.toSecondOfDay()
 

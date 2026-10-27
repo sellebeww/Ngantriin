@@ -22,7 +22,7 @@ data class AdminReviewUiState(
     val error: AppError? = null
 )
 
-/** The list of applications in one state. The server decides who may see it. */
+/** Daftar pengajuan dalam satu status. Server yang menentukan siapa boleh melihatnya. */
 class AdminReviewViewModel(
     private val adminRepository: AdminRepository,
     private val authRepository: AuthRepository
@@ -37,7 +37,7 @@ class AdminReviewViewModel(
 
     fun setFilter(filter: VerificationStatus) {
         if (filter == _state.value.filter) return
-        // Show nothing rather than the previous list under the new tab.
+        // Tampilkan kosong, bukan daftar sebelumnya di bawah tab baru.
         _state.update { it.copy(filter = filter, applications = emptyList(), isLoading = true, error = null) }
         refresh()
     }
@@ -47,7 +47,7 @@ class AdminReviewViewModel(
         _state.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             val outcome = adminRepository.applications(filter)
-            // A slow answer for a tab the reviewer already left must not overwrite the current one.
+            // Jawaban lambat untuk tab yang sudah ditinggalkan tidak boleh menimpa tab yang sekarang.
             if (_state.value.filter != filter) return@launch
             when (outcome) {
                 is Outcome.Success -> _state.update {
@@ -68,16 +68,16 @@ class AdminReviewViewModel(
 data class AdminApplicationUiState(
     val application: RestaurantApplication? = null,
     val documents: List<ApplicationDocument> = emptyList(),
-    /** Short-lived links for the documents that are shown as pictures. */
+    /** Tautan berumur pendek untuk dokumen yang ditampilkan sebagai gambar. */
     val imageUrls: Map<String, String> = emptyMap(),
     val isLoading: Boolean = true,
     val isWorking: Boolean = false,
     val error: AppError? = null,
-    /** The decision went through; the screen closes. */
+    /** Keputusan berhasil, layar ditutup. */
     val decided: Boolean = false
 )
 
-/** One application: who applied, the proof files, and the decision. */
+/** Satu pengajuan: siapa yang mengajukan, berkas bukti, dan keputusannya. */
 class AdminApplicationViewModel(
     private val adminRepository: AdminRepository,
     private val restaurantId: String,
@@ -111,14 +111,14 @@ class AdminApplicationViewModel(
                     documents = documents,
                     imageUrls = urls,
                     isLoading = false,
-                    // The list moved on while this screen was open: say so, do not show a blank card.
+                    // Daftar sudah berubah saat layar ini terbuka: beri tahu, jangan tampilkan kartu kosong.
                     error = if (application == null) AppError.NotPending else null
                 )
             }
         }
     }
 
-    /** A fresh link every time: the old one lapses after a few minutes. */
+    /** Tautan baru setiap kali, yang lama habis setelah beberapa menit. */
     fun openDocument(document: ApplicationDocument, open: (String) -> Unit) {
         viewModelScope.launch {
             when (val outcome = adminRepository.documentUrl(document)) {

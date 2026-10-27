@@ -82,9 +82,8 @@ private val DarkColors = darkColorScheme(
 )
 
 /**
- * Status colours are intentionally outside the Material scheme: they carry
- * product meaning rather than a role, and they must stay stable
- * when the scheme changes.
+ * Warna status sengaja di luar skema Material: ia membawa makna produk,
+ * bukan peran, dan harus tetap stabil saat skema berubah.
  */
 data class StatusColors(
     val waiting: Color,
@@ -141,8 +140,8 @@ fun NgantriinTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Dynamic colour is deliberately not used: the brand hue and the status
-    // ramp are part of how the queue reads at a glance.
+    // Dynamic color sengaja tidak dipakai: warna merek dan deretan status
+    // adalah bagian dari cara antrean terbaca sekilas.
     val colorScheme = if (darkTheme) DarkColors else LightColors
     val statusColors = if (darkTheme) DarkStatusColors else LightStatusColors
 

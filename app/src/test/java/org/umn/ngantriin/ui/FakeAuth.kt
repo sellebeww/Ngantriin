@@ -9,7 +9,7 @@ import org.umn.ngantriin.domain.model.User
 import org.umn.ngantriin.domain.repository.AuthRepository
 import org.umn.ngantriin.domain.repository.SessionState
 
-/** Records calls and returns canned results; shared by the auth ViewModel tests. */
+/** Mencatat panggilan dan mengembalikan hasil yang disiapkan, dipakai bersama tes ViewModel auth. */
 internal class FakeAuth(
     private val result: Outcome<User> = Outcome.Success(User("u1", "You", "you@example.com")),
     var updatePasswordResult: Outcome<Unit> = Outcome.Success(Unit)

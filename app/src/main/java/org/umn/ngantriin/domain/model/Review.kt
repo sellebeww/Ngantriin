@@ -6,7 +6,7 @@ data class Review(
     val id: String,
     val restaurantId: String,
     val userId: String,
-    /** A review is always anchored to one completed ticket. */
+    /** Ulasan selalu terikat ke satu tiket yang sudah selesai. */
     val queueId: String,
     val rating: Int,
     val comment: String,

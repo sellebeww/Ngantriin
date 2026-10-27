@@ -47,17 +47,17 @@ data class RestaurantDetailUiState(
         get() = stats?.estimatedWaitMinutes
             ?: (waitingCount * (restaurant?.averageServiceMinutes ?: 3))
 
-    /** True when the customer's live ticket is for this venue. */
+    /** True kalau tiket aktif pelanggan untuk restoran ini. */
     val hasQueueHere: Boolean
         get() = activeQueue != null && activeQueue.restaurant.id == restaurant?.id
 
-    /** One active queue, anywhere. */
+    /** Hanya satu antrean aktif, di mana pun. */
     val hasQueueElsewhere: Boolean
         get() = activeQueue != null && activeQueue.restaurant.id != restaurant?.id
 
     val isOpen: Boolean get() = restaurant?.isAcceptingQueue() == true
 
-    /** Seats are open right now, nothing to queue for yet. */
+    /** Ada kursi kosong sekarang, belum perlu antre. */
     val hasAvailableSeats: Boolean get() = restaurant?.hasAvailableSeats == true
 
     val isQueueFull: Boolean
@@ -148,8 +148,8 @@ class RestaurantDetailViewModel(
     }
 
     /**
-     * The ticket number comes back from the backend; the screen
-     * only forwards the id it was given.
+     * Nomor tiket datang dari backend, layar hanya
+     * meneruskan id yang diberikan kepadanya.
      */
     fun joinQueue() {
         if (joining.value) return

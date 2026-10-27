@@ -1,9 +1,9 @@
 -- =============================================================================
--- NGANTRIIN — Row Level Security
+-- NGANTRIIN: Row Level Security
 --
--- Rule of thumb: the client may read what it needs to render a screen and
--- nothing more. Every write that changes queue state goes through a SECURITY
--- DEFINER function in 0002, so the tables themselves stay write-locked.
+-- Pegangan umum: client boleh membaca apa yang dibutuhkan untuk menampilkan
+-- layar dan tidak lebih. Setiap penulisan yang mengubah state antrean lewat
+-- fungsi SECURITY DEFINER di 0002, jadi tabelnya sendiri tetap terkunci untuk tulis.
 -- =============================================================================
 
 alter table public.users            enable row level security;
@@ -39,15 +39,15 @@ create policy staff_select_self on public.restaurant_staff
     for select using (user_id = auth.uid());
 
 -- --- queues ------------------------------------------------------------------
--- A customer sees only their own tickets; staff see every ticket for the
--- venues they work at. Nobody can see another customer's identity.
+-- Pelanggan hanya melihat tiketnya sendiri, staf melihat semua tiket di
+-- restoran tempat mereka bekerja. Tidak ada yang bisa melihat identitas pelanggan lain.
 drop policy if exists queues_select_own_or_staff on public.queues;
 create policy queues_select_own_or_staff on public.queues
     for select using (
         user_id = auth.uid() or public.is_restaurant_staff(restaurant_id)
     );
 
--- Direct inserts are blocked on purpose: join_queue() allocates the number.
+-- Insert langsung sengaja diblokir: join_queue() yang membuat nomornya.
 drop policy if exists queues_insert_none on public.queues;
 create policy queues_insert_none on public.queues
     for insert with check (false);
@@ -58,7 +58,7 @@ create policy queues_update_staff on public.queues
     with check (public.is_restaurant_staff(restaurant_id));
 
 -- --- queue_stats -------------------------------------------------------------
--- Public: this is what drives "12 groups waiting" on the discovery screen.
+-- Publik: inilah yang menampilkan "12 rombongan menunggu" di layar pencarian.
 drop policy if exists queue_stats_select_all on public.queue_stats;
 create policy queue_stats_select_all on public.queue_stats
     for select to authenticated, anon using (true);
@@ -68,7 +68,7 @@ drop policy if exists reviews_select_all on public.reviews;
 create policy reviews_select_all on public.reviews
     for select to authenticated, anon using (true);
 
--- A review requires a COMPLETED queue that belongs to the author.
+-- Ulasan butuh antrean COMPLETED milik penulisnya.
 drop policy if exists reviews_insert_completed_only on public.reviews;
 create policy reviews_insert_completed_only on public.reviews
     for insert with check (
@@ -96,8 +96,8 @@ create policy notifications_update_own on public.notifications
     for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- =============================================================================
--- Realtime: the client subscribes to queues and queue_stats.
--- RLS above is still applied to realtime payloads.
+-- Realtime: client berlangganan queues dan queue_stats.
+-- RLS di atas tetap diterapkan pada payload realtime.
 -- =============================================================================
 alter publication supabase_realtime add table public.queues;
 alter publication supabase_realtime add table public.queue_stats;

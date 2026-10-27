@@ -28,7 +28,7 @@ data class RegisterUiState(
     @param:StringRes val confirmPasswordError: Int? = null,
     val isSubmitting: Boolean = false,
     val error: AppError? = null,
-    /** Set when the project requires email confirmation before first sign-in. */
+    /** Diisi kalau proyek mewajibkan konfirmasi email sebelum login pertama. */
     val confirmationRequired: Boolean = false
 ) {
     val canSubmit: Boolean
@@ -55,9 +55,9 @@ class RegisterViewModel(
 
     fun onPasswordChange(value: String) =
         _uiState.update {
-            // Also clears confirmPasswordError: that message reflects whether
-            // this field and confirmPassword agree, so it can go stale here
-            // too, not just when confirmPassword itself changes.
+            // Sekaligus menghapus confirmPasswordError: pesan itu mencerminkan apakah
+            // field ini dan confirmPassword sama, jadi bisa basi di sini juga, bukan
+            // hanya saat confirmPassword sendiri berubah.
             it.copy(
                 password = value,
                 passwordError = null,
@@ -94,16 +94,16 @@ class RegisterViewModel(
         viewModelScope.launch {
             when (val outcome = authRepository.signUp(state.name, state.email, state.password)) {
                 is Outcome.Success -> {
-                    // The account itself is always a plain user (the server
-                    // makes sure of that). A staff sign-up only remembers that
-                    // the restaurant application comes next.
+                    // Akunnya sendiri selalu pengguna biasa (server yang memastikan).
+                    // Daftar sebagai staf hanya mengingat bahwa pengajuan restoran
+                    // adalah langkah berikutnya.
                     if (state.accountType == AccountType.STAFF) {
                         preferences.setStaffApplicantEmail(state.email)
                     }
                     _uiState.update {
-                        // A blank id means Supabase created the account but has
-                        // not issued a session: the project requires the user to
-                        // confirm their email first.
+                        // Id kosong berarti Supabase membuat akun tapi belum
+                        // menerbitkan sesi: proyek mewajibkan pengguna
+                        // konfirmasi email dulu.
                         it.copy(
                             isSubmitting = false,
                             confirmationRequired = outcome.data.id.isBlank()

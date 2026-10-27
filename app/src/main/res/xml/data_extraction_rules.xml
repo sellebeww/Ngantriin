@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-   Nothing on the device is worth restoring onto another one: the Room cache is
-   rebuilt from Supabase, the sign-in session lives in shared preferences (a
-   restored token would hand one phone's session to another), and unsent
-   offline actions refer to tickets that may no longer be valid. So every
-   domain is excluded from both cloud backup and device-to-device transfer.
+     Tidak ada yang di perangkat layak dipulihkan ke perangkat lain: cache Room
+     dibangun ulang dari Supabase, sesi login ada di shared preferences (token
+     yang dipulihkan akan memberi sesi satu HP ke HP lain), dan aksi offline yang
+     belum terkirim merujuk tiket yang mungkin sudah tidak valid. Jadi semua
+     domain dikecualikan dari backup cloud maupun transfer antar perangkat.
 -->
 <data-extraction-rules>
     <cloud-backup>

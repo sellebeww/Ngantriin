@@ -1,19 +1,19 @@
 -- =============================================================================
--- NGANTRIIN — admin review of restaurant applications (0020 + 0021).
--- One transaction, ends in rollback.
---   psql "$DATABASE_URL" -f supabase/tests/admin_review_test.sql
+-- NGANTRIIN: review admin untuk pengajuan restoran (0020 + 0021).
+-- Satu transaksi, berakhir dengan rollback.
+-- psql "$DATABASE_URL" -f supabase/tests/admin_review_test.sql
 --
--- Every permission here is checked against the database as the role a real
--- client would have, never through the app.
---   a0 evil     signs up claiming role=ADMIN in the sign-up metadata
---   a1 admin    made admin with grant_admin()
---   a2 owner    applies for a restaurant
---   a3 staff    runs a different, approved venue
---   a4 customer
+-- Setiap izin di sini dicek terhadap database sebagai role yang dimiliki client
+-- sungguhan, tidak pernah lewat aplikasi.
+-- a0 evil     mendaftar dengan mengklaim role=ADMIN di metadata pendaftaran
+-- a1 admin    dijadikan admin dengan grant_admin()
+-- a2 owner    mengajukan restoran
+-- a3 staff    mengelola restoran lain yang sudah disetujui
+-- a4 customer
 -- =============================================================================
 begin;
 
--- ---- Case 1: sign-up metadata cannot create an admin --------------------------
+-- ---- Kasus 1: metadata pendaftaran tidak bisa membuat admin ------------------
 insert into auth.users (id, email, raw_user_meta_data) values
     ('a0000000-0000-4000-8000-0000000000a0', 'rev-evil@example.com', '{"role":"ADMIN","name":"Evil"}'::jsonb)
 on conflict (id) do nothing;
@@ -46,7 +46,7 @@ on conflict (id) do nothing;
 select public.grant_admin('rev-admin@example.com');
 select public.grant_staff('rev-staff@example.com', (select id from public.restaurants order by id limit 1));
 
--- Files the app would have uploaded before calling the RPC.
+-- Berkas yang akan diunggah aplikasi sebelum memanggil RPC.
 insert into storage.objects (bucket_id, name, owner) values
     ('restaurant-proofs', 'a2000000-0000-4000-8000-0000000000a2/lic1.pdf', 'a2000000-0000-4000-8000-0000000000a2'),
     ('restaurant-proofs', 'a2000000-0000-4000-8000-0000000000a2/lic2.pdf', 'a2000000-0000-4000-8000-0000000000a2'),
@@ -59,7 +59,7 @@ create function pg_temp.docs(p_uid text, p_file text) returns jsonb language sql
 $f$;
 grant execute on function pg_temp.docs(text, text) to authenticated, anon;
 
--- True when the statement is refused with insufficient_privilege (42501).
+-- True kalau statement ditolak dengan insufficient_privilege (42501).
 create function pg_temp.denied(p_sql text) returns boolean language plpgsql as $f$
 begin
     execute p_sql;
@@ -70,7 +70,7 @@ end;
 $f$;
 grant execute on function pg_temp.denied(text) to authenticated, anon;
 
--- True when the statement fails and the error message contains p_msg.
+-- True kalau statement gagal dan pesan error memuat p_msg.
 create function pg_temp.fails_with(p_sql text, p_msg text) returns boolean language plpgsql as $f$
 begin
     execute p_sql;
@@ -84,7 +84,7 @@ grant execute on function pg_temp.fails_with(text, text) to authenticated, anon;
 create temp table t_ctx (restaurant_id uuid);
 grant all on t_ctx to authenticated, anon;
 
--- ---- Case 2: an application is pending and unlisted --------------------------
+-- ---- Kasus 2: pengajuan berstatus pending dan belum tampil -------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"a2000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
 do $$
@@ -115,13 +115,13 @@ begin
 end;
 $$;
 
--- ---- Case 3: nobody but an admin gets through the admin API -------------------
+-- ---- Kasus 3: hanya admin yang bisa lewat API admin --------------------------
 do $$
 declare
     v_id  uuid := (select restaurant_id from t_ctx);
     v_who text;
 begin
-    -- owner, staff of another venue, customer
+    -- owner, staf restoran lain, pelanggan
     foreach v_who in array array[
         'a2000000-0000-4000-8000-0000000000a2',
         'a3000000-0000-4000-8000-0000000000a3',
@@ -147,7 +147,7 @@ begin
 end;
 $$;
 
--- Not even a session without a login.
+-- Sesi tanpa login pun tidak bisa.
 reset request.jwt.claims;
 set local role anon;
 do $$
@@ -162,7 +162,7 @@ begin
 end;
 $$;
 
--- ---- Case 4: nobody can make themselves (or anyone) an admin -------------------
+-- ---- Kasus 4: tidak ada yang bisa menjadikan dirinya (atau siapa pun) admin --
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"a2000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
 do $$
@@ -191,7 +191,7 @@ begin
 end;
 $$;
 
--- ---- Case 5: the admin sees the application and its documents -----------------
+-- ---- Kasus 5: admin melihat pengajuan dan dokumennya -------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"a1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
 do $$
@@ -221,7 +221,7 @@ begin
 end;
 $$;
 
--- ---- Case 6: proof files are private; only the owner and an admin can read -----
+-- ---- Kasus 6: berkas bukti privat, hanya pemilik dan admin yang bisa baca ----
 do $$
 declare v_n int;
 begin
@@ -249,7 +249,7 @@ set local request.jwt.claims = '{"sub":"a3000000-0000-4000-8000-0000000000a3","r
 do $$
 declare v_n int;
 begin
-    -- a3 is staff of an approved venue: still nobody else's files.
+    -- a3 staf restoran yang sudah disetujui: tetap bukan berkas milik orang lain.
     select count(*) into v_n from storage.objects
     where bucket_id = 'restaurant-proofs' and name like 'a2000000-%';
     if v_n <> 0 then raise exception 'FAILED case 6c: other staff read the applicant''s files'; end if;
@@ -267,7 +267,7 @@ begin
 end;
 $$;
 
--- ---- Case 6e: upload rules ------------------------------------------------------
+-- ---- Kasus 6e: aturan unggahan -----------------------------------------------
 set local request.jwt.claims = '{"sub":"a2000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
 do $$
 begin
@@ -291,7 +291,7 @@ begin
 end;
 $$;
 
--- ---- Case 7: reject needs a reason, the owner sees it, resubmit, approve --------
+-- ---- Kasus 7: menolak butuh alasan, pemilik melihatnya, ajukan ulang, setujui -
 set local request.jwt.claims = '{"sub":"a1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
 do $$
 declare v_id uuid := (select restaurant_id from t_ctx);
@@ -364,7 +364,7 @@ declare
 begin
     select * into v_app from public.admin_list_applications() where restaurant_id = v_id;
     if not found then raise exception 'FAILED case 7e: resubmitted application is not in the pending list'; end if;
-    -- Only the newest submission counts: 2 files in round 2, 1 file in round 1.
+    -- Hanya kiriman terbaru yang dihitung: 2 berkas di putaran 2, 1 berkas di putaran 1.
     if v_app.document_count <> 2 then
         raise exception 'FAILED case 7e: document_count % counts old rounds', v_app.document_count;
     end if;
@@ -378,7 +378,7 @@ begin
 end;
 $$;
 
--- ---- Case 8: approval lists the venue for customers -----------------------------
+-- ---- Kasus 8: persetujuan menampilkan restoran ke pelanggan ------------------
 do $$
 begin
     perform public.admin_review_restaurant((select restaurant_id from t_ctx), true, null);
@@ -436,7 +436,7 @@ begin
 end;
 $$;
 
--- ---- Case 9: an admin is not a restaurant owner ---------------------------------
+-- ---- Kasus 9: admin bukan pemilik restoran -----------------------------------
 do $$
 begin
     if not pg_temp.denied($q$select public.register_restaurant('Admin Resto', 'Jl. Admin No. 1', 'Cafe', '', null, 1, 1,
@@ -447,7 +447,7 @@ begin
 end;
 $$;
 
--- ---- Case 10: staff helpers never overwrite the ADMIN role ----------------------
+-- ---- Kasus 10: helper staf tidak pernah menimpa role ADMIN -------------------
 reset role;
 reset request.jwt.claims;
 do $$
@@ -467,7 +467,7 @@ begin
 end;
 $$;
 
--- ---- Case 11: the role is checked on every call, not remembered ------------------
+-- ---- Kasus 11: role dicek di setiap panggilan, tidak diingat -----------------
 select public.revoke_admin('rev-admin@example.com');
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"a1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';

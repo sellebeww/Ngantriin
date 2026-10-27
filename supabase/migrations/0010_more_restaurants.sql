@@ -1,7 +1,7 @@
 -- =============================================================================
--- NGANTRIIN — a denser cluster of restaurants, all within a few hundred
--- metres of Waroeng Nusantara / Kopi Sempurna, so the "Near You" distance
--- sort has more than two venues to actually sort.
+-- NGANTRIIN: kluster restoran yang lebih rapat, semuanya dalam beberapa ratus
+-- meter dari Waroeng Nusantara / Kopi Sempurna, supaya urutan jarak "Dekat Anda"
+-- punya lebih dari dua restoran untuk diurutkan.
 -- =============================================================================
 
 insert into public.restaurants (

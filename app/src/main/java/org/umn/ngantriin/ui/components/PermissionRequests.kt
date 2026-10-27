@@ -28,16 +28,16 @@ import org.umn.ngantriin.R
 import org.umn.ngantriin.location.LocationProvider
 
 /**
- * Location is never requested cold: the rationale dialog explains
- * what it is for, and "Not now" is a first-class answer — the app keeps
- * working without a fix, it just cannot sort restaurants by distance.
+ * Lokasi tidak pernah diminta tiba-tiba: dialog alasan menjelaskan
+ * gunanya, dan "Nanti saja" adalah jawaban yang sah. Aplikasi tetap
+ * jalan tanpa lokasi, hanya tidak bisa mengurutkan restoran berdasarkan jarak.
  */
 class LocationPermissionState(
     val isGranted: Boolean,
     /**
-     * True once the system will no longer show its dialog ("don't ask again",
-     * or a device policy). Asking again would do nothing visible, so callers
-     * are sent to the app's settings page instead.
+     * True kalau sistem tidak akan menampilkan dialognya lagi ("jangan tanya lagi",
+     * atau kebijakan perangkat). Meminta lagi tidak terlihat hasilnya, jadi
+     * pemanggil diarahkan ke halaman pengaturan aplikasi.
      */
     val isBlocked: Boolean,
     val showRationale: Boolean,
@@ -45,7 +45,7 @@ class LocationPermissionState(
     private val onDismissRationale: () -> Unit,
     private val onAskWithRationale: () -> Unit
 ) {
-    /** Entry point for UI: shows the rationale first, then the system dialog. */
+    /** Titik masuk untuk UI: tampilkan alasan dulu, lalu dialog sistem. */
     fun request() = onAskWithRationale()
 
     fun confirmRationale() = onRequest()
@@ -71,16 +71,16 @@ fun rememberLocationPermissionState(
     ) { result ->
         granted = result.values.any { it }
         rationaleVisible = false
-        // A refusal the system will not let us revisit: no rationale is owed
-        // for either permission, so the next launch would return instantly.
+        // Penolakan yang tidak bisa dibuka lagi oleh sistem: tidak perlu alasan
+        // untuk kedua izin, karena launch berikutnya akan langsung kembali.
         blocked = !granted && activity != null && LocationProvider.FINE_AND_COARSE.none {
             ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
         }
         currentOnResult(granted)
     }
 
-    // The answer can also change outside the app, in system settings. Re-read
-    // it on resume so the UI is not stuck showing the state we left with.
+    // Jawabannya juga bisa berubah di luar aplikasi, lewat pengaturan sistem.
+    // Dibaca ulang saat resume supaya UI tidak terjebak di state saat kita pergi.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, provider) {
         val observer = LifecycleEventObserver { _, event ->
@@ -129,8 +129,8 @@ fun LocationRationaleDialog(state: LocationPermissionState) {
 }
 
 /**
- * Asked once, quietly. A refusal only means the system tray
- * stays empty — the in-app notification list still records everything.
+ * Diminta sekali, secara halus. Penolakan hanya berarti system tray
+ * tetap kosong, daftar notifikasi di dalam aplikasi tetap mencatat semuanya.
  */
 @Composable
 fun RequestNotificationPermissionOnce(enabled: Boolean = true) {
@@ -159,7 +159,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
-/** The only way left to grant a permission the system has stopped asking about. */
+/** Satu-satunya cara tersisa untuk memberi izin yang sudah tidak ditanyakan sistem. */
 private fun Context.openAppSettings() {
     startActivity(
         Intent(

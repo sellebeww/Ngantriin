@@ -1,49 +1,48 @@
 package org.umn.ngantriin.domain.model
 
 /**
- * The one place that turns a queue into the numbers the product is
- * about. Both the Supabase-backed repository and the demo backend call through
- * here, and every rule mirrors a SQL function in
- * 0012_check_in_window_and_table_ready.sql, so an estimate can never differ
- * depending on where the data came from.
+ * Satu-satunya tempat yang mengubah antrean menjadi angka-angka utama produk.
+ * Repository berbasis Supabase dan backend demo sama-sama lewat sini, dan
+ * setiap aturannya meniru fungsi SQL di 0012_check_in_window_and_table_ready.sql,
+ * jadi estimasi tidak akan berbeda tergantung asal datanya.
  */
 object QueueMath {
 
     /**
-     * Groups in front of [ticketSequence] that have not been seated yet.
-     * A CALLED or CHECKED_IN ticket still counts: that table is not free yet.
-     * Mirrors `queue_position`.
+     * Rombongan di depan [ticketSequence] yang belum didudukkan.
+     * Tiket CALLED atau CHECKED_IN tetap dihitung karena mejanya belum kosong.
+     * Meniru `queue_position`.
      */
     fun peopleAhead(entries: List<QueueEntry>, ticketSequence: Int): Int =
         entries.count { it.ticketSequence < ticketSequence && it.status.isInLine }
 
-    /** average service time x people ahead. */
+    /** Rata-rata waktu layanan x jumlah orang di depan. */
     fun estimatedWaitMinutes(peopleAhead: Int, averageServiceMinutes: Int): Int =
         (peopleAhead.coerceAtLeast(0) * averageServiceMinutes.coerceAtLeast(1))
 
     /**
-     * The estimate for a group joining right now: everyone still holding a
-     * place in line, times the pace. Equals [estimatedWaitMinutes] for the
-     * ticket that would be issued next, so a venue card and the new ticket
-     * never disagree. Mirrors `refresh_queue_stats`.
+     * Estimasi untuk rombongan yang bergabung sekarang: semua yang masih
+     * punya tempat di antrean dikali kecepatan layanan. Sama dengan
+     * [estimatedWaitMinutes] untuk tiket berikutnya yang akan terbit, jadi kartu
+     * restoran dan tiket baru tidak pernah berbeda. Meniru `refresh_queue_stats`.
      */
     fun estimatedWaitForNewGroup(entries: List<QueueEntry>, averageServiceMinutes: Int): Int =
         estimatedWaitMinutes(entries.count { it.status.isInLine }, averageServiceMinutes)
 
     /**
-     * Groups the restaurant has not called yet — the "12 groups waiting" on a
-     * restaurant card. Mirrors `refresh_queue_stats`.
+     * Rombongan yang belum dipanggil restoran, yaitu "12 rombongan menunggu" di
+     * kartu restoran. Meniru `refresh_queue_stats`.
      */
     fun waitingCount(entries: List<QueueEntry>): Int =
         entries.count { it.isWaitingToBeCalled }
 
-    /** The ticket `call_next` would pick: lowest number not yet called. */
+    /** Tiket yang akan dipilih `call_next`: nomor terkecil yang belum dipanggil. */
     fun nextToCall(entries: List<QueueEntry>): QueueEntry? =
         entries.filter { it.isWaitingToBeCalled }.minByOrNull { it.ticketSequence }
 
     /**
-     * The number on the "NOW SERVING" board: the highest ticket the restaurant
-     * has called and not finished, falling back to the last one it completed.
+     * Nomor di papan "SEDANG DILAYANI": tiket tertinggi yang sudah dipanggil dan
+     * belum selesai, atau yang terakhir selesai kalau tidak ada.
      */
     fun currentServing(entries: List<QueueEntry>): QueueEntry? =
         entries.filter {
@@ -57,9 +56,9 @@ object QueueMath {
                 .maxByOrNull { it.ticketSequence }
 
     /**
-     * Notification thresholds. Returns the milestone a ticket has reached, or
-     * null when it is still too far back to be worth a notification.
-     * Mirrors `milestoneFor` in the queue-notifier Edge Function.
+     * Ambang notifikasi. Mengembalikan milestone yang dicapai tiket, atau null
+     * kalau masih terlalu jauh untuk perlu notifikasi.
+     * Meniru `milestoneFor` di Edge Function queue-notifier.
      */
     fun notificationMilestone(status: QueueStatus, peopleAhead: Int): NotificationType? = when (status) {
         QueueStatus.CALLED -> NotificationType.CALLED
@@ -75,12 +74,12 @@ object QueueMath {
         }
     }
 
-    /** At or below this many groups ahead the ticket becomes ALMOST_THERE. */
+    /** Pada jumlah rombongan di depan sebanyak ini atau kurang, tiket menjadi ALMOST_THERE. */
     const val ALMOST_THERE_THRESHOLD = 3
 
-    /** At or below this, the customer is told to head back now. */
+    /** Pada angka ini atau kurang, pelanggan disuruh segera kembali. */
     const val RETURN_NOW_THRESHOLD = 1
 
-    /** Default check-in window once called (restaurants.checkin_window_minutes). */
+    /** Jendela check-in bawaan setelah dipanggil (restaurants.checkin_window_minutes). */
     const val DEFAULT_CHECK_IN_WINDOW_MINUTES = 10
 }

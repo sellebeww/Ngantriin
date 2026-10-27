@@ -44,7 +44,7 @@ import org.umn.ngantriin.domain.model.RestaurantListing
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** A scannable restaurant row with queue information kept below the photo. */
+/** Baris restoran yang mudah dipindai, info antrean ada di bawah foto. */
 @Composable
 fun RestaurantCard(
     listing: RestaurantListing,
@@ -120,7 +120,7 @@ fun RestaurantCard(
     }
 }
 
-/** The compact variant used by the "Near You" carousel. */
+/** Varian ringkas untuk carousel "Dekat Anda". */
 @Composable
 fun RestaurantCardCompact(
     listing: RestaurantListing,
@@ -199,8 +199,8 @@ fun QueueSummaryRow(
     modifier: Modifier = Modifier,
     compact: Boolean = false
 ) {
-    // Seats open beats any queue stat — there's nothing to wait
-    // for, so showing "0 waiting / no wait" here would just be noise.
+    // Kursi kosong mengalahkan statistik antrean apa pun: tidak ada yang
+    // perlu ditunggu, jadi menampilkan "0 menunggu / tanpa tunggu" hanya jadi noise.
     if (listing.restaurant.hasAvailableSeats) {
         QueueFact(
             icon = Icons.Filled.EventSeat,
@@ -317,8 +317,8 @@ fun OpenClosedBadge(open: Boolean, modifier: Modifier = Modifier) {
 }
 
 /**
- * Remote photo with a branded placeholder. A missing image never leaves a
- * blank rectangle, which matters most in the loading and offline cases.
+ * Foto dari jaringan dengan placeholder bermerek. Gambar yang hilang tidak
+ * pernah meninggalkan kotak kosong, terutama penting saat loading dan offline.
  */
 @Composable
 fun RestaurantImage(
@@ -350,7 +350,7 @@ fun RestaurantImage(
     }
 }
 
-/** The loading shape of [RestaurantCard]. */
+/** Bentuk loading dari [RestaurantCard]. */
 @Composable
 fun RestaurantCardSkeleton(modifier: Modifier = Modifier) {
     Card(

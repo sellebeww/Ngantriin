@@ -49,8 +49,8 @@ data class RegisterRestaurantUiState(
 }
 
 /**
- * With [resubmitId] set this fixes a REJECTED application: only the contact
- * details and the proof are asked for again, the venue itself is unchanged.
+ * Kalau [resubmitId] diisi, ini memperbaiki pengajuan REJECTED: hanya kontak
+ * dan bukti yang diminta lagi, restorannya sendiri tidak berubah.
  */
 class RegisterRestaurantViewModel(
     private val authRepository: AuthRepository,
@@ -82,7 +82,7 @@ class RegisterRestaurantViewModel(
 
     fun onCapacity(value: String) = edit { copy(capacity = value.filter(Char::isDigit).take(3)) }
 
-    /** Editing a field clears its own complaint and any stale server error. */
+    /** Mengedit field menghapus keluhannya sendiri dan error server yang basi. */
     private fun edit(change: RegisterRestaurantUiState.() -> RegisterRestaurantUiState) =
         _state.update { it.change().copy(errors = emptyMap(), error = null) }
 
@@ -140,9 +140,9 @@ class RegisterRestaurantViewModel(
             when (val outcome = restaurantRepository.registerRestaurant(registration)) {
                 is Outcome.Success -> {
                     preferences.setStaffApplicantEmail(null)
-                    // The account is staff now; pulling the profile is what
-                    // moves the app onto the restaurant dashboard, which shows
-                    // the application as pending until it is reviewed.
+                    // Akun sudah jadi staf. Menarik profil yang memindahkan aplikasi
+                    // ke dashboard restoran, yang menampilkan pengajuan sebagai pending
+                    // sampai ditinjau.
                     authRepository.refreshProfile()
                     _state.update { it.copy(isSubmitting = false, registered = true) }
                 }
@@ -176,7 +176,7 @@ class RegisterRestaurantViewModel(
         }
     }
 
-    /** "+62 812-3456-7890" -> "+6281234567890", as the server normalises it. */
+    /** "+62 812-3456-7890" -> "+6281234567890", seperti yang dinormalisasi server. */
     private fun digitsOf(raw: String): String {
         val plus = if (raw.trim().startsWith("+")) "+" else ""
         return plus + raw.filter(Char::isDigit)
@@ -190,7 +190,7 @@ class RegisterRestaurantViewModel(
         if (s.license == null) {
             errors[RegisterRestaurantUiState.Field.LICENSE] = R.string.validation_proof_required
         } else if (!s.license.isValid || s.ownershipProof?.isValid == false) {
-            // A file that is not really a PDF/JPEG never leaves the phone.
+            // File yang sebenarnya bukan PDF/JPEG tidak pernah keluar dari HP.
             errors[RegisterRestaurantUiState.Field.LICENSE] = R.string.register_restaurant_proof_unreadable
         }
         return errors

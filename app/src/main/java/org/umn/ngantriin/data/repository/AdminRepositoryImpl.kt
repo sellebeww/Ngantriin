@@ -8,7 +8,7 @@ import org.umn.ngantriin.domain.model.RestaurantApplication
 import org.umn.ngantriin.domain.model.VerificationStatus
 import org.umn.ngantriin.domain.repository.AdminRepository
 
-/** Not cached: a review decision must always be made on what the server holds now. */
+/** Tidak di-cache: keputusan review harus selalu berdasarkan data server saat ini. */
 class AdminRepositoryImpl(
     private val remote: AdminRemoteDataSource
 ) : AdminRepository {

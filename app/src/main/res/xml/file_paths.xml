@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Where CheckInScreen writes the photo before it's read back and
-         uploaded — cleared by the system along with the rest of the cache. -->
+    <!--
+         Tempat CheckInScreen menulis foto sebelum dibaca kembali dan
+         diunggah, dibersihkan sistem bersama cache lainnya.
+    -->
     <cache-path name="checkin_photos" path="checkin/"/>
 </paths>

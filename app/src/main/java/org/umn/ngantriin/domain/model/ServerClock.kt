@@ -4,10 +4,10 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * The phone's clock can be minutes off, but `check_in_deadline` is set by the
- * server. Every position fetch carries the server's `now()`; the difference
- * from the local clock is kept here so countdowns match what the server will
- * enforce. Offset error is at most one network round trip.
+ * Jam HP bisa meleset beberapa menit, sedangkan `check_in_deadline` ditentukan
+ * server. Setiap fetch posisi membawa `now()` server, dan selisihnya dari jam
+ * lokal disimpan di sini supaya hitung mundur cocok dengan yang akan ditegakkan
+ * server. Selisihnya paling banyak satu kali bolak-balik network.
  */
 object ServerClock {
     @Volatile

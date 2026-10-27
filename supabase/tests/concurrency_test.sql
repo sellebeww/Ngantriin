@@ -1,23 +1,23 @@
 -- =============================================================================
--- NGANTRIIN — concurrency + cooldown tests for join_queue / call_next /
+-- NGANTRIIN: tes concurrency + cooldown untuk join_queue / call_next /
 -- check_in_queue (0002, 0006, 0007).
 --
--- Part 1 runs in scripts/sql-tests.sh. Part 2 (true parallelism) is manual;
--- it was also exercised with 20 parallel join_queue and 5 parallel call_next
--- connections: 20 distinct ticket numbers, 5 distinct tickets called.
+-- Bagian 1 jalan di scripts/sql-tests.sh. Bagian 2 (paralel sungguhan) manual,
+-- dan juga sudah dicoba dengan 20 koneksi join_queue dan 5 koneksi call_next
+-- paralel: 20 nomor tiket berbeda, 5 tiket berbeda yang dipanggil.
 --
--- Part 1 is a normal sequential script — no real concurrency needed, since
--- the cooldown is just "did the last cancel happen recently", checkable by
--- one session making calls in order. Run it like rls_test.sql.
+-- Bagian 1 skrip berurutan biasa, tidak butuh concurrency sungguhan karena
+-- cooldown hanyalah "apakah pembatalan terakhir baru saja terjadi", bisa dicek
+-- satu sesi yang memanggil berurutan. Jalankan seperti rls_test.sql.
 --
--- Part 2 genuinely needs two separate connections at the same instant, which
--- one linear script cannot produce by itself (a single psql/SQL-editor
--- session executes statements one at a time). It's written as a manual
--- two-terminal procedure instead of pretending a script can do it alone.
+-- Bagian 2 benar-benar butuh dua koneksi terpisah di saat yang sama, yang tidak
+-- bisa dihasilkan satu skrip linear (satu sesi psql/SQL editor menjalankan
+-- statement satu per satu). Maka ditulis sebagai prosedur manual dua terminal,
+-- bukan pura-pura skrip bisa melakukannya sendiri.
 -- =============================================================================
 
 -- =============================================================================
--- PART 1 — join cooldown (Task 4), fully automated.
+-- BAGIAN 1: cooldown join, otomatis penuh.
 -- =============================================================================
 
 begin;
@@ -47,11 +47,11 @@ declare
     v_queue_id uuid;
     v_rejoin_failed boolean := false;
 begin
-    -- Join, then immediately cancel.
+    -- Join, lalu langsung batalkan.
     select id into v_queue_id from public.join_queue('90000000-0000-4000-8000-000000000090');
     perform public.cancel_queue(v_queue_id);
 
-    -- Immediate rejoin: must be rejected with JOIN_COOLDOWN.
+    -- Join ulang langsung: harus ditolak dengan JOIN_COOLDOWN.
     begin
         perform public.join_queue('90000000-0000-4000-8000-000000000090');
         raise exception 'FAILED: immediate rejoin after cancel was NOT rejected';
@@ -61,7 +61,7 @@ begin
                 v_rejoin_failed := true;
                 raise notice 'PASSED: immediate rejoin after cancel was rejected (%.)', sqlerrm;
             else
-                raise; -- some other, unexpected error — let it surface
+                raise; -- error lain yang tidak terduga, biarkan muncul
             end if;
     end;
 
@@ -72,66 +72,66 @@ end $$;
 
 rollback;
 
--- To confirm the cooldown actually *expires*: rerun the block above with
--- `perform pg_sleep(61);` inserted between cancel_queue and the rejoin
--- attempt, and change the `raise exception` inside the `when others` branch
--- to assert the rejoin now SUCCEEDS instead.
+-- Untuk memastikan cooldown benar-benar *berakhir*: jalankan ulang blok di atas
+-- dengan `perform pg_sleep(61);` di antara cancel_queue dan percobaan join ulang,
+-- lalu ubah `raise exception` di cabang `when others` supaya
+-- menegaskan join ulang sekarang BERHASIL.
 
 -- =============================================================================
--- PART 2 — real concurrency for call_next and check_in_queue (Task 2).
--- Manual procedure: open two `psql` sessions (or two Supabase SQL editor
--- tabs) side by side, call them A and B.
+-- BAGIAN 2: concurrency sungguhan untuk call_next dan check_in_queue.
+-- Prosedur manual: buka dua sesi `psql` (atau dua tab SQL editor Supabase)
+-- berdampingan, sebut A dan B.
 -- =============================================================================
 
--- --- Shared setup: run once, in EITHER session -------------------------------
+-- --- Setup bersama: jalankan sekali, di sesi MANA PUN --------------------------
 --
 -- insert into public.restaurants (
---     id, name, category, address, latitude, longitude,
---     opening_time, closing_time, is_open, average_service_minutes,
---     queue_prefix, queue_capacity, checkin_radius_meters
+-- id, name, category, address, latitude, longitude,
+-- opening_time, closing_time, is_open, average_service_minutes,
+-- queue_prefix, queue_capacity, checkin_radius_meters
 -- ) values (
---     '80000000-0000-4000-8000-000000000080', 'Race Test Restaurant', 'Test', '',
---     0, 0, '00:00', '23:59', true, 3, 'R', 1, 150
+-- '80000000-0000-4000-8000-000000000080', 'Race Test Restaurant', 'Test', '',
+-- 0, 0, '00:00', '23:59', true, 3, 'R', 1, 150
 -- ) on conflict (id) do nothing;
 --
--- -- queue_capacity is 1 on purpose: two concurrent joins racing the capacity
--- -- check should never BOTH succeed.
+-- -- queue_capacity sengaja 1: dua join bersamaan yang berebut pengecekan
+-- -- kapasitas tidak boleh KEDUANYA berhasil.
 
--- --- call_next: two staff calling "next" on the same restaurant at once ------
+-- --- call_next: dua staf memanggil "berikutnya" di restoran yang sama bersamaan ---
 --
--- Seed two WAITING tickets for the race restaurant, and a staff account, in
--- either session first (reuse the fixtures / join_queue from rls_test.sql or
--- the app itself in demo/real mode — whichever is faster to set up).
+-- Buat dua tiket WAITING untuk restoran uji race, dan satu akun staf, di
+-- salah satu sesi dulu (pakai ulang fixture / join_queue dari rls_test.sql atau
+-- aplikasinya sendiri di mode demo/asli, mana yang lebih cepat disiapkan).
 --
--- Session A:
---   begin;
---   select public.call_next('80000000-0000-4000-8000-000000000080');
---   -- DO NOT commit yet — leave this transaction open.
+-- Sesi A:
+-- begin;
+-- select public.call_next('80000000-0000-4000-8000-000000000080');
+-- -- JANGAN commit dulu, biarkan transaksi ini terbuka.
 --
--- Session B (while A is still open):
---   select public.call_next('80000000-0000-4000-8000-000000000080');
---   -- Expected: B blocks (hangs) rather than returning immediately — that's
---   -- `for update skip locked` on the row A is holding actually working, and
---   -- there being only one other WAITING ticket for it to skip to (or QUEUE_EMPTY
---   -- if there was only one). If B returns *instantly* with the SAME ticket A
---   -- has, the lock isn't doing its job.
+-- Sesi B (selagi A masih terbuka):
+-- select public.call_next('80000000-0000-4000-8000-000000000080');
+-- -- Yang diharapkan: B menunggu (menggantung) dan tidak langsung kembali. Itu
+-- -- `for update skip locked` pada baris yang dipegang A sedang bekerja, dan
+-- -- hanya ada satu tiket WAITING lain yang bisa dilompati (atau QUEUE_EMPTY
+-- -- kalau hanya ada satu). Kalau B kembali *seketika* dengan tiket YANG SAMA
+-- -- dengan A, berarti lock-nya tidak bekerja.
 --
--- Session A:
---   commit;
---   -- B's call_next now proceeds (was blocked, not racing) and calls the
---   -- *other* ticket. Confirm the two calls produced two DIFFERENT ticket ids.
+-- Sesi A:
+-- commit;
+-- -- call_next B sekarang lanjut (tadi menunggu, bukan berebut) dan memanggil
+-- -- tiket yang *lain*. Pastikan kedua panggilan menghasilkan dua id tiket BERBEDA.
 
--- --- check_in_queue: staff calling the ticket while the customer checks in --
+-- --- check_in_queue: staf memanggil tiket saat pelanggan check-in ---------------
 --
--- Session A:
---   begin;
---   update public.queues set status = 'CALLED', called_at = now() where id = '<ticket id>';
---   -- leave open
+-- Sesi A:
+-- begin;
+-- update public.queues set status = 'CALLED', called_at = now() where id = '<ticket id>';
+-- -- biarkan terbuka
 --
--- Session B (while A is open):
---   select public.check_in_queue('<ticket id>', '<restaurant id>/<ticket id>/<uploaded>.jpg');
---   -- (since 0012 the path must be a real object in the checkin-photos
---   -- bucket under {restaurant_id}/{queue_id}/, otherwise PHOTO_NOT_UPLOADED)
---   -- Expected: B blocks until A commits or rolls back (the `for update` in
---   -- 0006's check_in_queue), rather than reading a pre-commit CALLED status
---   -- that A might still roll back.
+-- Sesi B (selagi A terbuka):
+-- select public.check_in_queue('<ticket id>', '<restaurant id>/<ticket id>/<uploaded>.jpg');
+-- -- (sejak 0012 path harus objek nyata di bucket checkin-photos
+-- -- di bawah {restaurant_id}/{queue_id}/, kalau tidak PHOTO_NOT_UPLOADED)
+-- -- Yang diharapkan: B menunggu sampai A commit atau rollback (`for update`
+-- -- di check_in_queue 0006), dan tidak membaca status CALLED sebelum commit
+-- -- yang mungkin masih di-rollback A.

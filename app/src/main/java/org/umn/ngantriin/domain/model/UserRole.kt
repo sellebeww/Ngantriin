@@ -1,11 +1,11 @@
 package org.umn.ngantriin.domain.model
 
-/** Drives the post-login destination. */
+/** Menentukan tujuan setelah login. */
 enum class UserRole {
     CUSTOMER,
     STAFF,
 
-    /** Reviews restaurant applications. Only the database can grant it (0021). */
+    /** Meninjau pengajuan restoran. Hanya database yang bisa memberikannya (0021). */
     ADMIN;
 
     val wireValue: String get() = name

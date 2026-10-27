@@ -33,10 +33,11 @@ import java.io.File
 import java.time.LocalTime
 
 /**
- * Sample mode has to follow the same review rules as the SQL (0019, 0021): an
- * application is pending and unlisted, only an admin decides it, a rejection needs
- * a reason the owner can read, a rejected application can be fixed and sent again,
- * and nobody else can reach the reviewer's functions.
+ * Mode demo harus mengikuti aturan review yang sama dengan SQL (0019, 0021):
+ * pengajuan berstatus pending dan belum tampil, hanya admin yang memutuskan,
+ * penolakan wajib punya alasan yang bisa dibaca pemilik, pengajuan yang
+ * ditolak bisa diperbaiki dan dikirim ulang, dan orang lain tidak boleh
+ * memanggil fungsi milik reviewer.
  */
 @RunWith(AndroidJUnit4::class)
 class DemoAdminReviewTest {
@@ -104,9 +105,9 @@ class DemoAdminReviewTest {
     private suspend fun asAdmin() = auth.signIn("admin@ngantriin.id", "")
 
     /**
-     * Demo state lives in a DataStore file that outlives a test run, and one pending
-     * application per account is a real rule. A fresh address per run keeps a rerun
-     * (or a run that failed halfway) from tripping over its own leftovers.
+     * State demo disimpan di file DataStore yang masih ada setelah tes selesai, dan
+     * satu pengajuan pending per akun memang aturan aslinya. Alamat baru tiap run
+     * mencegah tes yang diulang (atau yang gagal di tengah) tersandung sisa data lama.
      */
     private fun mail(tag: String) = "rev-$tag-$run@example.com"
 
@@ -143,9 +144,9 @@ class DemoAdminReviewTest {
         auth.signIn(mail("owner2"), "")
         assertTrue(restaurants.fetchRestaurants().any { it.id == venue.id })
         assertEquals(VerificationStatus.APPROVED, restaurants.fetchManagedRestaurants(owner.id).single().verificationStatus)
-        restaurants.setRestaurantActive(venue.id, false) // staff rights now work
+        restaurants.setRestaurantActive(venue.id, false) // hak staf sudah aktif
 
-        // Decided is decided.
+        // Sudah diputuskan ya sudah.
         asAdmin()
         expectFailure("NOT_PENDING") { admin.review(venue.id, approve = false, note = "terlambat") }
         assertTrue(admin.fetchApplications(VerificationStatus.PENDING_VERIFICATION).none { it.restaurantId == venue.id })
@@ -166,7 +167,7 @@ class DemoAdminReviewTest {
         assertEquals("Dokumen tidak terbaca", rejected.verificationNote)
         assertFalse(restaurants.fetchRestaurants().any { it.id == venue.id })
 
-        // A bad file does not reopen it; a good one does.
+        // File yang salah tidak membuka lagi pengajuannya, yang benar membuka.
         expectFailure("PROOF_REQUIRED") {
             restaurants.resubmitRestaurant(
                 venue.id, "081234567890", ApplicantRole.MANAGER,
@@ -190,7 +191,7 @@ class DemoAdminReviewTest {
     fun onlyTheOwnerOfARejectedApplicationCanResubmitIt() = runBlocking {
         auth.signIn(mail("owner4"), "")
         val venue = restaurants.registerRestaurant(registration("Warung Orang Lain"))
-        // Still pending: nothing to resubmit.
+        // Masih pending, jadi belum ada yang bisa diajukan ulang.
         expectFailure("NOT_RESUBMITTABLE") {
             restaurants.resubmitRestaurant(venue.id, "081234567890", ApplicantRole.OWNER, listOf(license()))
         }
@@ -217,7 +218,7 @@ class DemoAdminReviewTest {
             expectFailure("NOT_ADMIN") { admin.fetchDocuments(venue.id) }
             expectFailure("NOT_ADMIN") { admin.review(venue.id, approve = true, note = null) }
         }
-        // Nothing the outsiders tried changed the application.
+        // Percobaan orang luar tidak mengubah pengajuan sama sekali.
         assertEquals(
             VerificationStatus.PENDING_VERIFICATION,
             restaurants.fetchManagedRestaurants(auth.signIn(mail("owner5"), "").id)

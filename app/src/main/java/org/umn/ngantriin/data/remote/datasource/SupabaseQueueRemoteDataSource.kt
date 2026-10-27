@@ -19,10 +19,10 @@ import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.ServerClock
 
 /**
- * Every state change goes through an RPC rather than a table write. The
- * functions in 0002_queue_functions.sql own ticket allocation and the
- * transition rules, so a compromised or simply buggy client cannot invent a
- * queue number or force a check-in without a photo.
+ * Setiap perubahan state lewat RPC, bukan tulis tabel langsung. Fungsi di
+ * 0002_queue_functions.sql yang memegang pemberian nomor tiket dan aturan
+ * transisi, jadi client yang dibobol atau sekadar bermasalah tidak bisa
+ * mengarang nomor antrean atau check-in tanpa foto.
  */
 class SupabaseQueueRemoteDataSource(
     private val client: SupabaseClient
@@ -51,8 +51,8 @@ class SupabaseQueueRemoteDataSource(
     ).decodeAs<QueueDto>().toDomain()
 
     override suspend fun checkIn(queueId: String, restaurantId: String, photo: ByteArray): QueueEntry {
-        // check_in_queue verifies this exact object exists under
-        // {restaurant_id}/{queue_id}/ before it allows CHECKED_IN.
+        // check_in_queue memastikan objek ini ada di {restaurant_id}/{queue_id}/
+        // sebelum mengizinkan CHECKED_IN.
         val path = "$restaurantId/$queueId/${System.currentTimeMillis()}.jpg"
         client.storage.from(checkInPhotosBucket).upload(path, photo) { upsert = false }
 
@@ -102,7 +102,7 @@ class SupabaseQueueRemoteDataSource(
         ).decodeList<QueuePositionDto>()
             .firstOrNull()
             ?.let {
-                // Tied to the response we just received, so keep it here.
+                // Terikat ke respons yang baru diterima, jadi taruh di sini.
                 it.serverNow?.let { raw -> runCatching { java.time.Instant.parse(raw) }.getOrNull() }
                     ?.let(ServerClock::sync)
                 QueuePosition(

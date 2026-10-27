@@ -1,16 +1,16 @@
 -- =============================================================================
--- NGANTRIIN — retention for public.notifications.
+-- NGANTRIIN: retensi untuk public.notifications.
 --
--- Every push is persisted (see 0001's comment on this table) so it can be
--- de-duplicated via the unique (queue_id, type) index. Nothing ever deleted
--- those rows: queues are never hard-deleted (cancellation/completion just
--- changes `status`), so notifications accumulated indefinitely.
+-- Setiap push disimpan (lihat komentar 0001 untuk tabel ini) supaya bisa
+-- dideduplikasi lewat index unique (queue_id, type). Tidak ada yang pernah
+-- menghapus baris itu: antrean tidak pernah dihapus permanen (pembatalan/selesai
+-- hanya mengubah `status`), jadi notifikasi menumpuk tanpa batas.
 --
--- pg_cron isn't enabled by default on every Supabase plan/project, so this
--- migration doesn't assume it's available — it only defines the cleanup
--- function itself, callable manually or wired to a scheduler once one exists.
--- If pg_cron IS available on your project, uncomment the block at the bottom
--- to run this automatically once a day.
+-- pg_cron tidak aktif secara default di setiap plan/proyek Supabase, jadi
+-- migrasi ini tidak mengandalkannya. Ia hanya mendefinisikan fungsi pembersihnya,
+-- yang bisa dipanggil manual atau dipasang ke scheduler kalau sudah ada.
+-- Kalau pg_cron ADA di proyekmu, hapus komentar blok di bawah
+-- supaya jalan otomatis sekali sehari.
 -- =============================================================================
 
 create or replace function public.cleanup_old_notifications(
@@ -36,18 +36,18 @@ comment on function public.cleanup_old_notifications(integer) is
     '— see the pg_cron block commented out in 0008_notifications_cleanup.sql.';
 
 -- -----------------------------------------------------------------------------
--- Optional scheduling, if pg_cron is enabled on this project
--- (Database → Extensions → pg_cron in the Supabase dashboard):
+-- Penjadwalan opsional, kalau pg_cron aktif di proyek ini
+-- (Database -> Extensions -> pg_cron di dashboard Supabase):
 --
 -- create extension if not exists pg_cron;
 --
 -- select cron.schedule(
---     'cleanup-old-notifications',
---     '0 3 * * *',  -- daily at 03:00 UTC
---     $$select public.cleanup_old_notifications(30);$$
+-- 'cleanup-old-notifications',
+-- '0 3 * * *',  -- setiap hari pukul 03:00 UTC
+-- $$select public.cleanup_old_notifications(30);$$
 -- );
 --
--- Without pg_cron, run `select public.cleanup_old_notifications();` by hand
--- from the SQL editor, or point a scheduled Edge Function / external cron at
--- an RPC call to it.
+-- Tanpa pg_cron, jalankan `select public.cleanup_old_notifications();` manual
+-- dari SQL editor, atau arahkan Edge Function terjadwal / cron eksternal ke
+-- panggilan RPC-nya.
 -- -----------------------------------------------------------------------------

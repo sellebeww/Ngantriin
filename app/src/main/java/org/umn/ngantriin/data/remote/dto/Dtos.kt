@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Wire shapes for the Supabase tables. Timestamps stay as strings here and are
- * parsed in the mapper layer: Postgres returns `timestamptz` with a numeric
- * offset, which not every java.time parser accepts on the first try.
+ * Bentuk data tabel Supabase. Timestamp tetap string di sini dan di-parse di
+ * lapisan mapper, karena Postgres mengirim `timestamptz` dengan offset numerik
+ * yang tidak selalu diterima parser java.time pada percobaan pertama.
  */
 
 @Serializable
@@ -63,7 +63,7 @@ data class RestaurantActiveUpdateDto(
     @SerialName("is_active") val isActive: Boolean
 )
 
-/** One row of `admin_list_applications` (0021). */
+/** Satu baris dari `admin_list_applications` (0021). */
 @Serializable
 data class RestaurantApplicationDto(
     @SerialName("restaurant_id") val restaurantId: String,
@@ -82,7 +82,7 @@ data class RestaurantApplicationDto(
     @SerialName("submitted_at") val submittedAt: String? = null
 )
 
-/** One row of `admin_application_documents` (0021). */
+/** Satu baris dari `admin_application_documents` (0021). */
 @Serializable
 data class ApplicationDocumentDto(
     val id: String,
@@ -123,7 +123,7 @@ data class QueueDto(
     @SerialName("expired_at") val expiredAt: String? = null
 )
 
-/** Return shape of the `queue_position` SQL function. */
+/** Bentuk hasil fungsi SQL `queue_position`. */
 @Serializable
 data class QueuePositionDto(
     @SerialName("people_ahead") val peopleAhead: Int = 0,
@@ -154,7 +154,7 @@ data class ReviewInsertDto(
     val review: String
 )
 
-/** Only the editable columns (0012 grants UPDATE on exactly these). */
+/** Hanya kolom yang boleh diubah (0012 memberi UPDATE hanya pada ini). */
 @Serializable
 data class ReviewUpdateDto(
     val rating: Int,

@@ -11,7 +11,7 @@ data class User(
     val displayName: String
         get() = name.ifBlank { email.substringBefore('@') }
 
-    /** Two-letter monogram for the avatar placeholder. */
+    /** Monogram dua huruf untuk placeholder avatar. */
     val initials: String
         get() = displayName
             .split(' ')

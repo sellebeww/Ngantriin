@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.StateFlow
 import org.umn.ngantriin.core.Outcome
 import org.umn.ngantriin.domain.model.User
 
-/** What the app knows about the signed-in person right now. */
+/** Yang diketahui aplikasi tentang orang yang sedang login. */
 sealed interface SessionState {
-    /** Session is being restored from disk — show the splash, not the login. */
+    /** Sesi sedang dipulihkan dari disk: tampilkan splash, bukan login. */
     data object Loading : SessionState
     data object SignedOut : SessionState
     data class SignedIn(val user: User) : SessionState
@@ -16,10 +16,10 @@ sealed interface SessionState {
 
 interface AuthRepository {
 
-    /** Single source of truth for navigation gating. */
+    /** Sumber tunggal untuk gating navigasi. */
     val sessionState: Flow<SessionState>
 
-    /** Snapshot accessor for callers that cannot suspend, e.g. WorkManager. */
+    /** Akses snapshot untuk pemanggil yang tidak bisa suspend, misalnya WorkManager. */
     fun currentUserOrNull(): User?
 
     suspend fun signIn(email: String, password: String): Outcome<User>
@@ -35,27 +35,27 @@ interface AuthRepository {
     suspend fun sendPasswordReset(email: String): Outcome<Unit>
 
     /**
-     * True between opening a password-reset link and choosing the new
-     * password. The session is already signed in by then, so navigation needs
-     * this to keep the person on the reset screen instead of the home screen.
+     * True sejak tautan reset password dibuka sampai password baru dipilih.
+     * Saat itu sesinya sudah login, jadi navigasi butuh ini supaya orangnya
+     * tetap di layar reset, bukan pindah ke beranda.
      */
     val recoveryPending: StateFlow<Boolean>
 
-    /** Feeds an incoming intent to the reset-link handler; others are ignored. */
+    /** Mengoper intent masuk ke handler tautan reset, yang lain diabaikan. */
     fun handleRecoveryLink(intent: Intent)
 
     suspend fun updatePassword(newPassword: String): Outcome<Unit>
 
-    /** Walks away from the reset screen: signs out and clears [recoveryPending]. */
+    /** Meninggalkan layar reset: logout dan mengosongkan [recoveryPending]. */
     suspend fun abandonRecovery(): Outcome<Unit>
 
     suspend fun refreshProfile(): Outcome<User>
 
     suspend fun updateProfile(name: String, phone: String?): Outcome<User>
 
-    /** Stores the device push token against the profile. */
+    /** Menyimpan token push perangkat ke profil. */
     suspend fun syncPushToken(token: String): Outcome<Unit>
 
-    /** Tells the backend which language to write push notifications in. */
+    /** Memberi tahu backend bahasa untuk menulis notifikasi push. */
     suspend fun syncLocale(locale: String): Outcome<Unit>
 }

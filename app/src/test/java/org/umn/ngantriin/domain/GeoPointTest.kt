@@ -5,10 +5,10 @@ import org.junit.Test
 import org.umn.ngantriin.domain.model.GeoPoint
 
 /**
- * [GeoPoint.distanceTo] still backs Home/Search's nearby sort and Restaurant
- * Detail's distance display (see AppContainer's LocationTracker wiring) even
- * though check-in verification no longer uses it — check-in is verified by
- * photo now (see CheckInViewModel / 0006_checkin_photo.sql).
+ * [GeoPoint.distanceTo] masih dipakai untuk urutan terdekat di Beranda/Cari dan
+ * tampilan jarak di Detail Restoran (lihat wiring LocationTracker di AppContainer),
+ * walau verifikasi check-in tidak lagi memakainya: check-in sekarang diverifikasi
+ * lewat foto (lihat CheckInViewModel / 0006_checkin_photo.sql).
  */
 class GeoPointTest {
 
@@ -33,7 +33,7 @@ class GeoPointTest {
 
     @Test
     fun `short city distances are accurate to within a metre`() {
-        // Roughly 100 m north of the restaurant.
+        // Sekitar 100 m di utara restoran.
         val nearby = GeoPoint(waroeng.latitude + 0.000899, waroeng.longitude)
         assertEquals(100.0, waroeng.distanceTo(nearby), 1.0)
     }

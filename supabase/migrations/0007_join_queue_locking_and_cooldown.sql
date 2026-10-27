@@ -1,30 +1,29 @@
 -- =============================================================================
--- NGANTRIIN — join_queue(): row locking + a post-cancel cooldown.
+-- NGANTRIIN: join_queue(): row locking + cooldown setelah membatalkan.
 --
--- Two independent fixes to the same function, done together since rewriting
--- it twice in a row would just replace one CREATE OR REPLACE with another:
+-- Dua perbaikan terpisah pada fungsi yang sama, dikerjakan bersamaan karena
+-- menulis ulang dua kali berturut-turut hanya mengganti satu CREATE OR REPLACE
+-- dengan yang lain:
 --
--- 1. Row locking. The ticket-sequence increment (0002) was already race-safe:
---    `update queue_stats ... returning last_issued_seq` is a single atomic
---    statement, so two concurrent joins can't get the same number. But the
---    checks *before* that — "is this restaurant full", "does this user
---    already have a ticket" — were plain SELECTs with no lock. Two joins
---    arriving at the same instant could both read "not full yet" / "no
---    active ticket yet" before either commits (the capacity check could be
---    over-committed by a handful of rows in a tight race; the duplicate-
---    active-queue case is still caught by queues_one_active_per_user_idx
---    either way, just as a unique-violation instead of a friendly
---    ALREADY_IN_QUEUE message). Fix: `select ... for update` on the
---    restaurant row for the duration of the checks + insert, so concurrent
---    joins to the same restaurant serialise on it — the same pattern
---    call_next() already uses (`for update skip locked`) and
---    check_in_queue() now uses (0006).
+-- 1. Row locking. Kenaikan urutan tiket (0002) sebenarnya sudah aman dari race:
+-- `update queue_stats ... returning last_issued_seq` adalah satu statement
+-- atomik, jadi dua join bersamaan tidak bisa mendapat nomor yang sama. Tapi
+-- pengecekan *sebelum* itu, "apakah restoran penuh" dan "apakah pengguna
+-- sudah punya tiket", hanyalah SELECT biasa tanpa lock. Dua join yang
+-- datang pada saat yang sama bisa sama-sama membaca "belum penuh" / "belum
+-- ada tiket aktif" sebelum salah satunya commit (cek kapasitas bisa
+-- kelebihan beberapa baris pada race yang rapat, sedangkan kasus antrean
+-- aktif ganda tetap tertangkap queues_one_active_per_user_idx, hanya sebagai
+-- pelanggaran unique dan bukan pesan ALREADY_IN_QUEUE yang ramah). Perbaikan:
+-- `select ... for update` pada baris restoran selama pengecekan + insert,
+-- jadi join bersamaan ke restoran yang sama berbaris. Polanya sama dengan
+-- yang sudah dipakai call_next() (`for update skip locked`) dan sekarang
+-- check_in_queue() (0006).
 --
--- 2. Cooldown after cancelling: nothing previously stopped a
---    customer from join -> cancel -> join -> cancel in a tight loop at the
---    same restaurant. A 60-second cooldown after a CANCELLED ticket at the
---    same restaurant closes that without affecting the normal one-ticket-at-
---    a-time flow.
+-- 2. Cooldown setelah membatalkan: sebelumnya tidak ada yang menghentikan
+-- pelanggan join -> cancel -> join -> cancel dalam loop cepat di restoran
+-- yang sama. Cooldown 60 detik setelah tiket CANCELLED di restoran yang
+-- sama menutupnya tanpa mengganggu alur normal satu tiket dalam satu waktu.
 -- =============================================================================
 
 create or replace function public.join_queue(
@@ -46,10 +45,10 @@ begin
         raise exception 'NOT_AUTHENTICATED' using errcode = '28000';
     end if;
 
-    -- Locked for the rest of this transaction: every other join_queue() call
-    -- against this same restaurant blocks here until this one commits or
-    -- rolls back, which is what makes the capacity/duplicate checks below
-    -- trustworthy rather than a race.
+    -- Terkunci sampai transaksi ini selesai: setiap panggilan join_queue() lain
+    -- ke restoran yang sama menunggu di sini sampai ini commit atau rollback,
+    -- dan itulah yang membuat pengecekan kapasitas/duplikat di bawah bisa
+    -- dipercaya, bukan race.
     select * into v_restaurant from public.restaurants
     where id = p_restaurant_id
     for update;
@@ -62,10 +61,10 @@ begin
         raise exception 'RESTAURANT_CLOSED' using errcode = 'check_violation';
     end if;
 
-    -- Surfaced as a friendly message by the client.
-    -- (queues_one_active_per_user_idx is the hard backstop if this is ever
-    -- bypassed; this check is what turns it into a message instead of a
-    -- raw constraint-violation error.)
+    -- Ditampilkan sebagai pesan ramah oleh client.
+    -- (queues_one_active_per_user_idx adalah pengaman terakhir kalau ini pernah
+    -- terlewati, pengecekan ini yang mengubahnya jadi pesan, bukan
+    -- error pelanggaran constraint mentah.)
     if exists (
         select 1 from public.queues
         where user_id = v_user
@@ -74,8 +73,8 @@ begin
         raise exception 'ALREADY_IN_QUEUE' using errcode = 'unique_violation';
     end if;
 
-    -- A brief cooldown after cancelling, so a customer can't
-    -- spam join -> cancel -> join at the same restaurant.
+    -- Cooldown singkat setelah membatalkan, supaya pelanggan tidak bisa
+    -- spam join -> cancel -> join di restoran yang sama.
     if exists (
         select 1 from public.queues
         where user_id = v_user

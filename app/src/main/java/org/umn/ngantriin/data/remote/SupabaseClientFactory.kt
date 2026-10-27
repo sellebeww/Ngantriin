@@ -11,9 +11,9 @@ import kotlinx.serialization.json.Json
 import org.umn.ngantriin.BuildConfig
 
 /**
- * Builds the Supabase client from the credentials in local.properties
- *. Returns null when they are absent, which is the signal the
- * DI container uses to fall back to the demo backend.
+ * Membuat client Supabase dari kredensial di local.properties.
+ * Mengembalikan null kalau kredensialnya tidak ada, dan itu jadi tanda bagi
+ * DI container untuk memakai backend demo.
  */
 object SupabaseClientFactory {
 
@@ -36,8 +36,8 @@ object SupabaseClientFactory {
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
             install(Auth) {
-                // The password-reset email links to ngantriin://auth; the
-                // manifest routes it back to MainActivity.
+                // Email reset password menaut ke ngantriin://auth, lalu manifest
+                // mengarahkannya kembali ke MainActivity.
                 scheme = RECOVERY_SCHEME
                 host = RECOVERY_HOST
             }

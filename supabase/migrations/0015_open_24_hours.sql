@@ -1,7 +1,7 @@
 -- =============================================================================
--- NGANTRIIN — two venues open 24 hours. opening_time = closing_time = 00:00
--- is treated as "always open" by join_queue (the past-midnight branch of the
--- schedule check is true for every t) and by Restaurant.isAcceptingQueue.
+-- NGANTRIIN: dua restoran buka 24 jam. opening_time = closing_time = 00:00
+-- dianggap "selalu buka" oleh join_queue (cabang lewat tengah malam pada
+-- pengecekan jadwal bernilai benar untuk setiap t) dan oleh Restaurant.isAcceptingQueue.
 -- =============================================================================
 
 insert into public.restaurants (

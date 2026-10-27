@@ -54,16 +54,16 @@ class ReviewRepositoryImpl(
         val userId = auth.currentUserId()
             ?: return Outcome.Failure(AppError.SessionExpired)
 
-        // The backend enforces this too; checking here just means
-        // the user gets a clear message instead of a policy violation.
+        // Backend juga menegakkan ini. Mengecek di sini supaya pengguna
+        // mendapat pesan yang jelas, bukan pelanggaran policy.
         val ticket = queueDao.findById(queueId)?.toDomain()
         if (ticket != null && ticket.status != QueueStatus.COMPLETED) {
             return Outcome.Failure(AppError.ReviewNotAllowed)
         }
 
         val outcome = runCatchingOutcome {
-            // One review per visit (reviews.queue_id is unique): a second
-            // submit edits the first instead of failing on the constraint.
+            // Satu ulasan per kunjungan (reviews.queue_id unik): submit kedua
+            // mengedit yang pertama, bukan gagal karena constraint.
             val existing = reviewDao.findByQueue(queueId)?.toDomain()
                 ?: runCatching { remote.fetchReviewForQueue(queueId) }.getOrNull()
             val saved = if (existing != null) {

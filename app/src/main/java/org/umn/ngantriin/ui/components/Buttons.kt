@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * The app's three button weights. Minimum height is 56dp so primary actions
- * clear the 48dp touch target with room to spare.
+ * Tiga bobot tombol aplikasi. Tinggi minimum 56dp supaya aksi utama
+ * melewati target sentuh 48dp dengan lega.
  */
 
 @Composable

@@ -66,7 +66,6 @@ import org.umn.ngantriin.ui.queue.rememberSecondsLeft
 import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 21. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaffQueueScreen(
@@ -87,8 +86,8 @@ fun StaffQueueScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     var search by remember { mutableStateOf("") }
-    // Removing someone from the line cannot be undone (CANCELLED is terminal),
-    // so a stray tap on "Remove" or "No-show" asks first.
+    // Mengeluarkan seseorang dari antrean tidak bisa dibatalkan (CANCELLED itu final),
+    // jadi ketukan nyasar pada "Hapus" atau "Tidak datang" bertanya dulu.
     var pendingCancel by remember { mutableStateOf<QueueEntry?>(null) }
 
     LaunchedEffect(viewModel) {
@@ -203,7 +202,7 @@ fun StaffQueueScreen(
                 }
             }
 
-            // Same hue as the status pill on each row below.
+            // Warna sama dengan pill status di tiap baris di bawah.
             val sections = listOf(
                 QueueSectionData(tableReadyTitle, tableReadySubtitle, state.tableReady.matching(), palette.tableReady),
                 QueueSectionData(arrivedTitle, arrivedSubtitle, state.arrived.matching(), palette.checkedIn),
@@ -221,7 +220,7 @@ fun StaffQueueScreen(
                 }
             }
 
-            // Ordered by urgency: who is standing at the host right now first.
+            // Diurutkan menurut urgensi: yang sedang berdiri di host sekarang paling atas.
             sections.forEach { (title, subtitle, entries, accent) ->
                 queueSection(
                     title = title,
@@ -245,7 +244,7 @@ fun StaffQueueScreen(
     }
 }
 
-/** Below this many live tickets the whole line fits on screen; no search needed. */
+/** Di bawah jumlah tiket aktif ini, seluruh antrean muat di layar, tidak perlu pencarian. */
 private const val SEARCH_THRESHOLD = 6
 
 private data class QueueSectionData(
@@ -354,13 +353,13 @@ private fun StaffQueueRow(
                 QueueStatusPill(status = entry.status, compact = true)
             }
 
-            // Only the transitions the state machine actually allows are
-            // offered, so staff cannot get the queue into an illegal state.
+            // Hanya transisi yang memang diizinkan state machine yang
+            // ditawarkan, jadi staf tidak bisa membuat antrean masuk state ilegal.
             val actions = entry.staffActions()
             if (actions.isNotEmpty()) {
                 Spacer(Modifier.height(Spacing.sm))
-                // A TextButton insets its label by 12dp; pull the row back so the
-                // first action lines up with the ticket number above it.
+                // TextButton menggeser labelnya 12dp, tarik baris kembali supaya
+                // aksi pertama sejajar dengan nomor tiket di atasnya.
                 FlowRow(
                     modifier = Modifier.offset(x = (-12).dp),
                     horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
@@ -379,7 +378,7 @@ private fun StaffQueueRow(
     }
 }
 
-/** The legal next moves for staff, straight out of the state machine. */
+/** Langkah berikutnya yang sah untuk staf, langsung dari state machine. */
 private fun QueueEntry.staffActions(): List<Pair<Int, QueueStatus>> = when (status) {
     QueueStatus.WAITING, QueueStatus.ALMOST_THERE -> listOf(
         R.string.staff_action_call to QueueStatus.CALLED,

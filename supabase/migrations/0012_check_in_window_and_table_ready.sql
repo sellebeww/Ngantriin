@@ -1,37 +1,37 @@
 -- =============================================================================
--- NGANTRIIN — the full customer journey, enforced by the database.
+-- NGANTRIIN: perjalanan pelanggan lengkap, ditegakkan database.
 --
---   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
---                                 |
---                                 +-- (10 min, no check-in) --> EXPIRED
+-- WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
+-- |
+-- +-- (10 menit, tidak check-in)  EXPIRED
 --
--- What this migration changes, and why:
+-- Yang diubah migrasi ini, dan alasannya:
 --
--- 1. Check-in window. When a ticket is CALLED it gets a `check_in_deadline`
---    (restaurants.checkin_window_minutes, 10 by default). Miss it and the
---    ticket becomes EXPIRED. Expiry is enforced three ways so it holds even
---    when one of them is missing:
---      * pg_cron sweeps every minute (scheduled at the bottom, if available);
---      * every RPC that reads or moves a restaurant's line sweeps it first;
---      * check_in_queue() refuses a check-in past the deadline.
+-- 1. Jendela check-in. Saat tiket CALLED ia mendapat `check_in_deadline`
+-- (restaurants.checkin_window_minutes, bawaan 10). Terlewat berarti
+-- tiket menjadi EXPIRED. Kedaluwarsa ditegakkan dengan tiga cara supaya tetap
+-- berlaku walau salah satunya tidak ada:
+-- * pg_cron menyapu tiap menit (dijadwalkan di bawah, kalau tersedia);
+-- * setiap RPC yang membaca atau menggerakkan antrean restoran menyapunya dulu;
+-- * check_in_queue() menolak check-in setelah batas waktu.
 --
--- 2. Early check-in. A customer who is already at the restaurant can check in
---    from WAITING or ALMOST_THERE. They keep their place; when their ticket
---    comes up, call_next() takes them straight to TABLE_READY because there
---    is nobody to wait for.
+-- 2. Check-in lebih awal. Pelanggan yang sudah di restoran bisa check-in
+-- dari WAITING atau ALMOST_THERE. Mereka tetap pegang tempatnya, dan saat
+-- tiketnya tiba, call_next() langsung membawanya ke TABLE_READY karena
+-- tidak ada yang perlu ditunggu.
 --
--- 3. TABLE_READY. Staff mark it once the table is set; the customer is told
---    to go to the host. Only then is a visit COMPLETED.
+-- 3. TABLE_READY. Staf menandainya setelah meja siap, pelanggan disuruh
+-- ke host. Baru setelah itu kunjungan COMPLETED.
 --
--- 4. Opening hours are checked on the server, not just in the app.
+-- 4. Jam buka dicek di server, bukan hanya di aplikasi.
 --
--- 5. Check-in photo is verified: the storage object must exist at the path
---    convention `{restaurant_id}/{queue_id}/...` before CHECKED_IN is allowed.
+-- 5. Foto check-in diverifikasi: objek storage harus ada di konvensi path
+-- `{restaurant_id}/{queue_id}/...` sebelum CHECKED_IN diizinkan.
 --
--- 6. Security hardening: column-level UPDATE grants, staff role can no longer
---    be self-assigned, queue_position checks ownership, internal functions are
---    no longer callable by clients, and the notifier webhook is authenticated
---    with a shared secret instead of the service-role key.
+-- 6. Pengerasan keamanan: grant UPDATE per kolom, role staf tidak bisa lagi
+-- diberikan sendiri, queue_position mengecek kepemilikan, fungsi internal
+-- tidak lagi bisa dipanggil client, dan webhook notifier diautentikasi
+-- dengan shared secret, bukan service-role key.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -47,8 +47,8 @@ do $$ begin
         check (checkin_window_minutes between 1 and 60);
 exception when duplicate_object then null; end $$;
 
--- Language the server writes push notifications in; the app keeps it in sync
--- with Settings -> Language.
+-- Bahasa yang dipakai server untuk menulis push notification, aplikasi
+-- menjaganya sinkron dengan Pengaturan -> Bahasa.
 alter table public.users
     add column if not exists locale text not null default 'id';
 
@@ -62,8 +62,8 @@ alter table public.queues
     add column if not exists table_ready_at    timestamptz,
     add column if not exists expired_at        timestamptz;
 
--- The "live" set now includes TABLE_READY: the customer still holds a ticket
--- until they're seated and the visit is completed.
+-- Set "aktif" sekarang mencakup TABLE_READY: pelanggan masih memegang tiket
+-- sampai didudukkan dan kunjungan selesai.
 drop index if exists public.queues_one_active_per_user_idx;
 create unique index queues_one_active_per_user_idx
     on public.queues (user_id)
@@ -74,13 +74,13 @@ create index queues_restaurant_active_idx
     on public.queues (restaurant_id, ticket_sequence)
     where status in ('WAITING', 'ALMOST_THERE', 'CALLED', 'CHECKED_IN', 'TABLE_READY');
 
--- Lets the minute-by-minute sweep find overdue tickets without a scan.
+-- Supaya sapuan tiap menit menemukan tiket yang lewat batas tanpa scan penuh.
 create index if not exists queues_called_deadline_idx
     on public.queues (check_in_deadline)
     where status = 'CALLED';
 
 -- -----------------------------------------------------------------------------
--- State machine (mirrors QueueStatus.canTransitionTo in the app)
+-- State machine (mencerminkan QueueStatus.canTransitionTo di aplikasi)
 -- -----------------------------------------------------------------------------
 create or replace function public.is_valid_queue_transition(
     p_from queue_status,
@@ -102,8 +102,8 @@ $$;
 -- Helpers
 -- -----------------------------------------------------------------------------
 
--- `is_open` is the manual switch; the clock is the schedule. Both must agree.
--- Mirrors Restaurant.isAcceptingQueue() in the app.
+-- `is_open` adalah saklar manual, jam adalah jadwalnya. Keduanya harus setuju.
+-- Meniru Restaurant.isAcceptingQueue() di aplikasi.
 create or replace function public.restaurant_accepting_queue(p_restaurant public.restaurants)
 returns boolean
 language sql stable
@@ -115,15 +115,15 @@ as $$
         when p_restaurant.closing_time > p_restaurant.opening_time then
             t >= p_restaurant.opening_time and t < p_restaurant.closing_time
         else
-            -- Past-midnight closing, e.g. 18:00 - 02:00.
+            -- Tutup lewat tengah malam, misalnya 18:00 - 02:00.
             t >= p_restaurant.opening_time or t < p_restaurant.closing_time
     end
     from local_now;
 $$;
 
--- A CALLED ticket that missed its check-in window is gone.
--- Idempotent and only ever applies the rule, so it is safe for any signed-in
--- client to trigger (the app does when a countdown reaches zero).
+-- Tiket CALLED yang melewatkan jendela check-in sudah hilang.
+-- Idempoten dan hanya menerapkan aturan, jadi aman dipicu oleh
+-- client yang login (aplikasi melakukannya saat hitung mundur sampai nol).
 create or replace function public.expire_overdue_queues(p_restaurant_id uuid default null)
 returns integer
 language plpgsql
@@ -145,12 +145,12 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Counters
+-- Counter
 --
---   waiting_count  = groups not called yet (an early check-in still counts:
---                    they're in the building but still in line)
---   current_serving = highest ticket the restaurant has called and not yet
---                    finished, falling back to the last completed one
+-- waiting_count   = rombongan yang belum dipanggil (check-in lebih awal tetap
+-- dihitung: mereka di dalam gedung tapi masih dalam antrean)
+-- current_serving = tiket tertinggi yang sudah dipanggil restoran dan belum
+-- selesai, atau yang terakhir selesai kalau tidak ada
 -- -----------------------------------------------------------------------------
 create or replace function public.refresh_queue_stats(p_restaurant_id uuid)
 returns void
@@ -208,7 +208,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- join_queue — adds the opening-hours check and the new live-status set
+-- join_queue: menambah pengecekan jam buka dan set status aktif yang baru
 -- -----------------------------------------------------------------------------
 create or replace function public.join_queue(
     p_restaurant_id uuid,
@@ -233,7 +233,7 @@ begin
         raise exception 'INVALID_PARTY_SIZE' using errcode = 'check_violation';
     end if;
 
-    -- Serialises concurrent joins to this restaurant (see 0007).
+    -- Membuat join bersamaan ke restoran ini berbaris (lihat 0007).
     select * into v_restaurant from public.restaurants
     where id = p_restaurant_id
     for update;
@@ -310,7 +310,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- cancel_queue — the customer may leave at any live stage
+-- cancel_queue: pelanggan boleh keluar di tahap aktif mana pun
 -- -----------------------------------------------------------------------------
 create or replace function public.cancel_queue(p_queue_id uuid)
 returns public.queues
@@ -335,7 +335,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- check_in_queue — arrival at the restaurant, photo verified
+-- check_in_queue: kedatangan di restoran, foto terverifikasi
 -- -----------------------------------------------------------------------------
 create or replace function public.check_in_queue(
     p_queue_id  uuid,
@@ -360,9 +360,9 @@ begin
         raise exception 'QUEUE_NOT_FOUND' using errcode = 'no_data_found';
     end if;
 
-    -- Raising rolls the transaction back, so the ticket is not marked EXPIRED
-    -- here; the sweep (cron, or the client calling expire_overdue_queues on
-    -- this error) does that.
+    -- Melempar error membatalkan transaksi, jadi tiket tidak ditandai EXPIRED
+    -- di sini. Sapuan (cron, atau client yang memanggil expire_overdue_queues
+    -- saat error ini) yang melakukannya.
     if v_row.status = 'CALLED'
        and v_row.check_in_deadline is not null
        and v_row.check_in_deadline <= now() then
@@ -373,7 +373,7 @@ begin
         raise exception 'CHECK_IN_NOT_ALLOWED' using errcode = 'check_violation';
     end if;
 
-    -- The photo must be a real upload for *this* ticket.
+    -- Foto harus unggahan asli untuk tiket *ini*.
     v_prefix := v_row.restaurant_id::text || '/' || v_row.id::text || '/';
     if left(p_photo_url, length(v_prefix)) <> v_prefix
        or not exists (
@@ -395,9 +395,9 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- call_next — the next group in ticket order.
---   * not checked in yet  -> CALLED, check-in window starts now
---   * already checked in  -> TABLE_READY (they're here; nothing to wait for)
+-- call_next: rombongan berikutnya menurut urutan tiket.
+-- * belum check-in  -> CALLED, jendela check-in mulai sekarang
+-- * sudah check-in  -> TABLE_READY (mereka sudah di sini, tidak ada yang ditunggu)
 -- -----------------------------------------------------------------------------
 create or replace function public.call_next(p_restaurant_id uuid)
 returns public.queues
@@ -450,8 +450,8 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- staff_update_queue_status — one step along the state machine, with the
--- matching timestamp. The transition guard trigger rejects illegal moves.
+-- staff_update_queue_status: satu langkah di state machine, dengan
+-- timestamp yang sesuai. Trigger guard transisi menolak perpindahan ilegal.
 -- -----------------------------------------------------------------------------
 create or replace function public.staff_update_queue_status(
     p_queue_id uuid,
@@ -500,7 +500,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- queue_position — only for the ticket's owner or the venue's staff
+-- queue_position: hanya untuk pemilik tiket atau staf restoran
 -- -----------------------------------------------------------------------------
 create or replace function public.queue_position(p_queue_id uuid)
 returns table (
@@ -534,8 +534,8 @@ begin
     select coalesce(r.average_service_minutes, 3) into v_avg
     from public.restaurants r where r.id = v_target.restaurant_id;
 
-    -- Everyone in front who has not been seated yet still occupies a table
-    -- this ticket is waiting for.
+    -- Semua yang di depan dan belum didudukkan masih menempati meja
+    -- yang ditunggu tiket ini.
     select count(*)::integer into v_ahead
     from public.queues q
     where q.restaurant_id = v_target.restaurant_id
@@ -555,7 +555,7 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- promote_almost_there — same idea, new "in line" set
+-- promote_almost_there: ide yang sama, set "dalam antrean" yang baru
 -- -----------------------------------------------------------------------------
 create or replace function public.promote_almost_there(p_restaurant_id uuid)
 returns setof public.queues
@@ -579,12 +579,12 @@ end;
 $$;
 
 -- =============================================================================
--- Security hardening
+-- Pengerasan keamanan
 -- =============================================================================
 
--- Staff is granted by an admin inserting into restaurant_staff — never by a
--- sign-up form. The role column is display routing only, and now it can't be
--- self-assigned either.
+-- Staf diberikan oleh admin yang meng-insert ke restaurant_staff, tidak pernah
+-- lewat form daftar. Kolom role hanya untuk routing tampilan, dan sekarang
+-- juga tidak bisa diberikan sendiri.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -603,9 +603,9 @@ begin
 end;
 $$;
 
--- Column-level UPDATE grants: RLS decides *which rows*, these decide *which
--- columns*. Without them, "update your own row" also meant "change your own
--- role" or "move your review to another restaurant".
+-- Grant UPDATE per kolom: RLS menentukan *baris mana*, ini menentukan *kolom
+-- mana*. Tanpanya, "ubah barismu sendiri" juga berarti "ubah rolemu sendiri"
+-- atau "pindahkan ulasanmu ke restoran lain".
 revoke update on public.users from anon, authenticated;
 grant update (name, phone, avatar_url, fcm_token, locale) on public.users to authenticated;
 
@@ -621,20 +621,20 @@ grant update (
     average_service_minutes, queue_capacity, checkin_window_minutes
 ) on public.restaurants to authenticated;
 
--- Every queue change goes through the RPCs above; direct table writes are
--- closed, staff included.
+-- Setiap perubahan antrean lewat RPC di atas, penulisan langsung ke tabel
+-- ditutup, termasuk untuk staf.
 drop policy if exists queues_update_staff on public.queues;
 revoke insert, update, delete on public.queues from anon, authenticated;
 revoke insert, update, delete on public.queue_stats from anon, authenticated;
 
--- Internal helpers: not for clients.
+-- Helper internal: bukan untuk client.
 revoke execute on function public.refresh_queue_stats(uuid) from public, anon, authenticated;
 revoke execute on function public.promote_almost_there(uuid) from public, anon, authenticated;
 revoke execute on function public.cleanup_old_notifications(integer) from public, anon, authenticated;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 revoke execute on function public.on_queue_change() from public, anon, authenticated;
 
--- Client RPCs: signed-in users only.
+-- RPC untuk client: hanya pengguna yang login.
 revoke execute on function public.join_queue(uuid, integer, text) from public, anon;
 revoke execute on function public.cancel_queue(uuid) from public, anon;
 revoke execute on function public.check_in_queue(uuid, text) from public, anon;
@@ -650,21 +650,21 @@ grant execute on function public.staff_update_queue_status(uuid, queue_status) t
 grant execute on function public.queue_position(uuid) to authenticated;
 grant execute on function public.expire_overdue_queues(uuid) to authenticated;
 
--- The old 2-argument GPS check-in from 0002 is dead code; 0006 replaced it.
+-- Check-in GPS 2 argumen yang lama dari 0002 sudah kode mati, 0006 menggantinya.
 drop function if exists public.check_in_queue(uuid, double precision, double precision);
 
 -- =============================================================================
--- Notifier webhook — authenticated with a shared secret.
+-- Webhook notifier: diautentikasi dengan shared secret.
 --
--- Configure once per project (same value as the Edge Function's
--- QUEUE_NOTIFIER_SECRET):
+-- Atur sekali per proyek (nilainya sama dengan QUEUE_NOTIFIER_SECRET milik
+-- Edge Function):
 --
---   alter database postgres set app.settings.functions_url =
---       'https://<project-ref>.supabase.co/functions/v1';
---   alter database postgres set app.settings.queue_notifier_secret = '<random>';
+-- alter database postgres set app.settings.functions_url =
+-- 'https://<project-ref>.supabase.co/functions/v1';
+-- alter database postgres set app.settings.queue_notifier_secret = '<random>';
 --
--- The previous version sent the service-role key in this header; that key
--- can bypass every RLS rule and does not belong in a database setting.
+-- Versi sebelumnya mengirim service-role key di header ini. Key itu
+-- bisa melewati semua aturan RLS dan tidak pantas ada di pengaturan database.
 -- =============================================================================
 create or replace function public.notify_queue_change()
 returns trigger
@@ -676,13 +676,13 @@ declare
     v_secret text := current_setting('app.settings.queue_notifier_secret', true);
 begin
     if v_url is null or v_url = '' or v_secret is null or v_secret = '' then
-        -- Not configured: queue state still changes correctly, there is just
-        -- nothing to push to. The app's live-tracking service covers this.
+        -- Belum dikonfigurasi: state antrean tetap berubah dengan benar, hanya
+        -- tidak ada yang dikirimi push. Service pelacakan di aplikasi menutupnya.
         return coalesce(new, old);
     end if;
 
-    -- Only the ticket id travels; the function re-reads the row itself, so a
-    -- forged call cannot invent a status or a recipient.
+    -- Hanya id tiket yang dikirim, fungsi membaca ulang barisnya sendiri, jadi
+    -- panggilan palsu tidak bisa mengarang status atau penerima.
     perform net.http_post(
         url := v_url || '/queue-notifier',
         headers := jsonb_build_object(
@@ -703,9 +703,9 @@ $$;
 revoke execute on function public.notify_queue_change() from public, anon, authenticated;
 
 -- =============================================================================
--- Scheduled expiry (pg_cron). Optional: the RPC-side sweeps above keep the
--- rule enforced without it, this just makes expiry happen on time even when
--- nobody is looking at that restaurant.
+-- Kedaluwarsa terjadwal (pg_cron). Opsional: sapuan di sisi RPC di atas
+-- sudah menegakkan aturan tanpa ini, ini hanya membuat kedaluwarsa terjadi
+-- tepat waktu walau tidak ada yang sedang melihat restoran itu.
 -- =============================================================================
 do $$
 begin
@@ -727,7 +727,7 @@ exception when others then
 end;
 $$;
 
--- Recompute counters under the new definitions.
+-- Hitung ulang counter dengan definisi baru.
 do $$
 declare
     r record;

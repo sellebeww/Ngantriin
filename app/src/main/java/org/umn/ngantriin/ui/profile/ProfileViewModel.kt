@@ -79,8 +79,8 @@ class ProfileViewModel(
             user = user,
             completedVisits = completed,
             totalQueues = items.size,
-            // The point of the product, stated as a number: time spent not
-            // standing in a line.
+            // Inti produk dalam satu angka: waktu yang tidak dihabiskan
+            // berdiri di antrean.
             minutesSaved = items
                 .filter { it.entry.status == QueueStatus.COMPLETED }
                 .sumOf { it.entry.waitedMinutes ?: 0 },

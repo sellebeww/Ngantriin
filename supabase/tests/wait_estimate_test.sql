@@ -1,12 +1,12 @@
 -- =============================================================================
--- NGANTRIIN — wait-estimate consistency (0017).
+-- NGANTRIIN: konsistensi estimasi tunggu (0017).
 --
---   1. The venue-level estimate in queue_stats equals what queue_position tells
---      the next group to join, including groups that are already CALLED.
---   2. Changing average_service_minutes refreshes the cached estimate with no
---      queue activity.
+-- 1. Estimasi tingkat restoran di queue_stats sama dengan yang dikatakan
+-- queue_position kepada rombongan berikutnya yang join, termasuk rombongan yang sudah CALLED.
+-- 2. Mengubah average_service_minutes me-refresh estimasi yang di-cache
+-- tanpa aktivitas antrean.
 --
--- One transaction, ends in `rollback`. Run by scripts/sql-tests.sh.
+-- Satu transaksi, berakhir dengan `rollback`. Dijalankan oleh scripts/sql-tests.sh.
 -- =============================================================================
 
 begin;
@@ -39,7 +39,7 @@ insert into public.restaurant_staff (restaurant_id, user_id) values
     ('e2000000-0000-4000-8000-0000000000e1', 'a2000000-0000-4000-8000-0000000000a4')
 on conflict do nothing;
 
--- A and B join, staff call A: A is CALLED (not "waiting", still ahead), B waits.
+-- A dan B join, staf memanggil A: A CALLED (bukan "menunggu", tetap di depan), B menunggu.
 do $$
 begin
     perform set_config('role', 'authenticated', true);
@@ -53,7 +53,7 @@ end $$;
 reset role;
 reset request.jwt.claims;
 
--- Case 1: venue estimate == what C is told on joining.
+-- Kasus 1: estimasi restoran == yang dikatakan ke C saat join.
 do $$
 declare
     v_venue  integer;
@@ -77,7 +77,7 @@ end $$;
 reset role;
 reset request.jwt.claims;
 
--- Case 2: pace change refreshes the cache without any ticket changing.
+-- Kasus 2: perubahan kecepatan me-refresh cache tanpa ada tiket yang berubah.
 update public.restaurants set average_service_minutes = 5
 where id = 'e2000000-0000-4000-8000-0000000000e1';
 
@@ -87,16 +87,16 @@ declare
 begin
     select estimated_wait_time into v_venue
     from public.queue_stats where restaurant_id = 'e2000000-0000-4000-8000-0000000000e1';
-    -- A (CALLED), B and C (WAITING) are all in line: 3 x 5.
+    -- A (CALLED), B dan C (WAITING) semuanya dalam antrean: 3 x 5.
     if v_venue <> 15 then
         raise exception 'FAILED case 2: estimate % after pace change (expected 15)', v_venue;
     end if;
     raise notice 'PASSED case 2: pace change refreshed the estimate';
 end $$;
 
--- Case 3: observed pace. Four earlier groups were called 6 minutes apart, each
--- already waiting when the one before was called -> 3 valid gaps, pace 6
--- (configured 5, clamp 3..10). 3 in line x 6 = 18.
+-- Kasus 3: kecepatan terukur. Empat rombongan sebelumnya dipanggil berjarak 6 menit,
+-- masing-masing sudah menunggu saat yang sebelumnya dipanggil -> 3 jeda valid, kecepatan 6
+-- (dikonfigurasi 5, batas 3..10). 3 dalam antrean x 6 = 18.
 insert into public.queues (
     restaurant_id, user_id, queue_number, ticket_sequence, party_size, status,
     joined_at, called_at, completed_at
@@ -133,7 +133,7 @@ end $$;
 reset role;
 reset request.jwt.claims;
 
--- Case 4: cancelled_by tells self-cancel from staff removal.
+-- Kasus 4: cancelled_by membedakan batal sendiri dari dihapus staf.
 do $$
 declare
     v_b uuid;

@@ -13,12 +13,12 @@ import org.umn.ngantriin.domain.model.GeoPoint
 import org.umn.ngantriin.domain.repository.UserPreferencesRepository
 
 /**
- * One shared location fix for the whole app.
+ * Satu lokasi bersama untuk seluruh aplikasi.
  *
- * Without this, Home, Search and the restaurant detail screen would each ask
- * for GPS separately and could show three different distances for the same
- * venue. The last good fix is persisted so the first frame after launch
- * already has distances.
+ * Tanpa ini, Beranda, Cari, dan detail restoran masing-masing meminta GPS
+ * sendiri dan bisa menampilkan tiga jarak berbeda untuk restoran yang sama.
+ * Lokasi terakhir yang baik disimpan, jadi frame pertama setelah launch
+ * sudah punya jarak.
  */
 class LocationTracker(
     private val provider: LocationProvider,
@@ -43,7 +43,7 @@ class LocationTracker(
         }
     }
 
-    /** Called after the permission dialog resolves. */
+    /** Dipanggil setelah dialog izin selesai. */
     fun onPermissionResult(granted: Boolean) {
         _permissionGranted.value = granted
         if (granted) scope.launch { refreshNow() }

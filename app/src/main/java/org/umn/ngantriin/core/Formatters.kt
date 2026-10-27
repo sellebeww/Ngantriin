@@ -7,16 +7,16 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 
-/** Presentation-only formatting. Keeps number-to-string rules out of screens. */
+/** Format tampilan saja, supaya aturan angka ke teks tidak ada di layar. */
 object Formatters {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
 
-    /** Past this, an exact distance stops being useful ("14004.2 km"). */
+    /** Lewat batas ini jarak persis tidak berguna lagi ("14004.2 km"). */
     const val FAR_DISTANCE_METERS = 100_000.0
 
-    /** "850 m" below a kilometre, "1.4 km" above it, "100+ km" when far, "—" when unknown. */
+    /** "850 m" di bawah satu km, "1.4 km" di atasnya, "100+ km" kalau jauh, "—" kalau tidak diketahui. */
     fun distance(meters: Double?): String = when {
         meters == null -> "—"
         meters < 1_000 -> "${meters.roundToInt()} m"
@@ -24,7 +24,7 @@ object Formatters {
         else -> String.format(Locale.ENGLISH, "%.1f km", meters / 1_000)
     }
 
-    /** "~18 min", "~1 hr 5 min", or "No wait" for an empty queue. */
+    /** "~18 mnt", "~1 jam 5 mnt", atau "Tanpa tunggu" untuk antrean kosong. */
     fun waitTime(minutes: Int): String = when {
         minutes <= 0 -> "No wait"
         minutes < 60 -> "~$minutes min"
@@ -42,7 +42,7 @@ object Formatters {
     fun time(instant: Instant): String =
         timeFormatter.format(instant.atZone(ZoneId.systemDefault()))
 
-    /** "just now" / "12 min ago" / "3 hr ago" / "21 Sep 2026". */
+    /** "baru saja" / "12 mnt lalu" / "3 jam lalu" / "21 Sep 2026". */
     fun relative(instant: Instant, now: Instant = Instant.now()): String {
         val minutes = Duration.between(instant, now).toMinutes()
         return when {
@@ -54,7 +54,7 @@ object Formatters {
         }
     }
 
-    /** "Good morning" / "Good afternoon" / "Good evening" for the home header. */
+    /** "Selamat pagi" / "Selamat siang" / "Selamat malam" untuk header beranda. */
     fun greeting(hour: Int): String = when (hour) {
         in 4..10 -> "Good morning"
         in 11..14 -> "Good afternoon"

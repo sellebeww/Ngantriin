@@ -1,6 +1,6 @@
 -- =============================================================================
--- NGANTRIIN — Sample restaurants, Gading Serpong area.
--- Coordinates are real so nearby-distance and check-in radius behave sensibly.
+-- NGANTRIIN: Restoran contoh, kawasan Gading Serpong.
+-- Koordinatnya asli supaya jarak terdekat dan radius check-in berperilaku masuk akal.
 -- =============================================================================
 
 insert into public.restaurants (

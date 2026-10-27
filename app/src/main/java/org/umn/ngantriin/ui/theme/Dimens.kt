@@ -2,7 +2,7 @@ package org.umn.ngantriin.ui.theme
 
 import androidx.compose.ui.unit.dp
 
-/** Spacing scale. Everything in the UI is a multiple of 4dp. */
+/** Skala jarak. Semua di UI kelipatan 4dp. */
 object Spacing {
     val xxs = 2.dp
     val xs = 4.dp
@@ -14,9 +14,9 @@ object Spacing {
     val xxxl = 32.dp
     val huge = 48.dp
 
-    /** Horizontal gutter used by every full-width screen. */
+    /** Gutter horizontal untuk setiap layar selebar penuh. */
     val screenGutter = 20.dp
 
-    /** Minimum touch target. */
+    /** Target sentuh minimum. */
     val touchTarget = 48.dp
 }

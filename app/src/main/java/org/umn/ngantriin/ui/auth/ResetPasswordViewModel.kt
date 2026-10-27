@@ -26,9 +26,9 @@ data class ResetPasswordUiState(
 }
 
 /**
- * Choosing a new password after following the reset link. On success the
- * repository clears its recovery flag and navigation moves on by itself, the
- * same way it does after sign-in.
+ * Memilih password baru setelah membuka tautan reset. Kalau berhasil,
+ * repository menghapus flag recovery dan navigasi pindah sendiri, sama
+ * seperti setelah login.
  */
 class ResetPasswordViewModel(
     private val authRepository: AuthRepository

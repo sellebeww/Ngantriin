@@ -7,9 +7,9 @@ import org.junit.Test
 import org.umn.ngantriin.domain.model.QueueStatus
 
 /**
- * The transition table, checked exhaustively. This is the rule
- * the SQL trigger enforces too (`is_valid_queue_transition`), so if these
- * expectations ever change, both have to move together.
+ * Tabel transisi, diperiksa menyeluruh. Ini aturan yang juga ditegakkan
+ * trigger SQL (`is_valid_queue_transition`), jadi kalau ekspektasi ini
+ * berubah, keduanya harus berubah bersama.
  */
 class QueueStatusTest {
 
@@ -55,8 +55,8 @@ class QueueStatusTest {
 
     @Test
     fun `a cancelled queue can never return to waiting`() {
-        // This is the one rule a customer
-        // would notice immediately if it broke.
+        // Ini satu aturan yang langsung terasa
+        // oleh pelanggan kalau rusak.
         assertFalse(QueueStatus.CANCELLED.canTransitionTo(QueueStatus.WAITING))
     }
 
@@ -74,7 +74,7 @@ class QueueStatusTest {
 
     @Test
     fun `the journey must pass check-in and table ready to complete`() {
-        // The concept's order: no skipping from called straight to done.
+        // Urutan dari konsep: tidak boleh melompat dari dipanggil langsung ke selesai.
         assertFalse(QueueStatus.CALLED.canTransitionTo(QueueStatus.COMPLETED))
         assertFalse(QueueStatus.CALLED.canTransitionTo(QueueStatus.TABLE_READY))
         assertFalse(QueueStatus.CHECKED_IN.canTransitionTo(QueueStatus.COMPLETED))

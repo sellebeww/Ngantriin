@@ -52,7 +52,7 @@ import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.ui.components.dateTimeText
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** One application with its proof files, and the decision. */
+/** Satu pengajuan beserta berkas buktinya, dan keputusannya. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminApplicationScreen(
@@ -119,7 +119,7 @@ fun AdminApplicationScreen(
         val application = state.application
         when {
             state.isLoading -> FullScreenLoader(Modifier.padding(padding))
-            application == null -> Unit // The error snackbar says why; nothing to decide on.
+            application == null -> Unit // snackbar error menjelaskan alasannya, tidak ada yang perlu diputuskan
             else -> Column(
                 modifier = Modifier
                     .padding(padding)
@@ -145,7 +145,7 @@ fun AdminApplicationScreen(
                     }
                 )
 
-                // A decision exists only for a pending application; the others are history.
+                // Keputusan hanya ada untuk pengajuan pending, sisanya riwayat.
                 if (application.status == VerificationStatus.PENDING_VERIFICATION) {
                     PrimaryButton(
                         text = stringResource(R.string.admin_approve),
@@ -284,7 +284,7 @@ private fun Field(label: Int, value: String) {
     )
 }
 
-/** The owner reads this reason, so it cannot be empty. */
+/** Pemilik membaca alasan ini, jadi tidak boleh kosong. */
 @Composable
 private fun RejectDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var reason by remember { mutableStateOf("") }

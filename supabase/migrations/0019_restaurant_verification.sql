@@ -1,26 +1,27 @@
 -- =============================================================================
--- NGANTRIIN — staff registration needs proof, and access waits for review.
+-- NGANTRIIN: pendaftaran staf butuh bukti, dan akses menunggu review.
 --
--- Before: any signed-in customer could call register_restaurant(), and the
--- venue went live and the caller became its staff in the same statement. Nothing
--- asked who they were or whether the restaurant exists.
+-- Sebelumnya: pelanggan yang login bisa memanggil register_restaurant(), dan
+-- restoran langsung tayang serta pemanggil jadi stafnya dalam satu statement.
+-- Tidak ada yang menanyakan siapa mereka atau apakah restorannya ada.
 --
--- Now:
---   * register_restaurant() takes a contact phone, the applicant's role and at
---     least one uploaded business document (private bucket restaurant-proofs).
---   * The venue is created PENDING_VERIFICATION and NOT listed.
---   * is_restaurant_staff() only counts APPROVED venues. Every staff RPC and RLS
---     policy goes through it, so a pending or rejected applicant can read their
---     own application but cannot call tickets, read queues or list the venue.
---   * A reviewer (service role / SQL editor, same trust level as grant_staff)
---     calls review_restaurant(). A rejected applicant can fix it and
---     resubmit_restaurant().
+-- Sekarang:
+-- * register_restaurant() menerima nomor kontak, peran pendaftar, dan
+-- minimal satu dokumen usaha yang diunggah (bucket privat restaurant-proofs).
+-- * Restoran dibuat PENDING_VERIFICATION dan TIDAK ditampilkan.
+-- * is_restaurant_staff() hanya menghitung restoran APPROVED. Setiap RPC staf
+-- dan policy RLS lewat sini, jadi pendaftar yang pending atau ditolak bisa
+-- membaca pengajuannya sendiri tapi tidak bisa memanggil tiket, membaca antrean,
+-- atau menampilkan restoran.
+-- * Reviewer (service role / SQL editor, tingkat kepercayaan sama dengan
+-- grant_staff) memanggil review_restaurant(). Pendaftar yang ditolak bisa
+-- memperbaiki dan resubmit_restaurant().
 --
--- Venues that already exist (seed data, and anything registered before this
--- migration) are grandfathered as APPROVED.
+-- Restoran yang sudah ada (data seed, dan apa pun yang didaftarkan sebelum
+-- migrasi ini) dianggap APPROVED.
 --
---   select review_restaurant('<restaurant id>', true,  null);
---   select review_restaurant('<restaurant id>', false, 'Dokumen tidak terbaca');
+-- select review_restaurant('<restaurant id>', true,  null);
+-- select review_restaurant('<restaurant id>', false, 'Dokumen tidak terbaca');
 -- =============================================================================
 
 alter table public.restaurants
@@ -40,14 +41,14 @@ do $$ begin
         check (applicant_role is null or applicant_role in ('OWNER', 'MANAGER', 'AUTHORIZED_STAFF'));
 exception when duplicate_object then null; end $$;
 
--- Belt and braces: even a future grant on is_active cannot list an unreviewed venue.
+-- Ganda pengaman: bahkan grant is_active di masa depan tidak bisa menampilkan restoran yang belum ditinjau.
 do $$ begin
     alter table public.restaurants add constraint restaurants_active_requires_approval
         check (not is_active or verification_status = 'APPROVED');
 exception when duplicate_object then null; end $$;
 
 -- -----------------------------------------------------------------------------
--- Access: staff means staff of an APPROVED venue.
+-- Akses: staf berarti staf restoran yang APPROVED.
 -- -----------------------------------------------------------------------------
 create or replace function public.is_restaurant_staff(p_restaurant_id uuid)
 returns boolean
@@ -63,7 +64,7 @@ as $$
     );
 $$;
 
--- The applicant must still be able to read their own application.
+-- Pendaftar tetap harus bisa membaca pengajuannya sendiri.
 drop policy if exists restaurants_select_listed on public.restaurants;
 create policy restaurants_select_listed on public.restaurants
     for select to authenticated, anon using (
@@ -77,7 +78,7 @@ create policy restaurants_select_listed on public.restaurants
     );
 
 -- -----------------------------------------------------------------------------
--- Proof documents
+-- Dokumen bukti
 -- -----------------------------------------------------------------------------
 create table if not exists public.restaurant_documents (
     id            uuid primary key default gen_random_uuid(),
@@ -95,10 +96,10 @@ drop policy if exists restaurant_documents_select_own on public.restaurant_docum
 create policy restaurant_documents_select_own on public.restaurant_documents
     for select to authenticated using (uploaded_by = auth.uid());
 
--- Rows are written only by the RPCs below.
+-- Baris hanya ditulis oleh RPC di bawah.
 revoke insert, update, delete on public.restaurant_documents from anon, authenticated;
 
--- Private bucket, 5 MB, JPEG or PDF. Uploads confined to the uploader's folder.
+-- Bucket privat, 5 MB, JPEG atau PDF. Unggahan dibatasi di folder pengunggah.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('restaurant-proofs', 'restaurant-proofs', false, 5242880, array['image/jpeg', 'application/pdf'])
 on conflict (id) do nothing;
@@ -119,7 +120,7 @@ create policy restaurant_proofs_select_own on storage.objects
         and (storage.foldername(name))[1] = auth.uid()::text
     );
 
--- Shared by register and resubmit: validates and records the uploaded files.
+-- Dipakai bersama oleh register dan resubmit: memvalidasi dan mencatat berkas yang diunggah.
 -- p_documents = [{"type": "BUSINESS_LICENSE", "path": "<uid>/<file>"}, ...]
 create or replace function public.attach_restaurant_documents(
     p_restaurant_id uuid,
@@ -169,7 +170,7 @@ $$;
 revoke all on function public.attach_restaurant_documents(uuid, uuid, jsonb) from public, anon, authenticated;
 
 -- -----------------------------------------------------------------------------
--- register_restaurant — now an application, not a publication.
+-- register_restaurant: sekarang pengajuan, bukan publikasi.
 -- -----------------------------------------------------------------------------
 drop function if exists public.register_restaurant(
     text, text, text, text, text, double precision, double precision, time, time, integer, integer
@@ -226,8 +227,8 @@ begin
         raise exception 'TOO_MANY_RESTAURANTS';
     end if;
 
-    -- One application at a time: a reviewer's queue is not a place to stack
-    -- speculative venues.
+    -- Satu pengajuan dalam satu waktu: antrean reviewer bukan tempat menumpuk
+    -- restoran spekulatif.
     if exists (
         select 1 from public.restaurants
         where created_by = v_uid and verification_status = 'PENDING_VERIFICATION'
@@ -257,8 +258,8 @@ begin
     insert into public.queue_stats (restaurant_id) values (v_row.id)
     on conflict do nothing;
 
-    -- Linked now so the account is tied to this venue and nothing else; the
-    -- link grants nothing until the venue is APPROVED (is_restaurant_staff).
+    -- Ditautkan sekarang supaya akun terikat ke restoran ini dan tidak ke yang lain,
+    -- tautan itu tidak memberi apa-apa sampai restoran APPROVED (is_restaurant_staff).
     insert into public.restaurant_staff (restaurant_id, user_id)
     values (v_row.id, v_uid);
 
@@ -278,7 +279,7 @@ grant execute on function public.register_restaurant(
 ) to authenticated;
 
 -- -----------------------------------------------------------------------------
--- resubmit_restaurant — fix a rejected application.
+-- resubmit_restaurant: memperbaiki pengajuan yang ditolak.
 -- -----------------------------------------------------------------------------
 create or replace function public.resubmit_restaurant(
     p_restaurant_id  uuid,
@@ -331,7 +332,7 @@ revoke all on function public.resubmit_restaurant(uuid, text, text, jsonb) from 
 grant execute on function public.resubmit_restaurant(uuid, text, text, jsonb) to authenticated;
 
 -- -----------------------------------------------------------------------------
--- review_restaurant — reviewer only (not callable by app users).
+-- review_restaurant: khusus reviewer (tidak bisa dipanggil pengguna aplikasi).
 -- -----------------------------------------------------------------------------
 create or replace function public.review_restaurant(
     p_restaurant_id uuid,

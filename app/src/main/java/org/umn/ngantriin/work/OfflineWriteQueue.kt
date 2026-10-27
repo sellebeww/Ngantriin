@@ -3,8 +3,8 @@ package org.umn.ngantriin.work
 import android.content.Context
 
 /**
- * Parks a write that could not go out and asks WorkManager to retry it as
- * soon as the device is online again.
+ * Menahan penulisan yang tidak bisa keluar dan meminta WorkManager mengulangnya
+ * begitu perangkat online lagi.
  */
 class OfflineWriteQueue(
     private val context: Context,

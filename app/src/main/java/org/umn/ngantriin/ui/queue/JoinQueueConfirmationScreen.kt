@@ -49,8 +49,8 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * The confirmation. Its one job is to make the number the backend
- * just issued unmistakable before the customer walks away.
+ * Konfirmasi. Tugas satunya: membuat nomor yang baru diterbitkan backend
+ * tidak mungkin terlewat sebelum pelanggan pergi.
  */
 @Composable
 fun JoinQueueConfirmationScreen(
@@ -147,8 +147,8 @@ fun JoinQueueConfirmationScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Spacer(Modifier.height(Spacing.xl))
 
-                // Same two-column split as the Active Queue card, so the numbers
-                // sit in the same place on both screens.
+                // Pembagian dua kolom sama dengan kartu Antrean Aktif, supaya angkanya
+                // ada di tempat yang sama di kedua layar.
                 Row(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -182,7 +182,7 @@ fun JoinQueueConfirmationScreen(
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(Spacing.sm))
-        // Say the one rule that can cost the ticket up front.
+        // Sebut satu aturan yang bisa membuat tiket hangus di awal.
         Text(
             text = stringResource(R.string.countdown_hint, queue.restaurant.checkInWindowMinutes),
             style = MaterialTheme.typography.bodySmall.balanced(),

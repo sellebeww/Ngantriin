@@ -1,7 +1,7 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="200dp" android:height="200dp"
     android:viewportWidth="200" android:viewportHeight="200">
-    <!-- A local, scalable illustration shared by discovery and photo fallbacks. -->
+    <!-- Ilustrasi lokal yang bisa diskalakan, dipakai bersama oleh pencarian dan cadangan foto. -->
     <path android:fillColor="#183F3520" android:pathData="M101,37a72,72 0,1 0,0 144a72,72 0,1 0,0 -144" />
     <path android:fillColor="#F6E4C9" android:pathData="M96,24a72,72 0,1 0,0 144a72,72 0,1 0,0 -144" />
     <path android:fillColor="#FFFCF5" android:pathData="M96,29a66,66 0,1 0,0 132a66,66 0,1 0,0 -132" />

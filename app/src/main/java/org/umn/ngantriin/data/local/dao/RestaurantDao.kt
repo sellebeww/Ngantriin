@@ -39,9 +39,9 @@ interface RestaurantDao {
     suspend fun upsertStats(stats: QueueStatsEntity)
 
     /**
-     * Replaces the catalogue after a successful refresh. Rows the backend no
-     * longer returns are dropped, but only inside this transaction — a failed
-     * request never reaches here, so the cache survives.
+     * Mengganti katalog setelah refresh berhasil. Baris yang tidak lagi dikirim
+     * backend dibuang, tapi hanya di dalam transaksi ini. Request yang gagal tidak
+     * sampai sini, jadi cache tetap aman.
      */
     @Transaction
     suspend fun replaceCatalogue(

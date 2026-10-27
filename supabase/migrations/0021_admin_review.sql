@@ -1,23 +1,23 @@
 -- =============================================================================
--- NGANTRIIN — an administrator reviews restaurant applications in the app.
+-- NGANTRIIN: admin meninjau pengajuan restoran di aplikasi.
 --
--- Before: review_restaurant() existed but could only be run by hand from the SQL
--- editor, and a reviewer had no way to open the uploaded proof files.
+-- Sebelumnya: review_restaurant() ada tapi hanya bisa dijalankan manual dari SQL
+-- editor, dan reviewer tidak punya cara membuka berkas bukti yang diunggah.
 --
--- Now:
---   * users.role can be ADMIN (enum value added in 0020). Nobody becomes admin
---     from the app: the role column is not writable by clients (0012) and sign-up
---     always creates a CUSTOMER. Admins are made with grant_admin() from the SQL
---     editor / service role, the same trust level as grant_staff().
---   * Every admin capability checks is_admin() INSIDE the database. The app's admin
---     screen is only a client for these functions.
---   * Admins read proof files through a storage policy, so the app can ask for a
---     short-lived signed URL. Nobody else can.
---   * An ADMIN is not a restaurant owner: they cannot register venues, and the
---     staff helpers no longer overwrite their role.
+-- Sekarang:
+-- * users.role bisa ADMIN (nilai enum ditambah di 0020). Tidak ada yang jadi
+-- admin dari aplikasi: kolom role tidak bisa ditulis client (0012) dan
+-- pendaftaran selalu membuat CUSTOMER. Admin dibuat dengan grant_admin() dari
+-- SQL editor / service role, tingkat kepercayaan sama dengan grant_staff().
+-- * Setiap kemampuan admin mengecek is_admin() DI DALAM database. Layar admin
+-- di aplikasi hanya client untuk fungsi-fungsi ini.
+-- * Admin membaca berkas bukti lewat policy storage, jadi aplikasi bisa meminta
+-- signed URL berumur pendek. Orang lain tidak bisa.
+-- * ADMIN bukan pemilik restoran: tidak bisa mendaftarkan restoran, dan
+-- helper staf tidak lagi menimpa rolenya.
 --
---   select grant_admin('reviewer@example.com');
---   select revoke_admin('reviewer@example.com');
+-- select grant_admin('reviewer@example.com');
+-- select revoke_admin('reviewer@example.com');
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ revoke all on function public.is_admin() from public, anon;
 grant execute on function public.is_admin() to authenticated;
 
 -- -----------------------------------------------------------------------------
--- grant_admin / revoke_admin — reviewer accounts, not callable by app users
+-- grant_admin / revoke_admin: akun reviewer, tidak bisa dipanggil pengguna aplikasi
 -- -----------------------------------------------------------------------------
 create or replace function public.grant_admin(p_email text)
 returns void
@@ -53,8 +53,8 @@ begin
         raise exception 'NO_SUCH_USER: % has not signed up yet', p_email;
     end if;
 
-    -- One hat per account: an owner reviewing applications would be reviewing
-    -- competitors, and the admin screen replaces the owner dashboard.
+    -- Satu peran per akun: pemilik yang meninjau pengajuan akan meninjau
+    -- pesaingnya, dan layar admin menggantikan dashboard pemilik.
     if exists (select 1 from public.restaurant_staff where user_id = v_user_id) then
         raise exception 'USER_IS_STAFF: % runs a restaurant', p_email;
     end if;
@@ -81,7 +81,7 @@ revoke all on function public.grant_admin(text) from public, anon, authenticated
 revoke all on function public.revoke_admin(text) from public, anon, authenticated;
 
 -- -----------------------------------------------------------------------------
--- Keep the ADMIN role from being overwritten by the staff helpers (0014)
+-- Menjaga role ADMIN dari tertimpa helper staf (0014)
 -- -----------------------------------------------------------------------------
 create or replace function public.grant_staff(p_email text, p_restaurant_id uuid)
 returns void
@@ -132,16 +132,16 @@ begin
     delete from public.restaurant_staff
     where restaurant_id = p_restaurant_id and user_id = v_user_id;
 
-    -- Back to a customer once they manage nothing. Only a STAFF account is
-    -- demoted: an ADMIN keeps the role.
+    -- Kembali jadi pelanggan begitu tidak mengelola apa-apa. Hanya akun STAFF yang
+    -- diturunkan, ADMIN tetap pada rolenya.
     if not exists (select 1 from public.restaurant_staff where user_id = v_user_id) then
         update public.users set role = 'CUSTOMER' where id = v_user_id and role = 'STAFF';
     end if;
 end;
 $$;
 
--- register_restaurant() promotes its caller to STAFF; an admin must not get that
--- far. The trigger also covers any future insert path that runs as the caller.
+-- register_restaurant() menaikkan pemanggilnya ke STAFF, admin tidak boleh sampai
+-- sana. Trigger ini juga mencakup jalur insert di masa depan yang jalan sebagai pemanggil.
 create or replace function public.restaurants_block_admin_registration()
 returns trigger
 language plpgsql
@@ -163,12 +163,12 @@ create trigger restaurants_admin_registration_guard
 revoke execute on function public.restaurants_block_admin_registration() from public, anon, authenticated;
 
 -- -----------------------------------------------------------------------------
--- Who reviewed, and which submission a proof file belongs to
+-- Siapa yang meninjau, dan berkas bukti milik kiriman yang mana
 -- -----------------------------------------------------------------------------
 alter table public.restaurants
     add column if not exists verified_by uuid references public.users (id) on delete set null;
 
--- A resubmission adds files; the reviewer needs to tell the new round from the old.
+-- Pengajuan ulang menambah berkas, reviewer perlu membedakan putaran baru dari yang lama.
 alter table public.restaurant_documents
     add column if not exists submission_round integer not null default 1;
 
@@ -223,11 +223,11 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Admin API
+-- API admin
 -- -----------------------------------------------------------------------------
 
--- Self-service applications in one state, with who applied. Seed venues have no
--- applicant (created_by is null) and are not applications.
+-- Pengajuan mandiri dalam satu status, beserta pengajunya. Restoran seed tidak punya
+-- pendaftar (created_by null) dan bukan pengajuan.
 create or replace function public.admin_list_applications(
     p_status text default 'PENDING_VERIFICATION'
 )
@@ -282,14 +282,14 @@ begin
     left join public.users u on u.id = r.created_by
     where r.verification_status = p_status
       and r.created_by is not null
-    -- Oldest application first; reviewed ones, most recent decision first.
+    -- Pengajuan terlama dulu, yang sudah ditinjau keputusan terbaru dulu.
     order by case when p_status = 'PENDING_VERIFICATION' then r.created_at end asc nulls last,
              r.verified_at desc nulls last,
              r.id;
 end;
 $$;
 
--- Every proof file of one application, newest submission first.
+-- Semua berkas bukti satu pengajuan, kiriman terbaru dulu.
 create or replace function public.admin_application_documents(p_restaurant_id uuid)
 returns table (
     id               uuid,
@@ -315,8 +315,8 @@ begin
 end;
 $$;
 
--- Approve or reject a PENDING application. review_restaurant() stays closed to
--- app users; this is the only door, and it checks the caller first.
+-- Menyetujui atau menolak pengajuan PENDING. review_restaurant() tetap tertutup untuk
+-- pengguna aplikasi, ini satu-satunya pintu, dan ia mengecek pemanggilnya dulu.
 create or replace function public.admin_review_restaurant(
     p_restaurant_id uuid,
     p_approve       boolean,
@@ -342,8 +342,8 @@ begin
         raise exception 'NO_SUCH_RESTAURANT: %', p_restaurant_id;
     end if;
 
-    -- A decision is final until the owner resubmits: no re-approving a rejected
-    -- venue from a stale screen, no double decision from two reviewers.
+    -- Keputusan final sampai pemilik mengajukan ulang: tidak bisa menyetujui ulang
+    -- restoran yang ditolak dari layar basi, dan tidak ada keputusan ganda dari dua reviewer.
     if v_status <> 'PENDING_VERIFICATION' then
         raise exception 'NOT_PENDING';
     end if;
@@ -372,14 +372,14 @@ grant execute on function public.admin_review_restaurant(uuid, boolean, text) to
 -- Storage
 -- -----------------------------------------------------------------------------
 
--- Admins can open any proof (the app asks for a short-lived signed URL).
+-- Admin bisa membuka bukti apa pun (aplikasi meminta signed URL berumur pendek).
 drop policy if exists restaurant_proofs_select_admin on storage.objects;
 create policy restaurant_proofs_select_admin on storage.objects
     for select to authenticated
     using (bucket_id = 'restaurant-proofs' and public.is_admin());
 
--- Uploads must look like what the bucket accepts. The bucket's MIME list is
--- checked against what the client declares; the extension is checked here too.
+-- Unggahan harus terlihat seperti yang diterima bucket. Daftar MIME bucket
+-- dicek terhadap yang dideklarasikan client, ekstensi juga dicek di sini.
 drop policy if exists restaurant_proofs_insert_own on storage.objects;
 create policy restaurant_proofs_insert_own on storage.objects
     for insert to authenticated
@@ -389,7 +389,7 @@ create policy restaurant_proofs_insert_own on storage.objects
         and name ~* '\.(jpe?g|pdf)$'
     );
 
--- The public photo bucket had no size or type limit.
+-- Bucket foto publik tidak punya batas ukuran atau tipe.
 update storage.buckets
 set file_size_limit    = 5242880,
     allowed_mime_types = array['image/jpeg']

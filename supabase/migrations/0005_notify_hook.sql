@@ -1,20 +1,20 @@
 -- =============================================================================
--- NGANTRIIN — wire queue changes to the notification Edge Function
+-- NGANTRIIN: sambungkan perubahan antrean ke Edge Function notifikasi
 --
--- Every change to `queues` calls queue-notifier, which
--- works out which tickets crossed a threshold and pushes to them.
+-- Setiap perubahan pada `queues` memanggil queue-notifier, yang
+-- mencari tiket mana yang melewati ambang lalu mengirim push ke mereka.
 --
--- The alternative is a Database Webhook configured in the Supabase dashboard
--- (Database -> Webhooks -> queues -> insert, update). Use one or the other,
--- not both, or every event fires twice.
+-- Alternatifnya Database Webhook yang diatur di dashboard Supabase
+-- (Database -> Webhooks -> queues -> insert, update). Pakai salah satu,
+-- jangan keduanya, kalau tidak setiap event terkirim dua kali.
 -- =============================================================================
 
 create extension if not exists pg_net with schema extensions;
 
--- Set these once per project:
---   alter database postgres set app.settings.functions_url =
---       'https://<project-ref>.supabase.co/functions/v1';
---   alter database postgres set app.settings.service_role_key = '<service role key>';
+-- Atur ini sekali per proyek:
+-- alter database postgres set app.settings.functions_url =
+-- 'https://<project-ref>.supabase.co/functions/v1';
+-- alter database postgres set app.settings.service_role_key = '<service role key>';
 
 create or replace function public.notify_queue_change()
 returns trigger
@@ -26,8 +26,8 @@ declare
     v_key  text := current_setting('app.settings.service_role_key', true);
 begin
     if v_url is null then
-        -- Not configured yet: queue state still changes correctly, there is
-        -- just nothing to push to.
+        -- Belum dikonfigurasi: state antrean tetap berubah dengan benar,
+        -- hanya tidak ada yang dikirimi push.
         return coalesce(new, old);
     end if;
 

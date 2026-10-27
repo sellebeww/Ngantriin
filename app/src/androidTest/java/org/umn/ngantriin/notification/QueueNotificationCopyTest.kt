@@ -15,10 +15,10 @@ import java.time.Instant
 import java.time.LocalTime
 
 /**
- * A lock screen is a public surface, so no notification may
- * name the restaurant a customer is queueing at. Needs a real Context (for
- * string resources), hence an instrumented test rather than a plain unit test
- * — mirrors the existing Room tests in this module.
+ * Lock screen bisa dilihat siapa saja, jadi tidak ada notifikasi yang
+ * boleh menyebut nama restoran tempat pelanggan mengantre. Butuh Context
+ * asli (untuk string resource), makanya instrumented test dan bukan unit
+ * test biasa, sama seperti tes Room yang sudah ada di modul ini.
  */
 @RunWith(AndroidJUnit4::class)
 class QueueNotificationCopyTest {

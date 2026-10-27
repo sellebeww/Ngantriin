@@ -9,8 +9,8 @@ import java.io.IOException
 import java.net.UnknownHostException
 
 /**
- * The SQL functions raise bare tokens; these are the translations the user
- * actually sees, so a rename on either side has to break a test here.
+ * Fungsi SQL melempar token polos, ini terjemahan yang benar-benar dilihat
+ * pengguna, jadi perubahan nama di salah satu sisi harus membuat tes di sini gagal.
  */
 class ErrorMapperTest {
 

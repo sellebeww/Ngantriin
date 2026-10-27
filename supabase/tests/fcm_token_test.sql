@@ -1,6 +1,6 @@
 -- =============================================================================
--- NGANTRIIN — FCM token ownership (0013). One transaction, ends in rollback.
---   psql "$DATABASE_URL" -f supabase/tests/fcm_token_test.sql
+-- NGANTRIIN: kepemilikan token FCM (0013). Satu transaksi, berakhir dengan rollback.
+-- psql "$DATABASE_URL" -f supabase/tests/fcm_token_test.sql
 -- =============================================================================
 begin;
 
@@ -18,7 +18,7 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub": "d1000000-0000-4000-8000-0000000000d1"}';
 update public.users set fcm_token = 'token-shared-phone' where id = auth.uid();
 
--- Same phone, next account signs in and registers the same token.
+-- HP yang sama, akun berikutnya login dan mendaftarkan token yang sama.
 set local request.jwt.claims = '{"sub": "d2000000-0000-4000-8000-0000000000d2"}';
 update public.users set fcm_token = 'token-shared-phone' where id = auth.uid();
 
@@ -40,7 +40,7 @@ begin
     raise notice 'PASSED case 1: token moved to the latest account, old owner cleared';
 end $$;
 
--- The index is the backstop if the trigger is ever dropped.
+-- Index adalah pengaman terakhir kalau trigger pernah dihapus.
 do $$
 begin
     alter table public.users disable trigger users_claim_fcm_token;
@@ -54,7 +54,7 @@ begin
     alter table public.users enable trigger users_claim_fcm_token;
 end $$;
 
--- Signing out sets it to null; two accounts may both be null.
+-- Logout mengisinya null, dua akun boleh sama-sama null.
 update public.users set fcm_token = null
 where id in ('d1000000-0000-4000-8000-0000000000d1', 'd2000000-0000-4000-8000-0000000000d2');
 do $$ begin raise notice 'PASSED case 3: multiple accounts may hold null'; end $$;

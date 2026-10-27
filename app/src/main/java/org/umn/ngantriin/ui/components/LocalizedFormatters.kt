@@ -13,23 +13,23 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 /**
- * Localized equivalents of [org.umn.ngantriin.core.Formatters]. That object
- * stays English-only on purpose — FormattersTest.kt is a plain JVM unit test
- * with no Android resources available to it — so anything the UI actually
- * shows goes through here instead, where `stringResource` picks up whichever
- * language Settings -> Language selected.
+ * Padanan [org.umn.ngantriin.core.Formatters] yang sudah dilokalkan. Object itu
+ * sengaja tetap hanya berbahasa Inggris, karena FormattersTest.kt adalah unit
+ * test JVM biasa tanpa resource Android. Jadi apa pun yang benar-benar
+ * ditampilkan UI lewat sini, tempat `stringResource` mengikuti bahasa yang
+ * dipilih di Pengaturan -> Bahasa.
  */
 
 @Composable
 fun distanceText(meters: Double?): String = when {
     meters == null -> stringResource(R.string.distance_unknown)
     meters < 1_000 -> stringResource(R.string.distance_meters, meters.roundToInt())
-    // A fix on another continent (or a mock location) is not a useful number.
+    // Lokasi di benua lain (atau lokasi palsu) bukan angka yang berguna.
     meters >= Formatters.FAR_DISTANCE_METERS -> stringResource(R.string.distance_far)
     else -> stringResource(R.string.distance_km, meters / 1_000)
 }
 
-/** "~18 min", "~1 hr 5 min", or "No wait" for an empty queue. */
+/** "~18 mnt", "~1 jam 5 mnt", atau "Tanpa tunggu" untuk antrean kosong. */
 @Composable
 fun waitTimeText(minutes: Int): String = when {
     minutes <= 0 -> stringResource(R.string.wait_time_none)
@@ -38,7 +38,7 @@ fun waitTimeText(minutes: Int): String = when {
     else -> stringResource(R.string.wait_time_hours_minutes, minutes / 60, minutes % 60)
 }
 
-/** Compact variant for dense cards: "18 min". */
+/** Versi ringkas untuk kartu padat: "18 mnt". */
 @Composable
 fun waitTimeShortText(minutes: Int): String = when {
     minutes <= 0 -> stringResource(R.string.wait_time_none)
@@ -50,12 +50,12 @@ fun waitTimeShortText(minutes: Int): String = when {
 fun groupsText(count: Int): String = pluralStringResource(R.plurals.groups_count, count, count)
 
 /**
- * "21 Sep 2026", in whatever language Settings -> Language selected.
+ * "21 Sep 2026", dalam bahasa yang dipilih di Pengaturan -> Bahasa.
  *
- * Reads the locale through [LocalConfiguration] rather than
- * `Locale.getDefault()` directly: that keeps this composable subscribed to
- * configuration changes, so it recomposes correctly if the locale ever
- * changes without a full activity recreation.
+ * Locale dibaca lewat [LocalConfiguration], bukan langsung dari
+ * `Locale.getDefault()`: dengan begitu composable ini tetap berlangganan
+ * perubahan konfigurasi dan recompose dengan benar kalau locale berubah
+ * tanpa activity dibuat ulang.
  */
 @Composable
 fun dateText(instant: Instant): String {
@@ -64,7 +64,7 @@ fun dateText(instant: Instant): String {
     return formatter.format(instant.atZone(ZoneId.systemDefault()))
 }
 
-/** "21 Sep 2026 • 14:30", in whatever language Settings -> Language selected. */
+/** "21 Sep 2026 • 14:30", dalam bahasa yang dipilih di Pengaturan -> Bahasa. */
 @Composable
 fun dateTimeText(instant: Instant): String {
     val locale = LocalConfiguration.current.locales[0]
@@ -72,7 +72,7 @@ fun dateTimeText(instant: Instant): String {
     return formatter.format(instant.atZone(ZoneId.systemDefault()))
 }
 
-/** "just now" / "12 min ago" / "3 hr ago" / a plain date past a week. */
+/** "baru saja" / "12 mnt lalu" / "3 jam lalu" / tanggal biasa lewat seminggu. */
 @Composable
 fun relativeText(instant: Instant, now: Instant = Instant.now()): String {
     val minutes = Duration.between(instant, now).toMinutes()
@@ -91,7 +91,7 @@ fun relativeText(instant: Instant, now: Instant = Instant.now()): String {
     }
 }
 
-/** "Good morning" / "Good afternoon" / "Good evening" / "Good night". */
+/** "Selamat pagi" / "Selamat siang" / "Selamat sore" / "Selamat malam". */
 @Composable
 fun greetingText(hour: Int): String = when (hour) {
     in 4..10 -> stringResource(R.string.greeting_morning)

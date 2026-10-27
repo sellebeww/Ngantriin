@@ -42,8 +42,8 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * An empty state always says what is missing and, where there is
- * one, offers the next thing to do.
+ * Empty state selalu menyebut apa yang kurang dan, kalau ada,
+ * menawarkan langkah berikutnya.
  */
 @Composable
 fun EmptyState(
@@ -97,7 +97,7 @@ fun EmptyState(
     }
 }
 
-/** Resolves an [AppError] to its user-facing sentence. */
+/** Mengubah [AppError] menjadi kalimat untuk pengguna. */
 @Composable
 fun AppError.message(): String =
     stringResource(messageRes, *formatArgs.toTypedArray())
@@ -110,8 +110,8 @@ fun FullScreenLoader(modifier: Modifier = Modifier) {
 }
 
 /**
- * A shimmering placeholder block. Skeletons mirror the real
- * layout, so the screen does not jump when the data lands.
+ * Blok placeholder berkilau. Skeleton meniru layout aslinya, jadi
+ * layar tidak melompat saat data datang.
  */
 @Composable
 fun SkeletonBox(
@@ -136,7 +136,7 @@ fun SkeletonBox(
     )
 }
 
-/** The persistent "we may be showing you stale data" strip. */
+/** Strip tetap "kami mungkin menampilkan data lama". */
 @Composable
 fun OfflineBanner(modifier: Modifier = Modifier, message: String) {
     Row(

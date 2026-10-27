@@ -18,20 +18,19 @@ import org.umn.ngantriin.domain.model.Review
 import org.umn.ngantriin.domain.model.User
 
 /**
- * The backend contract, stated once.
+ * Kontrak backend, dinyatakan di satu tempat.
  *
- * `Supabase*` implements it against the real project; `Demo*` implements it
- * against an in-process fake so the app is runnable before any credentials
- * exist. Repositories only ever see these interfaces, which is what keeps the
- * two paths honest — the demo cannot quietly drift into a different state
- * machine, because it has to satisfy the same signatures.
+ * `Supabase*` mengimplementasikannya ke proyek asli, `Demo*` ke tiruan
+ * in-process supaya aplikasi bisa jalan sebelum ada kredensial. Repository
+ * hanya melihat interface ini, jadi kedua jalur tetap jujur: demo tidak bisa
+ * diam-diam berbeda state machine-nya karena harus memenuhi signature yang sama.
  *
- * Everything here throws on failure; converting to
- * [org.umn.ngantriin.core.AppError] is the repository's job.
+ * Semua fungsi di sini melempar exception kalau gagal. Mengubahnya jadi
+ * [org.umn.ngantriin.core.AppError] adalah tugas repository.
  */
 
 sealed interface RemoteSession {
-    /** Restoring a persisted session; do not route yet. */
+    /** Memulihkan sesi yang tersimpan, jangan arahkan ke layar mana pun dulu. */
     data object Initializing : RemoteSession
     data object SignedOut : RemoteSession
     data class SignedIn(val userId: String) : RemoteSession
@@ -47,8 +46,8 @@ interface AuthRemoteDataSource {
     suspend fun sendPasswordReset(email: String)
 
     /**
-     * Imports the session carried by a password-reset link. [onRecovered]
-     * fires once the session is usable; links that are not ours are ignored.
+     * Mengimpor sesi dari tautan reset password. [onRecovered] dipanggil
+     * sekali sesinya siap dipakai, tautan yang bukan milik kita diabaikan.
      */
     fun handleRecoveryLink(intent: Intent, onRecovered: () -> Unit)
 
@@ -58,10 +57,10 @@ interface AuthRemoteDataSource {
     suspend fun updateProfile(userId: String, name: String, phone: String?): User
     suspend fun updatePushToken(userId: String, token: String)
 
-    /** Detaches this account from the device so its pushes stop arriving here. */
+    /** Melepas akun ini dari perangkat supaya push-nya tidak masuk ke sini lagi. */
     suspend fun clearPushToken(userId: String)
 
-    /** Language the server writes push notifications in ("id" or "en"). */
+    /** Bahasa yang dipakai server untuk menulis push ("id" atau "en"). */
     suspend fun updateLocale(userId: String, locale: String)
 }
 
@@ -72,12 +71,12 @@ interface RestaurantRemoteDataSource {
     suspend fun fetchQueueStats(restaurantId: String): QueueStats?
     suspend fun fetchManagedRestaurants(userId: String): List<Restaurant>
 
-    /** Creates the venue and makes the signed-in account its staff. */
+    /** Membuat restoran dan menjadikan akun yang login sebagai stafnya. */
     suspend fun registerRestaurant(registration: RestaurantRegistration): Restaurant
 
     suspend fun setRestaurantActive(restaurantId: String, active: Boolean): Restaurant
 
-    /** Fixes a REJECTED application and puts it back in review. */
+    /** Memperbaiki pengajuan REJECTED lalu mengembalikannya ke review. */
     suspend fun resubmitRestaurant(
         restaurantId: String,
         contactPhone: String,
@@ -85,19 +84,19 @@ interface RestaurantRemoteDataSource {
         documents: List<ProofDocument>
     ): Restaurant
 
-    /** Fires whenever this venue's counters change. */
+    /** Menyala tiap kali counter restoran ini berubah. */
     fun observeQueueStatsChanges(restaurantId: String): Flow<Unit>
 
-    /** Fires whenever any venue's counters change, for the discovery list. */
+    /** Menyala tiap kali counter restoran mana pun berubah, untuk daftar pencarian. */
     fun observeAllQueueStatsChanges(): Flow<Unit>
 }
 
-/** Restaurant review. The database authorises every call; the app only asks. */
+/** Review restoran. Database yang mengotorisasi tiap panggilan, aplikasi hanya meminta. */
 interface AdminRemoteDataSource {
     suspend fun fetchApplications(status: VerificationStatus): List<RestaurantApplication>
     suspend fun fetchDocuments(restaurantId: String): List<ApplicationDocument>
 
-    /** Proof files are private; this is a link that works for a few minutes. */
+    /** Berkas bukti bersifat privat, ini tautan yang berlaku beberapa menit. */
     suspend fun documentUrl(document: ApplicationDocument): String
 
     suspend fun review(restaurantId: String, approve: Boolean, note: String?)
@@ -108,17 +107,17 @@ interface QueueRemoteDataSource {
     suspend fun leaveQueue(queueId: String): QueueEntry
 
     /**
-     * Uploads the check-in photo and calls `check_in_queue` in one step —
-     * uploading needs [restaurantId] (for the storage path) that the queue
-     * row itself doesn't hand back until after the RPC succeeds.
+     * Mengunggah foto check-in sekaligus memanggil `check_in_queue`.
+     * Upload butuh [restaurantId] (untuk path storage) yang baru dikembalikan
+     * baris antrean setelah RPC berhasil.
      */
     suspend fun checkIn(queueId: String, restaurantId: String, photo: ByteArray): QueueEntry
 
     /**
-     * Turns a stored check-in photo reference into something a viewer can
-     * actually load. The real implementation signs a private Storage path;
-     * the demo implementation has no Storage, so it hands the value straight
-     * back (already a locally-loadable URI — see [DemoQueueRemoteDataSource]).
+     * Mengubah referensi foto check-in yang tersimpan menjadi sesuatu yang bisa
+     * dimuat. Implementasi asli menandatangani path Storage privat, implementasi
+     * demo tidak punya Storage jadi nilainya dikembalikan apa adanya (sudah berupa
+     * URI lokal, lihat [DemoQueueRemoteDataSource]).
      */
     suspend fun resolveCheckInPhotoUrl(photoUrl: String): String
 
@@ -126,17 +125,17 @@ interface QueueRemoteDataSource {
     suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry
 
     /**
-     * Marks CALLED tickets past their check-in window as EXPIRED.
-     * The backend also does this on a schedule; calling it just settles a
-     * countdown that reached zero without waiting for the next sweep.
+     * Menandai tiket CALLED yang lewat batas check-in sebagai EXPIRED.
+     * Backend juga melakukannya terjadwal, memanggil ini hanya menyelesaikan
+     * hitung mundur yang sudah nol tanpa menunggu sapuan berikutnya.
      */
     suspend fun expireOverdue(restaurantId: String)
 
     suspend fun fetchQueue(queueId: String): QueueEntry
 
     /**
-     * Computed server side. The customer cannot see the tickets in
-     * front of them, so counting the line is the backend's job.
+     * Dihitung di server. Pelanggan tidak bisa melihat tiket di depannya,
+     * jadi menghitung antrean adalah tugas backend.
      */
     suspend fun fetchPosition(queueId: String): QueuePosition
     suspend fun fetchActiveQueue(userId: String): QueueEntry?
@@ -144,9 +143,9 @@ interface QueueRemoteDataSource {
     suspend fun fetchRestaurantQueue(restaurantId: String): List<QueueEntry>
 
     /**
-     * Change signals rather than deltas: the repository re-reads the
-     * authoritative rows on every tick, so a dropped or out-of-order event
-     * cannot leave the UI showing a queue that never existed.
+     * Sinyal perubahan, bukan isi perubahan: repository membaca ulang baris
+     * yang otoritatif di setiap tick, jadi event yang hilang atau tidak
+     * berurutan tidak bisa membuat UI menampilkan antrean yang tidak pernah ada.
      */
     fun observeUserQueueChanges(userId: String): Flow<Unit>
     fun observeRestaurantQueueChanges(restaurantId: String): Flow<Unit>
@@ -156,10 +155,10 @@ interface ReviewRemoteDataSource {
     suspend fun fetchReviews(restaurantId: String): List<Review>
     suspend fun fetchReviewForQueue(queueId: String): Review?
 
-    /** Every review this customer wrote, so history knows what's reviewed. */
+    /** Semua ulasan yang ditulis pelanggan ini, supaya riwayat tahu mana yang sudah diulas. */
     suspend fun fetchUserReviews(userId: String): List<Review>
 
-    /** Only rating and text are editable; the visit it belongs to is fixed. */
+    /** Hanya rating dan teks yang bisa diubah, kunjungannya tetap. */
     suspend fun updateReview(reviewId: String, rating: Int, comment: String): Review
     suspend fun submitReview(
         queueId: String,

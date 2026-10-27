@@ -1,24 +1,24 @@
 -- =============================================================================
--- NGANTRIIN — three follow-ups to the notification / estimate audit.
+-- NGANTRIIN: tiga tindak lanjut dari audit notifikasi / estimasi.
 --
--- 1. Observed pace. Every estimate was people-ahead x the owner's configured
---    average_service_minutes, however the restaurant was actually doing. The
---    pace is now measured: the average gap between consecutive calls over the
---    last 3 hours, counting only gaps where the next group was already
---    waiting (an empty dining room is not slowness). Needs at least 3 such
---    gaps, and is clamped to 0.5x..2x of the configured value so one odd
---    stretch cannot make the estimate absurd. Otherwise the configured value
---    is used, exactly as before.
+-- 1. Kecepatan terukur. Setiap estimasi dulu orang di depan x
+-- average_service_minutes yang diatur pemilik, apa pun kondisi sebenarnya
+-- restoran. Kecepatan sekarang diukur: rata-rata jeda antar panggilan
+-- berturut-turut dalam 3 jam terakhir, hanya menghitung jeda saat rombongan
+-- berikutnya sudah menunggu (ruang makan kosong bukan tanda lambat). Butuh
+-- minimal 3 jeda seperti itu, dan dibatasi 0,5x..2x dari nilai yang
+-- dikonfigurasi supaya satu periode aneh tidak membuat estimasi tidak masuk
+-- akal. Selain itu nilai yang dikonfigurasi dipakai, seperti sebelumnya.
 --
--- 2. cancelled_by. Lets the notifier tell "the customer left" (they know —
---    no push) from "the restaurant removed the ticket" (they need to hear).
+-- 2. cancelled_by. Supaya notifier bisa membedakan "pelanggan pergi" (mereka
+-- tahu, tanpa push) dari "restoran menghapus tiket" (mereka perlu tahu).
 --
--- 3. queue_position also returns server_now so the phone can correct for a
---    wrong device clock when it counts down the check-in window.
+-- 3. queue_position juga mengembalikan server_now supaya HP bisa mengoreksi
+-- jam perangkat yang salah saat menghitung mundur jendela check-in.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- 1. Observed pace
+-- 1. Kecepatan terukur
 -- -----------------------------------------------------------------------------
 create or replace function public.effective_service_minutes(p_restaurant_id uuid)
 returns integer
@@ -131,8 +131,8 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- 3. queue_position: observed pace + server_now. The return type changes, so
---    the function is replaced rather than altered.
+-- 3. queue_position: kecepatan terukur + server_now. Tipe kembaliannya berubah,
+-- jadi fungsi diganti, bukan di-alter.
 -- -----------------------------------------------------------------------------
 drop function if exists public.queue_position(uuid);
 
@@ -191,9 +191,9 @@ revoke execute on function public.queue_position(uuid) from public, anon;
 grant execute on function public.queue_position(uuid) to authenticated;
 
 -- -----------------------------------------------------------------------------
--- 2. cancelled_by — stamped by trigger so every cancel path (customer RPC,
---    staff RPC, anything added later) is covered without touching them.
---    NULL means "not a signed-in user" (cron, service role).
+-- 2. cancelled_by: diisi trigger supaya setiap jalur batal (RPC pelanggan,
+-- RPC staf, apa pun yang ditambah nanti) tercakup tanpa menyentuhnya.
+-- NULL berarti "bukan pengguna yang login" (cron, service role).
 -- -----------------------------------------------------------------------------
 alter table public.queues add column if not exists cancelled_by uuid;
 
@@ -214,7 +214,7 @@ create trigger queues_cancel_origin
     before update on public.queues
     for each row execute function public.stamp_cancelled_by();
 
--- Recompute under the new pace.
+-- Hitung ulang dengan kecepatan baru.
 do $$
 declare
     r record;

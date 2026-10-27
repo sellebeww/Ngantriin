@@ -28,8 +28,8 @@ import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.ui.theme.Spacing
 
 /**
- * The persistent reminder that a ticket is live: queue number,
- * how many groups are left, and one tap back to the full screen.
+ * Pengingat tetap bahwa tiket sedang aktif: nomor antrean, sisa
+ * rombongan, dan satu ketukan kembali ke layar penuh.
  */
 @Composable
 fun ActiveQueueBanner(

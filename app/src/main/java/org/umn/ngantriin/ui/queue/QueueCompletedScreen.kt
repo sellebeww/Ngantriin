@@ -27,8 +27,8 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Screen 13. The hand-off from "you were served" to "tell us how it went"
- *, reached from a completed ticket in history or a push.
+ * Peralihan dari "kamu sudah dilayani" ke "ceritakan bagaimana tadi",
+ * dibuka dari tiket selesai di riwayat atau dari push.
  */
 @Composable
 fun QueueCompletedScreen(
@@ -43,8 +43,8 @@ fun QueueCompletedScreen(
         modifier = modifier.padding(horizontal = Spacing.screenGutter),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Centred in the space above the button; weighted slightly high, which
-        // is where the eye expects the middle of a success screen to be.
+        // Di tengah ruang di atas tombol, digeser sedikit ke atas, tempat
+        // mata mengharapkan tengah layar sukses.
         Spacer(Modifier.weight(0.8f))
 
         Box(

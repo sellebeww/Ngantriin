@@ -1,18 +1,20 @@
 -- =============================================================================
--- NGANTRIIN — one wait estimate everywhere.
+-- NGANTRIIN: satu estimasi tunggu di mana-mana.
 --
--- Before: queue_stats.estimated_wait_time (restaurant card, detail, staff
--- "new group" figure) was waiting_count x pace, where waiting_count leaves out
--- groups that are CALLED or CHECKED_IN-after-call. queue_position (the ticket
--- screen) counts those groups as ahead. So a venue showed "~6 min", the
--- customer joined, and their own ticket said "~9 min".
+-- Sebelumnya: queue_stats.estimated_wait_time (kartu restoran, detail, angka
+-- "rombongan baru" untuk staf) adalah waiting_count x kecepatan, dengan
+-- waiting_count mengabaikan rombongan yang CALLED atau CHECKED_IN setelah
+-- dipanggil. queue_position (layar tiket) menghitung rombongan itu sebagai di
+-- depan. Jadi restoran menampilkan "~6 mnt", pelanggan join, dan tiketnya
+-- sendiri bilang "~9 mnt".
 --
--- Now the venue-level estimate is exactly what queue_position would return for
--- a group joining this second: every group still holding a place in line
--- (WAITING, ALMOST_THERE, CALLED, CHECKED_IN) x pace.
+-- Sekarang estimasi tingkat restoran persis seperti yang dikembalikan
+-- queue_position untuk rombongan yang join detik ini: setiap rombongan yang
+-- masih punya tempat di antrean (WAITING, ALMOST_THERE, CALLED, CHECKED_IN)
+-- x kecepatan.
 --
--- Also: changing average_service_minutes now refreshes the counters. Before,
--- the cached estimate stayed stale until somebody's ticket next changed.
+-- Juga: mengubah average_service_minutes sekarang me-refresh counter. Dulu,
+-- estimasi yang di-cache tetap basi sampai tiket seseorang berubah.
 -- =============================================================================
 
 create or replace function public.refresh_queue_stats(p_restaurant_id uuid)
@@ -27,7 +29,7 @@ declare
     v_serving_seq  integer;
     v_serving_num  text;
 begin
-    -- "N groups waiting": not called yet (an early check-in still counts).
+    -- "N rombongan menunggu": belum dipanggil (check-in lebih awal tetap dihitung).
     select count(*) into v_waiting
     from public.queues
     where restaurant_id = p_restaurant_id
@@ -36,7 +38,7 @@ begin
           or (status = 'CHECKED_IN' and called_at is null)
       );
 
-    -- Everyone a newcomer would have to wait behind. Mirrors queue_position.
+    -- Semua yang harus ditunggu pendatang baru. Meniru queue_position.
     select count(*) into v_in_line
     from public.queues
     where restaurant_id = p_restaurant_id
@@ -98,7 +100,7 @@ create trigger restaurants_pace_sync
     when (old.average_service_minutes is distinct from new.average_service_minutes)
     execute function public.on_restaurant_pace_change();
 
--- Recompute under the new definition.
+-- Hitung ulang dengan definisi baru.
 do $$
 declare
     r record;

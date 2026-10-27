@@ -1,17 +1,17 @@
 -- =============================================================================
--- NGANTRIIN — staff administration helpers
+-- NGANTRIIN: helper administrasi staf
 -- =============================================================================
--- Until now making someone staff meant two hand-written statements (insert into
--- restaurant_staff, update users.role) and forgetting the second one left the
--- account on the customer screens. These two functions do both in one call and
--- keep the role in step when the last restaurant is removed.
+-- Sebelumnya menjadikan seseorang staf butuh dua statement manual (insert ke
+-- restaurant_staff, update users.role), dan lupa yang kedua membuat akun
+-- tetap di layar pelanggan. Dua fungsi ini melakukan keduanya sekali panggil
+-- dan menjaga role tetap selaras saat restoran terakhir dihapus.
 --
--- Run from the Supabase SQL editor (postgres) or with the service-role key.
--- They are deliberately not callable by app users: the whole point of 0012 is
--- that nobody can promote themselves.
+-- Jalankan dari SQL editor Supabase (postgres) atau dengan service-role key.
+-- Sengaja tidak bisa dipanggil pengguna aplikasi: inti 0012 adalah
+-- tidak ada yang bisa mempromosikan dirinya sendiri.
 --
---   select grant_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
---   select revoke_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
+-- select grant_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
+-- select revoke_staff('owner@tacolibre.id', '11111111-1111-4111-8111-111111111111');
 -- =============================================================================
 
 create or replace function public.grant_staff(p_email text, p_restaurant_id uuid)
@@ -59,8 +59,8 @@ begin
     delete from public.restaurant_staff
     where restaurant_id = p_restaurant_id and user_id = v_user_id;
 
-    -- Back to a customer once they manage nothing, so the app stops routing
-    -- them to an empty staff dashboard.
+    -- Kembali jadi pelanggan begitu tidak mengelola apa-apa, supaya aplikasi tidak
+    -- mengarahkannya ke dashboard staf yang kosong.
     if not exists (select 1 from public.restaurant_staff where user_id = v_user_id) then
         update public.users set role = 'CUSTOMER' where id = v_user_id;
     end if;

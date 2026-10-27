@@ -8,15 +8,14 @@ import org.umn.ngantriin.data.local.entity.PendingActionEntity
 import java.time.Instant
 
 /**
- * A write that could not reach the backend, parked until
- * connectivity returns.
+ * Penulisan yang tidak sampai ke backend, ditahan sampai koneksi kembali.
  *
- * Only actions that stay correct when they arrive late are queued. Joining a
- * queue is not one of them — a ticket issued twenty minutes after the tap is
- * worse than no ticket, so a failed join is reported to the user instead.
- * Leaving a queue *is* queued: the transition guard in the database rejects a
- * replay against a ticket that has since been served, so a stale replay is a
- * harmless no-op rather than a wrong cancellation.
+ * Hanya aksi yang tetap benar saat datang terlambat yang diantrekan. Antre
+ * tidak termasuk: tiket yang terbit dua puluh menit setelah ketukan lebih
+ * buruk daripada tidak ada tiket, jadi join yang gagal dilaporkan ke pengguna.
+ * Keluar dari antrean *diantrekan*: guard transisi di database menolak
+ * pengulangan terhadap tiket yang sudah dilayani, jadi pengulangan basi
+ * hanya no-op yang tidak berbahaya, bukan pembatalan yang salah.
  */
 @Serializable
 sealed interface PendingAction {
@@ -39,7 +38,7 @@ sealed interface PendingAction {
     data class MarkNotificationRead(val notificationId: String) : PendingAction
 }
 
-/** Persists and replays [PendingAction]s. */
+/** Menyimpan dan memutar ulang [PendingAction]. */
 class PendingActionQueue(private val dao: PendingActionDao) {
 
     private val json = Json { classDiscriminator = "action" }
@@ -55,9 +54,9 @@ class PendingActionQueue(private val dao: PendingActionDao) {
     }
 
     /**
-     * Replays everything in order. [handler] returns true when the action is
-     * settled — either it succeeded, or it failed in a way that replaying
-     * again will not fix.
+     * Memutar ulang semuanya berurutan. [handler] mengembalikan true kalau aksi
+     * sudah selesai, berhasil atau gagal dengan cara yang tidak akan
+     * diperbaiki dengan mengulang.
      */
     suspend fun drain(handler: suspend (PendingAction) -> Boolean) {
         dao.dropExhausted(MAX_ATTEMPTS)
@@ -67,7 +66,7 @@ class PendingActionQueue(private val dao: PendingActionDao) {
             }.getOrNull()
 
             if (action == null) {
-                // Unparseable rows can never succeed; drop rather than retry.
+                // Baris yang tidak bisa di-parse tidak akan berhasil, buang daripada diulang.
                 dao.delete(entity)
                 return@forEach
             }

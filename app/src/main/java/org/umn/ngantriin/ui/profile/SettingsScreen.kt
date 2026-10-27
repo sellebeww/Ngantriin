@@ -54,7 +54,6 @@ import org.umn.ngantriin.ui.components.LocationRationaleDialog
 import org.umn.ngantriin.ui.components.rememberLocationPermissionState
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 18. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -132,15 +131,15 @@ fun SettingsScreen(
                         subtitle = when {
                             permissionState.isGranted ->
                                 stringResource(R.string.settings_location_subtitle_granted)
-                            // The system dialog is out of reach now, so say
-                            // where the switch is actually going to send them.
+                            // Dialog sistem sudah tidak terjangkau, jadi beri tahu
+                            // ke mana tombol ini sebenarnya akan membawa mereka.
                             permissionState.isBlocked ->
                                 stringResource(R.string.settings_location_subtitle_blocked)
                             else -> stringResource(R.string.settings_location_subtitle_default)
                         },
                         checked = permissionState.isGranted,
-                        // Android has no API to revoke a permission from
-                        // inside the app, so the switch only ever grants.
+                        // Android tidak punya API untuk mencabut izin dari
+                        // dalam aplikasi, jadi tombol ini hanya bisa memberi izin.
                         enabled = !permissionState.isGranted,
                         onCheckedChange = { permissionState.request() }
                     )
@@ -218,7 +217,7 @@ fun SettingsScreen(
                     Column(Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.settings_backend),
-                            // Same weight as the other rows' titles.
+                            // Bobot sama dengan judul baris lainnya.
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )

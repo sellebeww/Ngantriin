@@ -10,13 +10,13 @@ import org.umn.ngantriin.domain.model.QueueMath
 import java.time.Instant
 
 /**
- * One place that decides what each notification says, shared by
- * the FCM path, the local scheduler and the live-tracking service so the
- * wording cannot drift apart.
+ * Satu tempat yang menentukan isi tiap notifikasi, dipakai bersama oleh
+ * jalur FCM, scheduler lokal, dan service pelacakan, supaya kalimatnya
+ * tidak melenceng satu sama lain.
  */
 object QueueNotificationCopy {
 
-    /** The numbers a message may mention. Nothing that names the venue. */
+    /** Angka yang boleh disebut pesan. Tidak ada yang menyebut nama restoran. */
     data class Facts(
         val queueId: String,
         val queueNumber: String,
@@ -26,17 +26,17 @@ object QueueNotificationCopy {
     )
 
     /**
-     * Deterministic id, mirroring the `unique (queue_id, type)` constraint in
-     * the schema: the same milestone for the same ticket is always the same
-     * row, so it cannot be delivered twice.
+     * Id deterministik, mengikuti constraint `unique (queue_id, type)` di
+     * skema: milestone yang sama untuk tiket yang sama selalu baris yang sama,
+     * jadi tidak bisa terkirim dua kali.
      */
     fun idFor(queueId: String, type: NotificationType) = "$queueId:${type.name}"
 
     /**
-     * Notifications are built outside Compose, so this mirrors
-     * [org.umn.ngantriin.ui.components.waitTimeText] using [Context.getString]
-     * directly instead of `stringResource` — [context] already carries
-     * whichever language Settings -> Language selected.
+     * Notifikasi dibuat di luar Compose, jadi ini meniru
+     * [org.umn.ngantriin.ui.components.waitTimeText] dengan [Context.getString]
+     * langsung, bukan `stringResource`. [context] sudah membawa bahasa yang
+     * dipilih di Pengaturan -> Bahasa.
      */
     fun waitTimeText(context: Context, minutes: Int): String = when {
         minutes <= 0 -> context.getString(R.string.wait_time_none)
@@ -63,7 +63,7 @@ object QueueNotificationCopy {
         type = type
     )
 
-    /** For a ticket that has already ended and so has no line around it. */
+    /** Untuk tiket yang sudah berakhir sehingga tidak ada antrean di sekitarnya. */
     fun build(
         context: Context,
         userId: String,
@@ -82,10 +82,9 @@ object QueueNotificationCopy {
     )
 
     /**
-     * 13 (privacy): a lock screen is a public surface — anyone
-     * glancing at the phone can read a notification without unlocking it. So
-     * nothing built here names the restaurant; that detail only appears once
-     * the notification is tapped and the app itself is open.
+     * Privasi: lock screen bisa dilihat siapa saja, notifikasi terbaca tanpa
+     * membuka kunci. Karena itu tidak ada yang dibuat di sini yang menyebut nama
+     * restoran. Detail itu baru muncul setelah notifikasi diketuk dan aplikasi terbuka.
      */
     fun build(
         context: Context,

@@ -16,68 +16,68 @@ data class Restaurant(
     val openingTime: LocalTime,
     val closingTime: LocalTime,
     val isOpen: Boolean,
-    /** The multiplier behind every wait estimate. */
+    /** Pengali di balik setiap estimasi waktu tunggu. */
     val averageServiceMinutes: Int,
     val queuePrefix: String,
     val queueCapacity: Int,
-    /** How close a customer must be to check in. */
+    /** Seberapa dekat pelanggan harus berada untuk check-in. */
     val checkInRadiusMeters: Int,
-    /** Open tables right now — a walk-in, not a queue. */
+    /** Meja kosong sekarang, jadi walk-in dan bukan antrean. */
     val availableSeats: Int = 0,
-    /** Minutes a called customer has to check in before expiry. */
+    /** Menit yang dimiliki pelanggan yang dipanggil untuk check-in sebelum kedaluwarsa. */
     val checkInWindowMinutes: Int = QueueMath.DEFAULT_CHECK_IN_WINDOW_MINUTES,
-    /** Listed to customers. Staff can pause it; the Room catalogue only ever holds active venues. */
+    /** Tampil ke pelanggan. Staf bisa menjedanya, katalog Room hanya menyimpan restoran aktif. */
     val isActive: Boolean = true,
-    /** Staff access and listing both wait for APPROVED. */
+    /** Akses staf dan tampil di daftar sama-sama menunggu APPROVED. */
     val verificationStatus: VerificationStatus = VerificationStatus.APPROVED,
-    /** The reviewer's reason, shown to the applicant after a rejection. */
+    /** Alasan reviewer, ditampilkan ke pendaftar setelah penolakan. */
     val verificationNote: String? = null
 ) {
     val isApproved: Boolean get() = verificationStatus == VerificationStatus.APPROVED
 
     val location: GeoPoint get() = GeoPoint(latitude, longitude)
 
-    /** Seats are open, so there's nothing to queue for yet. */
+    /** Ada kursi kosong, jadi belum perlu antre. */
     val hasAvailableSeats: Boolean get() = availableSeats > 0
 
-    /** Opening equal to closing means the venue never closes. */
+    /** Jam buka sama dengan jam tutup berarti restoran tidak pernah tutup. */
     val isOpen24Hours: Boolean get() = openingTime == closingTime
 
-    /** "10:00 - 22:00", or "24 Jam" */
+    /** "10:00 - 22:00", atau "24 Jam" */
     val operatingHours: String
         get() = if (isOpen24Hours) "24 Jam" else "%02d:%02d - %02d:%02d".format(
             openingTime.hour, openingTime.minute, closingTime.hour, closingTime.minute
         )
 
     /**
-     * `is_open` is the manual switch the restaurant controls; the clock is the
-     * schedule. A venue counts as open only when both agree, so staff can shut
-     * the queue early without editing their opening hours.
+     * `is_open` adalah saklar manual yang dipegang restoran, jam adalah jadwalnya.
+     * Restoran dianggap buka hanya kalau keduanya setuju, jadi staf bisa menutup
+     * antrean lebih awal tanpa mengubah jam buka.
      */
     fun isAcceptingQueue(now: LocalTime = LocalTime.now(RESTAURANT_ZONE)): Boolean {
         if (!isOpen) return false
         return if (closingTime > openingTime) {
             now >= openingTime && now < closingTime
         } else {
-            // Past-midnight closing, e.g. 18:00 - 02:00.
+            // Tutup lewat tengah malam, misalnya 18:00 - 02:00.
             now >= openingTime || now < closingTime
         }
     }
 
     companion object {
         /**
-         * Opening hours are restaurant-local wall-clock times. Judged in the
-         * venue's zone (restaurants.timezone in SQL) rather than the phone's,
-         * so a traveller's phone agrees with what `join_queue` decides.
+         * Jam buka adalah waktu dinding lokal restoran. Dinilai dengan zona waktu
+         * restoran (restaurants.timezone di SQL), bukan zona HP, supaya HP orang yang
+         * bepergian tetap sama dengan keputusan `join_queue`.
          */
         val RESTAURANT_ZONE: java.time.ZoneId = java.time.ZoneId.of("Asia/Jakarta")
     }
 }
 
 /**
- * A restaurant as it appears in a list: the venue itself plus the two facts
- * that make this app worth opening — how long the line is and how far away it
- * is. Distance is null until a location fix is available.
+ * Restoran seperti yang tampil di daftar: restoran itu sendiri ditambah dua
+ * fakta yang membuat aplikasi ini layak dibuka, yaitu seberapa panjang
+ * antrean dan seberapa jauh. Jarak null sampai lokasi tersedia.
  */
 data class RestaurantListing(
     val restaurant: Restaurant,
@@ -90,24 +90,24 @@ data class RestaurantListing(
         get() = stats?.estimatedWaitMinutes ?: (waitingCount * restaurant.averageServiceMinutes)
 }
 
-/** Where a restaurant application stands. Mirrors `restaurants.verification_status`. */
+/** Posisi pengajuan restoran. Meniru `restaurants.verification_status`. */
 enum class VerificationStatus {
     PENDING_VERIFICATION, APPROVED, REJECTED;
 
     companion object {
-        /** Unknown values read as pending: never grant access on a value we can't read. */
+        /** Nilai yang tidak dikenal dibaca sebagai pending: jangan beri akses berdasarkan nilai yang tidak terbaca. */
         fun fromWire(value: String?): VerificationStatus =
             entries.firstOrNull { it.name.equals(value?.trim(), ignoreCase = true) } ?: PENDING_VERIFICATION
     }
 }
 
-/** The applicant's relationship to the restaurant. Mirrors `restaurants.applicant_role`. */
+/** Hubungan pendaftar dengan restoran. Meniru `restaurants.applicant_role`. */
 enum class ApplicantRole { OWNER, MANAGER, AUTHORIZED_STAFF }
 
-/** Which slot a proof file fills. At least one BUSINESS_LICENSE is required. */
+/** Slot yang diisi sebuah berkas bukti. Minimal satu BUSINESS_LICENSE wajib ada. */
 enum class ProofType { BUSINESS_LICENSE, OWNERSHIP_PROOF }
 
-/** A proof file picked on the phone: JPEG (already downscaled) or PDF. */
+/** Berkas bukti yang dipilih di HP: JPEG (sudah diperkecil) atau PDF. */
 class ProofDocument(
     val type: ProofType,
     val bytes: ByteArray,
@@ -116,9 +116,9 @@ class ProofDocument(
     val extension: String get() = if (isPdf) "pdf" else "jpg"
 
     /**
-     * The file really is what it claims: within the size limit and starting with the
-     * PDF or JPEG signature. A renamed executable fails here before it is uploaded;
-     * the bucket then enforces the extension and MIME type on the server.
+     * Berkas benar-benar sesuai klaimnya: dalam batas ukuran dan diawali
+     * signature PDF atau JPEG. Executable yang diganti namanya gagal di sini sebelum
+     * diunggah, lalu bucket menegakkan ekstensi dan tipe MIME di server.
      */
     val isValid: Boolean
         get() = bytes.size in 1..MAX_BYTES && bytes.startsWith(if (isPdf) PDF_MAGIC else JPEG_MAGIC)
@@ -134,9 +134,9 @@ class ProofDocument(
 }
 
 /**
- * What staff fill in to put a venue on the app. The photo is JPEG bytes, not
- * a URL: where it ends up (Storage, or the device in sample mode) is the data
- * source's business.
+ * Yang diisi staf untuk memasukkan restoran ke aplikasi. Foto berupa byte JPEG,
+ * bukan URL: ke mana foto itu disimpan (Storage, atau perangkat di mode contoh)
+ * urusan data source.
  */
 class RestaurantRegistration(
     val name: String,

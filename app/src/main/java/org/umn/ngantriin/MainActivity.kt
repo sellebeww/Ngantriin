@@ -17,15 +17,15 @@ import org.umn.ngantriin.ui.NotificationLaunch
 class MainActivity : ComponentActivity() {
 
     /**
-     * The notification that opened (or re-opened) the app. State, not a
-     * constructor argument, so a tap while the app is already running —
-     * delivered through [onNewIntent] — navigates too.
+     * Notifikasi yang membuka (atau membuka ulang) aplikasi. Berupa state, bukan
+     * argumen constructor, supaya ketukan saat aplikasi sudah berjalan, yang
+     * masuk lewat [onNewIntent], tetap bisa menavigasi.
      */
     private var pendingLaunch by mutableStateOf<NotificationLaunch?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // The system splash covers process start; the composable splash then
-        // covers session restore, so there is never a blank frame.
+        // Splash sistem menutupi saat proses mulai, lalu splash composable menutupi
+        // saat sesi dipulihkan, jadi tidak pernah ada frame kosong.
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

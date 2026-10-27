@@ -53,7 +53,7 @@ import org.umn.ngantriin.ui.components.dateTimeText
 import org.umn.ngantriin.ui.theme.QueueNumberStyle
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** Screen 22: the full history of one ticket. */
+/** Riwayat lengkap satu tiket. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaffCustomerDetailScreen(
@@ -245,7 +245,7 @@ fun StaffCustomerDetailScreen(
                 }
 
                 QueueStatus.CALLED -> {
-                    // For a guest who arrived without opening the app.
+                    // Untuk tamu yang datang tanpa membuka aplikasi.
                     PrimaryButton(
                         text = stringResource(R.string.staff_mark_arrived),
                         onClick = { viewModel.updateStatus(entry.id, QueueStatus.CHECKED_IN) },

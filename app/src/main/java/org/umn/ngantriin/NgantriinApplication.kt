@@ -5,8 +5,8 @@ import org.umn.ngantriin.di.AppContainer
 import org.umn.ngantriin.work.SyncScheduler
 
 /**
- * Composition root. Holds the single [AppContainer] and starts the few
- * process-lifetime jobs the app needs.
+ * Composition root. Menyimpan satu [AppContainer] dan menjalankan beberapa
+ * job yang hidup selama proses aplikasi.
  */
 class NgantriinApplication : Application() {
 
@@ -21,7 +21,7 @@ class NgantriinApplication : Application() {
         container.pushTokenSync.syncIn(container.applicationScope)
         container.queueNotificationScheduler.start(container.applicationScope)
 
-        // Catches up anything parked while the device was offline.
+        // Menyusul aksi yang tertahan saat perangkat offline.
         SyncScheduler.schedulePeriodic(this)
     }
 }

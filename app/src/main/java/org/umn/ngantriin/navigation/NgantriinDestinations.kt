@@ -15,9 +15,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import org.umn.ngantriin.R
 
 /**
- * Every route in one place (no route strings scattered through
- * composables). Routes that take an argument expose a `create(...)` helper so
- * callers cannot build a malformed path.
+ * Semua route di satu tempat (tidak ada string route yang tersebar di
+ * composable). Route yang punya argumen menyediakan helper `create(...)`
+ * supaya pemanggil tidak bisa membuat path yang salah.
  */
 object Routes {
     const val SPLASH = "splash"
@@ -57,7 +57,7 @@ object Routes {
     const val REVIEW = "review/{$ARG_QUEUE_ID}"
     fun review(queueId: String) = "review/$queueId"
 
-    /** The reviewer's only area; routed to by role (see NgantriinApp.resolveArea). */
+    /** Area khusus reviewer, diarahkan berdasarkan role (lihat NgantriinApp.resolveArea). */
     const val ADMIN_REVIEW = "admin_review"
 
     const val ARG_STATUS = "status"
@@ -66,7 +66,7 @@ object Routes {
 
     const val STAFF_DASHBOARD = "staff_dashboard"
 
-    /** Reachable from the profile (customers) and the dashboard (staff). */
+    /** Bisa dibuka dari profil (pelanggan) dan dashboard (staf). */
     const val REGISTER_RESTAURANT = "register_restaurant"
 
     const val STAFF_QUEUE = "staff_queue/{$ARG_RESTAURANT_ID}"
@@ -76,7 +76,7 @@ object Routes {
     fun staffCustomer(queueId: String) = "staff_customer/$queueId"
 }
 
-/** The five customer tabs, in order. */
+/** Lima tab pelanggan, berurutan. */
 enum class BottomTab(
     val route: String,
     val labelRes: Int,

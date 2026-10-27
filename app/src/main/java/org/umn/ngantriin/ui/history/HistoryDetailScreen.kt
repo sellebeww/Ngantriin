@@ -60,7 +60,7 @@ import org.umn.ngantriin.ui.theme.LocalStatusColors
 import org.umn.ngantriin.ui.theme.Spacing
 import java.time.Instant
 
-/** The full story of one visit. */
+/** Cerita lengkap satu kunjungan. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDetailScreen(
@@ -180,7 +180,7 @@ fun HistoryDetailScreen(
                 InfoRow(
                     icon = Icons.Filled.Schedule,
                     label = stringResource(R.string.staff_waited_label),
-                    // The label already says "Waited"; the value is just the time.
+                    // Labelnya sudah bilang "Menunggu", nilainya cukup waktunya.
                     value = entry.waitedMinutes
                         ?.let { stringResource(R.string.staff_waited_value, it) }
                         ?: stringResource(R.string.history_wait_not_recorded_short)

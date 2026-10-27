@@ -1,25 +1,25 @@
 -- =============================================================================
--- NGANTRIIN — Photo-verified check-in, replacing GPS distance verification.
+-- NGANTRIIN: Check-in dengan verifikasi foto, menggantikan verifikasi jarak GPS.
 --
--- The previous check_in_queue(queue, lat, lng) recomputed distance against
--- the restaurant's stored coordinates before allowing CHECKED_IN. That is
--- being replaced with a manual photo verification: the customer takes a
--- photo, the staff can review it, and the transition to CHECKED_IN now
--- requires a non-blank photo_url instead of a distance check.
+-- check_in_queue(queue, lat, lng) sebelumnya menghitung ulang jarak terhadap
+-- koordinat restoran yang tersimpan sebelum mengizinkan CHECKED_IN. Itu
+-- diganti dengan verifikasi foto manual: pelanggan mengambil foto,
+-- staf bisa meninjaunya, dan transisi ke CHECKED_IN sekarang
+-- butuh photo_url yang tidak kosong, bukan pengecekan jarak.
 --
--- Note: this migration only touches check-in. Restaurant "nearby"/distance
--- features (Home, Search, Restaurant Detail) are unrelated GPS usage and are
--- untouched — restaurants.latitude/longitude and checkin_radius_meters are
--- left in place (still informative columns; checkin_radius_meters is simply
--- no longer read by check_in_queue).
+-- Catatan: migrasi ini hanya menyentuh check-in. Fitur "terdekat"/jarak
+-- restoran (Beranda, Cari, Detail Restoran) memakai GPS untuk hal lain dan
+-- tidak disentuh: restaurants.latitude/longitude dan checkin_radius_meters
+-- dibiarkan (tetap kolom informatif, checkin_radius_meters hanya
+-- tidak lagi dibaca check_in_queue).
 -- =============================================================================
 
 alter table public.queues
     add column if not exists check_in_photo_url text;
 
 -- -----------------------------------------------------------------------------
--- Storage: a private bucket for check-in photos.
--- Path convention: {restaurant_id}/{queue_id}/{timestamp}.jpg
+-- Storage: bucket privat untuk foto check-in.
+-- Konvensi path: {restaurant_id}/{queue_id}/{timestamp}.jpg
 -- -----------------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('checkin-photos', 'checkin-photos', false)
@@ -37,9 +37,9 @@ create policy checkin_photos_insert_own on storage.objects
         )
     );
 
--- The ticket's own customer, or staff of the restaurant the ticket belongs
--- to, can view the photo. Nobody else — this is why the bucket is private
--- rather than public.
+-- Pelanggan pemilik tiket, atau staf restoran tempat tiket itu berada,
+-- bisa melihat foto. Tidak ada yang lain, makanya bucket ini privat
+-- dan bukan publik.
 drop policy if exists checkin_photos_select_own_or_staff on storage.objects;
 create policy checkin_photos_select_own_or_staff on storage.objects
     for select to authenticated
@@ -55,19 +55,18 @@ create policy checkin_photos_select_own_or_staff on storage.objects
         )
     );
 
--- No update/delete policy: a check-in photo is immutable once uploaded, same
--- as queues_insert_none blocks direct writes to `queues` elsewhere in this
--- schema — the default RLS deny is the correct behaviour here.
+-- Tidak ada policy update/delete: foto check-in tidak bisa diubah setelah
+-- diunggah, sama seperti queues_insert_none yang memblokir tulis langsung ke `queues`
+-- di skema ini. Penolakan RLS bawaan adalah perilaku yang benar di sini.
 
 -- -----------------------------------------------------------------------------
--- check_in_queue — now gated on a photo, not a GPS distance.
+-- check_in_queue: sekarang bergantung pada foto, bukan jarak GPS.
 --
--- `for update` on the queue row closes the same class of race call_next()
--- already guards against with `for update skip locked`: without it, a
--- ticket's status could theoretically be read as CALLED here at the same
--- instant staff_update_queue_status() moves it elsewhere, and both writes
--- would appear to succeed against a status that was already stale by the
--- time this function's own UPDATE runs.
+-- `for update` pada baris antrean menutup jenis race yang sama dengan yang
+-- sudah dijaga call_next() lewat `for update skip locked`: tanpanya, status
+-- tiket secara teori bisa terbaca CALLED di sini pada saat yang sama
+-- staff_update_queue_status() memindahkannya ke tempat lain, dan kedua tulis
+-- tampak berhasil terhadap status yang sudah basi saat UPDATE fungsi ini jalan.
 -- -----------------------------------------------------------------------------
 create or replace function public.check_in_queue(
     p_queue_id  uuid,

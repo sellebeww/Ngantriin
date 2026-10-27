@@ -11,8 +11,8 @@ import org.umn.ngantriin.domain.repository.AuthRepository
 import org.umn.ngantriin.domain.repository.SessionState
 
 /**
- * Registers this device's push token against the signed-in profile so the
- * backend knows where to send queue updates.
+ * Mendaftarkan token push perangkat ini ke profil yang login supaya
+ * backend tahu ke mana mengirim update antrean.
  */
 class PushTokenSync(
     private val authRepository: AuthRepository,
@@ -20,8 +20,8 @@ class PushTokenSync(
 ) {
 
     /**
-     * Syncs on every sign-in, not just at process start: someone who opens
-     * the app signed out and logs in later still has to be reachable.
+     * Sinkron di setiap login, bukan hanya saat proses mulai: orang yang
+     * membuka aplikasi dalam keadaan logout lalu login nanti tetap harus bisa dijangkau.
      */
     fun syncIn(scope: CoroutineScope) {
         if (!notificationHelper.isPushConfigured) return

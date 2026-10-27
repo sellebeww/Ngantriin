@@ -6,7 +6,7 @@ import org.junit.Test
 import org.umn.ngantriin.domain.model.Restaurant
 import java.time.LocalTime
 
-/** Whether a venue is taking queues right now. */
+/** Apakah restoran sedang menerima antrean sekarang. */
 class RestaurantOpeningTest {
 
     @Test
@@ -26,7 +26,7 @@ class RestaurantOpeningTest {
 
     @Test
     fun `the manual switch overrides the schedule`() {
-        // Staff closing the queue early must win over the opening hours.
+        // Staf menutup antrean lebih awal harus menang atas jam buka.
         val restaurant = restaurant(LocalTime.of(10, 0), LocalTime.of(22, 0), isOpen = false)
         assertFalse(restaurant.isAcceptingQueue(LocalTime.of(12, 0)))
     }

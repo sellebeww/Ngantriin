@@ -48,7 +48,7 @@ class SearchViewModel(
     initialQuery: String = ""
 ) : ViewModel() {
 
-    /** Typed text, echoed straight back to the field so it never lags. */
+    /** Teks yang diketik, langsung dikembalikan ke field supaya tidak tertinggal. */
     private val query = MutableStateFlow(initialQuery)
     val queryText: StateFlow<String> = query.asStateFlow()
 
@@ -61,8 +61,8 @@ class SearchViewModel(
             restaurantRepository.refreshRestaurants()
             firstLoadDone.value = true
         }
-        // Debounced so a search does not re-run the filter pipeline on every
-        // keystroke; the field itself stays immediate.
+        // Di-debounce supaya pencarian tidak menjalankan ulang pipeline filter di setiap
+        // ketukan, field-nya sendiri tetap langsung.
         viewModelScope.launch {
             query.debounce(220).distinctUntilChanged().collect { text ->
                 filters.update { it.copy(query = text) }
@@ -125,7 +125,7 @@ class SearchViewModel(
 
     fun onSortChange(sort: RestaurantSort) {
         filters.update { it.copy(sort = sort) }
-        // Sorting by distance is meaningless without a fix, so ask for one.
+        // Urut berdasarkan jarak tidak ada artinya tanpa lokasi, jadi minta lokasinya.
         if (sort == RestaurantSort.NEAREST) locationTracker.refresh()
     }
 

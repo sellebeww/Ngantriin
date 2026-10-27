@@ -2,7 +2,7 @@ package org.umn.ngantriin.domain.model
 
 import java.time.Instant
 
-/** One restaurant application as a reviewer sees it. Mirrors `admin_list_applications`. */
+/** Satu pengajuan restoran seperti yang dilihat reviewer. Meniru `admin_list_applications`. */
 data class RestaurantApplication(
     val restaurantId: String,
     val name: String,
@@ -11,23 +11,23 @@ data class RestaurantApplication(
     val description: String,
     val imageUrl: String?,
     val status: VerificationStatus,
-    /** The reason given when the application was rejected. */
+    /** Alasan yang diberikan saat pengajuan ditolak. */
     val note: String?,
     val applicantName: String,
     val applicantEmail: String,
     val contactPhone: String,
     val applicantRole: ApplicantRole?,
-    /** Files in the newest submission; older rounds stay on record. */
+    /** Berkas di kiriman terbaru, putaran lama tetap tercatat. */
     val documentCount: Int,
     val submittedAt: Instant?
 )
 
-/** A proof file on an application. [path] is a Storage path, never shown to customers. */
+/** Berkas bukti pada pengajuan. [path] adalah path Storage, tidak pernah ditampilkan ke pelanggan. */
 data class ApplicationDocument(
     val id: String,
     val type: ProofType,
     val path: String,
-    /** 1 for the first submission, one more for every resubmission. */
+    /** 1 untuk kiriman pertama, bertambah satu tiap pengajuan ulang. */
     val round: Int,
     val uploadedAt: Instant?
 ) {

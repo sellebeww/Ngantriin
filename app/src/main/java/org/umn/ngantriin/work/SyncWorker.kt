@@ -9,8 +9,8 @@ import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.core.Outcome
 
 /**
- * Runs when the device is back online: replays parked writes,
- * then refreshes the caches the UI reads from.
+ * Jalan saat perangkat kembali online: memutar ulang penulisan yang tertahan,
+ * lalu me-refresh cache yang dibaca UI.
  */
 class SyncWorker(
     context: Context,
@@ -42,9 +42,9 @@ class SyncWorker(
             when (outcome) {
                 is Outcome.Success<*> -> true
                 is Outcome.Failure -> {
-                    // Still offline: keep the action and retry the whole run.
-                    // Anything else is a decision the server already made, so
-                    // replaying it will not change the answer.
+                    // Masih offline: simpan aksinya dan ulangi seluruh proses.
+                    // Selain itu adalah keputusan yang sudah dibuat server, jadi
+                    // mengulangnya tidak mengubah jawabannya.
                     if (outcome.error is AppError.Network) {
                         networkFailure = true
                         false

@@ -37,21 +37,21 @@ import org.umn.ngantriin.domain.model.UserRole
 import java.util.UUID
 
 /**
- * Demo-mode data sources. Each one satisfies the same interface its Supabase
- * twin does, so the repositories above cannot tell which is running.
+ * Data source mode demo. Masing-masing memenuhi interface yang sama dengan
+ * pasangannya di Supabase, jadi repository di atasnya tidak bisa tahu mana yang jalan.
  */
 
 /**
- * There is no authentication in demo mode — any email signs you in and no
- * password is stored or checked. That is a deliberate choice over faking
- * credential handling: the real path is Supabase Auth, and pretending to
- * verify a password locally would only look like security.
+ * Mode demo tidak punya autentikasi: email apa pun bisa masuk dan tidak ada
+ * password yang disimpan atau dicek. Ini pilihan sengaja daripada memalsukan
+ * penanganan kredensial. Jalur aslinya Supabase Auth, dan pura-pura memverifikasi
+ * password secara lokal hanya terlihat seperti keamanan.
  *
- * An email starting with "staff" signs in with the STAFF role, which is how
- * you reach the restaurant dashboard without a backend. Which venues it runs
- * is a separate question, answered by the staff memberships in [DemoBackend]:
- * the sample logins in [DemoSeed.STAFF_ACCOUNTS] each run one sample venue, and
- * any account that registers a venue runs that venue.
+ * Email berawalan "staff" masuk dengan role STAFF, supaya dashboard restoran bisa
+ * dibuka tanpa backend. Restoran mana yang dikelola ditentukan terpisah oleh
+ * keanggotaan staf di [DemoBackend]: tiap login contoh di [DemoSeed.STAFF_ACCOUNTS]
+ * mengelola satu restoran contoh, dan akun yang mendaftarkan restoran mengelola
+ * restoran itu.
  */
 class DemoAuthRemoteDataSource(
     private val preferences: UserPreferencesDataStore
@@ -84,8 +84,8 @@ class DemoAuthRemoteDataSource(
             else -> UserRole.CUSTOMER
         }
         val profile = UserPreferencesDataStore.DemoProfile(
-            // Reuse the id when the same person signs back in, so their queue
-            // history survives a sign-out.
+            // Pakai id yang sama kalau orang yang sama masuk lagi, supaya riwayat
+            // antreannya tetap ada setelah keluar.
             id = id,
             name = name.trim().ifBlank { nameFrom(normalised) },
             email = normalised,
@@ -103,7 +103,7 @@ class DemoAuthRemoteDataSource(
 
     override suspend fun sendPasswordReset(email: String) = Unit
 
-    // Sample mode has no reset emails, so there is no link to receive.
+    // Mode contoh tidak mengirim email reset, jadi tidak ada tautan yang diterima.
     override fun handleRecoveryLink(intent: Intent, onRecovered: () -> Unit) = Unit
 
     override suspend fun updatePassword(newPassword: String) = Unit
@@ -158,13 +158,13 @@ class DemoRestaurantRemoteDataSource(
     override suspend fun fetchQueueStats(restaurantId: String): QueueStats =
         backend.stats(restaurantId)
 
-    /** Only the venues this account was registered against, like `restaurant_staff`. */
+    /** Hanya restoran yang didaftarkan atas akun ini, seperti `restaurant_staff`. */
     override suspend fun fetchManagedRestaurants(userId: String): List<Restaurant> =
         backend.managedRestaurants(userId)
 
     override suspend fun registerRestaurant(registration: RestaurantRegistration): Restaurant {
         val userId = requireUser()
-        // No Storage in demo mode: the photo lives in the app's own files.
+        // Mode demo tidak punya Storage: foto disimpan di file milik aplikasi.
         val imageUrl = registration.photo?.let { bytes ->
             withContext(Dispatchers.IO) {
                 photoDir.mkdirs()
@@ -172,7 +172,7 @@ class DemoRestaurantRemoteDataSource(
             }.let { Uri.fromFile(it).toString() }
         }
         val profile = preferences.demoProfile.first()
-        // A missing or unreadable proof is refused before any file is written.
+        // Bukti yang hilang atau tidak terbaca ditolak sebelum ada file yang ditulis.
         requireProof(registration.documents)
         val venue = backend.registerRestaurant(
             userId = userId,
@@ -182,7 +182,7 @@ class DemoRestaurantRemoteDataSource(
             applicantName = profile?.name.orEmpty(),
             applicantEmail = profile?.email.orEmpty()
         )
-        // register_restaurant promotes the account; do the same here.
+        // register_restaurant menaikkan role akun, di sini dibuat sama.
         profile?.let { preferences.setDemoProfile(it.copy(role = UserRole.STAFF.wireValue)) }
         return venue
     }
@@ -208,14 +208,14 @@ class DemoRestaurantRemoteDataSource(
         )
     }
 
-    /** The SQL rule: a business document is required and every file must be readable. */
+    /** Aturan SQL: dokumen usaha wajib ada dan semua berkas harus terbaca. */
     private fun requireProof(documents: List<ProofDocument>) {
         if (documents.none { it.type == ProofType.BUSINESS_LICENSE } || !documents.all { it.isValid }) {
             error("PROOF_REQUIRED")
         }
     }
 
-    /** No Storage in demo mode: proofs live in the app's private files, per applicant. */
+    /** Mode demo tidak punya Storage: bukti disimpan di file privat aplikasi, per pendaftar. */
     private suspend fun storeProofs(userId: String, documents: List<ProofDocument>): List<DemoBackend.ProofFile> =
         withContext(Dispatchers.IO) {
             val dir = File(proofDir, userId).apply { mkdirs() }
@@ -235,7 +235,7 @@ class DemoRestaurantRemoteDataSource(
         backend.changes.map { }.onStart { emit(Unit) }
 }
 
-/** Sample-mode reviewer: the same rules as the `admin_*` functions, on the demo backend. */
+/** Reviewer mode contoh: aturannya sama dengan fungsi `admin_*`, di backend demo. */
 class DemoAdminRemoteDataSource(
     private val backend: DemoBackend,
     private val auth: AuthRemoteDataSource
@@ -249,7 +249,7 @@ class DemoAdminRemoteDataSource(
     override suspend fun fetchDocuments(restaurantId: String): List<ApplicationDocument> =
         backend.applicationDocuments(requireUser(), restaurantId)
 
-    // The "path" of a demo document already is a file URI on this device.
+    // "Path" dokumen demo sudah berupa URI file di perangkat ini.
     override suspend fun documentUrl(document: ApplicationDocument): String = document.path
 
     override suspend fun review(restaurantId: String, approve: Boolean, note: String?) =
@@ -272,16 +272,16 @@ class DemoQueueRemoteDataSource(
     override suspend fun leaveQueue(queueId: String): QueueEntry =
         backend.cancelQueue(requireUser(), queueId)
 
-    // No real Storage in demo mode, so the photo bytes are discarded here —
-    // what matters for exercising the state machine is that checkIn() still
-    // requires a non-blank photo reference, same as the real RPC does.
+    // Mode demo tidak punya Storage asli, jadi byte foto dibuang di sini.
+    // Yang penting untuk menguji state machine: checkIn() tetap mewajibkan
+    // referensi foto yang tidak kosong, sama seperti RPC aslinya.
     override suspend fun checkIn(queueId: String, restaurantId: String, photo: ByteArray): QueueEntry =
         backend.checkIn(requireUser(), queueId, photoUrl = "demo-checkin-photo:$queueId")
 
     override suspend fun resolveCheckInPhotoUrl(photoUrl: String): String = photoUrl
 
-    // Same rule as `is_restaurant_staff` in the SQL functions: being signed in
-    // as staff is not enough, the account must run this venue.
+    // Aturan sama dengan `is_restaurant_staff` di fungsi SQL: login sebagai
+    // staf saja tidak cukup, akunnya harus mengelola restoran ini.
     private suspend fun requireStaff(restaurantId: String) {
         if (!backend.isStaff(requireUser(), restaurantId)) error("NOT_RESTAURANT_STAFF")
     }
@@ -293,7 +293,7 @@ class DemoQueueRemoteDataSource(
 
     override suspend fun updateStatus(queueId: String, status: QueueStatus): QueueEntry {
         val entry = backend.queue(queueId)
-        // A customer may cancel their own ticket; anything else is staff-only.
+        // Pelanggan boleh membatalkan tiketnya sendiri, selain itu khusus staf.
         val ownCancel = status == QueueStatus.CANCELLED && entry.userId == requireUser()
         if (!ownCancel) requireStaff(entry.restaurantId)
         return backend.updateStatus(queueId, status)
@@ -311,8 +311,8 @@ class DemoQueueRemoteDataSource(
     override suspend fun fetchHistory(userId: String): List<QueueEntry> =
         backend.historyFor(userId)
 
-    // Row level security in the real backend: staff read the whole line, anyone
-    // else only their own tickets.
+    // Row level security di backend asli: staf membaca seluruh antrean,
+    // yang lain hanya tiketnya sendiri.
     override suspend fun fetchRestaurantQueue(restaurantId: String): List<QueueEntry> {
         val userId = requireUser()
         val line = backend.queueFor(restaurantId)
@@ -358,9 +358,9 @@ class DemoReviewRemoteDataSource(
 }
 
 /**
- * Demo notifications are produced locally by
- * [org.umn.ngantriin.notification.QueueNotificationScheduler] rather than
- * pushed from a server, so this source only has to accept them.
+ * Notifikasi demo dibuat lokal oleh
+ * [org.umn.ngantriin.notification.QueueNotificationScheduler], bukan
+ * dikirim dari server, jadi source ini cukup menerimanya.
  */
 class DemoNotificationRemoteDataSource : NotificationRemoteDataSource {
     override suspend fun fetchNotifications(userId: String): List<AppNotification> = emptyList()

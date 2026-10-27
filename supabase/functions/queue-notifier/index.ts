@@ -1,29 +1,29 @@
 // =============================================================================
-// NGANTRIIN — queue-notifier Edge Function
+// NGANTRIIN: Edge Function queue-notifier
 //
-// Server side. The `queues_notify` trigger (0012) calls
-// this on every change to `queues`; the function works out which milestone
-// each affected ticket has reached, records it, and pushes it through FCM.
+// Sisi server. Trigger `queues_notify` (0012) memanggil ini
+// di setiap perubahan pada `queues`. Fungsi ini mencari milestone yang
+// dicapai tiap tiket yang terdampak, mencatatnya, lalu mengirimnya lewat FCM.
 //
-// Trust model:
-//   * The caller must present QUEUE_NOTIFIER_SECRET in `x-ngantriin-secret`.
-//     The function is deployed with --no-verify-jwt, so this header is the
-//     only thing standing between the public internet and a push to any user.
-//   * Only the ticket id is taken from the request. Status, recipient and
-//     everything else are re-read from the database with the service role, so
-//     even a caller holding the secret cannot invent a notification.
+// Model kepercayaan:
+// * Pemanggil harus menyertakan QUEUE_NOTIFIER_SECRET di `x-ngantriin-secret`.
+// Fungsi ini di-deploy dengan --no-verify-jwt, jadi header ini satu-satunya
+// penghalang antara internet publik dan push ke pengguna mana pun.
+// * Hanya id tiket yang diambil dari request. Status, penerima, dan
+// semua lainnya dibaca ulang dari database dengan service role, jadi
+// pemanggil yang memegang secret pun tidak bisa mengarang notifikasi.
 //
-// De-duplication: public.notifications has unique (queue_id, type). A repeat
-// webhook, or a line that oscillates around a threshold, conflicts on insert
-// and nothing is pushed.
+// Deduplikasi: public.notifications punya unique (queue_id, type). Webhook
+// yang berulang, atau antrean yang naik turun di sekitar ambang, bentrok saat
+// insert dan tidak ada yang dikirim.
 //
 // Deploy:
-//   supabase functions deploy queue-notifier --no-verify-jwt
-//   supabase secrets set QUEUE_NOTIFIER_SECRET=<random> \
-//       FCM_PROJECT_ID=... FCM_SERVICE_ACCOUNT_JSON='{...}'
-//   -- and in SQL (see 0012):
-//   alter database postgres set app.settings.functions_url = 'https://<ref>.supabase.co/functions/v1';
-//   alter database postgres set app.settings.queue_notifier_secret = '<same random>';
+// supabase functions deploy queue-notifier --no-verify-jwt
+// supabase secrets set QUEUE_NOTIFIER_SECRET=<random> \
+// FCM_PROJECT_ID=... FCM_SERVICE_ACCOUNT_JSON='{...}'
+// -- dan di SQL (lihat 0012):
+// alter database postgres set app.settings.functions_url = 'https://<ref>.supabase.co/functions/v1';
+// alter database postgres set app.settings.queue_notifier_secret = '<same random>';
 // =============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -64,10 +64,10 @@ interface QueueRow {
 }
 
 interface RequestBody {
-  type?: string; // "INSERT" | "UPDATE", from the queues_notify trigger
+  type?: string; // "INSERT" | "UPDATE", dari trigger queues_notify
   queue_id?: string;
   restaurant_id?: string;
-  // Shape sent by a Supabase "Database Webhook" configured in the dashboard.
+  // Bentuk yang dikirim "Database Webhook" Supabase yang diatur di dashboard.
   record?: { id?: string; restaurant_id?: string } | null;
   old_record?: { id?: string; restaurant_id?: string } | null;
 }
@@ -79,7 +79,7 @@ interface MilestoneContext {
   checkInMinutes: number;
 }
 
-// Mirrors QueueMath.ALMOST_THERE_THRESHOLD / RETURN_NOW_THRESHOLD.
+// Meniru QueueMath.ALMOST_THERE_THRESHOLD / RETURN_NOW_THRESHOLD.
 const ALMOST_THERE_THRESHOLD = 3;
 const RETURN_NOW_THRESHOLD = 1;
 
@@ -100,8 +100,8 @@ const QUEUE_COLUMNS =
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
-  // Service role: this runs behind the trigger, not on behalf of a user, and
-  // has to read other customers' rows to count the line.
+  // Service role: ini jalan di belakang trigger, bukan atas nama pengguna, dan
+  // harus membaca baris pelanggan lain untuk menghitung antrean.
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
@@ -135,12 +135,12 @@ Deno.serve(async (request) => {
 
   const restaurantId = changed.restaurant_id;
 
-  // Settle overdue check-ins first: an expired-but-unswept ticket would still
-  // be counted as "ahead" and make every estimate below too long.
+  // Selesaikan check-in yang lewat batas dulu: tiket yang sudah kedaluwarsa tapi
+  // belum disapu masih dihitung "di depan" dan membuat semua estimasi di bawah terlalu lama.
   await supabase.rpc("expire_overdue_queues", { p_restaurant_id: restaurantId });
 
-  // Promote anyone who is now near the front, then look at every live ticket
-  // at this venue: one group being seated moves everybody behind them.
+  // Naikkan siapa pun yang sekarang dekat dengan depan, lalu lihat semua tiket
+  // aktif di restoran ini: satu rombongan yang didudukkan menggeser semua di belakangnya.
   await supabase.rpc("promote_almost_there", { p_restaurant_id: restaurantId });
 
   const { data: restaurant } = await supabase
@@ -149,8 +149,8 @@ Deno.serve(async (request) => {
     .eq("id", restaurantId)
     .single();
 
-  // Measured pace (falls back to the configured one inside the function), so
-  // a pushed estimate matches what the app shows.
+  // Kecepatan terukur (jatuh ke yang dikonfigurasi di dalam fungsi), supaya
+  // estimasi yang dikirim sama dengan yang ditampilkan aplikasi.
   const { data: pace } = await supabase.rpc("effective_service_minutes", {
     p_restaurant_id: restaurantId,
   });
@@ -185,8 +185,8 @@ Deno.serve(async (request) => {
     };
     const locale = locales.get(ticket.user_id) ?? "id";
 
-    // Confirmation that the ticket exists, with the first estimate. Only for
-    // the row that was just inserted, never for a later update.
+    // Konfirmasi bahwa tiket ada, dengan estimasi pertama. Hanya untuk
+    // baris yang baru di-insert, tidak pernah untuk update berikutnya.
     const justJoined = body.type === "INSERT" && ticket.id === changed.id;
     if (justJoined) {
       await deliver(ticket, "QUEUE_JOINED", locale, context);
@@ -195,14 +195,14 @@ Deno.serve(async (request) => {
     const milestone = milestoneFor(ticket, peopleAhead);
     if (!milestone) continue;
 
-    // Joining a short line already told the customer how many are ahead.
-    // Record the milestone as read so it can't fire again later, but don't
-    // buzz them twice in the same second.
+    // Join ke antrean pendek sudah memberi tahu berapa yang di depan.
+    // Catat milestone sebagai terbaca supaya tidak terkirim lagi nanti, tapi
+    // jangan bunyi dua kali dalam detik yang sama.
     await deliver(ticket, milestone, locale, context, justJoined);
   }
 
-  // A ticket that just ended is no longer live, so handle it directly. A
-  // customer who cancelled on their own phone doesn't need to be told.
+  // Tiket yang baru berakhir tidak lagi aktif, jadi ditangani langsung.
+  // Pelanggan yang membatalkan di HP-nya sendiri tidak perlu diberi tahu.
   const cancelledByCustomer = changed.status === "CANCELLED" &&
     changed.cancelled_by === changed.user_id;
   if (TERMINAL.has(changed.status) && !cancelledByCustomer) {
@@ -222,7 +222,7 @@ Deno.serve(async (request) => {
   return new Response("ok");
 });
 
-/** Mirrors QueueMath.notificationMilestone. */
+/** Meniru QueueMath.notificationMilestone. */
 function milestoneFor(
   ticket: QueueRow,
   peopleAhead: number,
@@ -253,8 +253,8 @@ async function deliver(
 ) {
   const copy = copyFor(type, locale, context);
 
-  // The unique (queue_id, type) index is the de-duplication; a conflict means
-  // this milestone already went out.
+  // Index unique (queue_id, type) yang menjadi deduplikasi, konflik berarti
+  // milestone ini sudah terkirim.
   const { data: inserted, error } = await supabase
     .from("notifications")
     .insert({
@@ -270,8 +270,8 @@ async function deliver(
 
   if (error || !inserted || quiet) return;
 
-  // Raw values travel too, so the app can render the text in whatever
-  // language it is set to right now.
+  // Nilai mentah ikut dikirim, supaya aplikasi bisa menulis teksnya dengan
+  // bahasa yang sedang dipilih sekarang.
   await push(ticket.user_id, {
     id: inserted.id,
     queue_id: ticket.id,
@@ -302,11 +302,11 @@ async function localesFor(userIds: string[]): Promise<Map<string, Locale>> {
 }
 
 /**
- * Mirrors QueueNotificationCopy so both channels read identically.
+ * Meniru QueueNotificationCopy supaya kedua saluran terbaca sama.
  *
- * 13 (privacy): nothing here names the restaurant. A lock screen
- * is a public surface, and which venue someone is waiting at is exactly the
- * kind of detail that shouldn't be readable over their shoulder.
+ * Privasi: tidak ada yang di sini menyebut nama restoran. Lock screen
+ * bisa dilihat siapa saja, dan di restoran mana seseorang mengantre adalah
+ * detail yang tidak seharusnya terbaca dari balik bahu.
  */
 function copyFor(
   type: NotificationType,
@@ -433,17 +433,17 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Sends a data-only FCM message. Data-only (rather than `notification`) is
- * deliberate: NgantriinMessagingService renders it, so the app controls the
- * channel, the icon, the language and whether it persists the event first.
+ * Mengirim pesan FCM data-only. Data-only (bukan `notification`) sengaja:
+ * NgantriinMessagingService yang menampilkannya, jadi aplikasi mengatur
+ * channel, ikon, bahasa, dan apakah event disimpan dulu.
  *
- * Failure handling:
- *   * 429 / 5xx / network error: retried with backoff (the notification row
- *     is already stored, so the in-app list is right even if every try fails).
- *   * 401: the cached OAuth token was rejected; drop it and retry once.
- *   * UNREGISTERED / NOT_FOUND: the app was uninstalled or its data cleared;
- *     the token is cleared so no more pushes are spent on it.
- *   * Anything else (bad config, bad payload) is logged and not retried.
+ * Penanganan kegagalan:
+ * * 429 / 5xx / error jaringan: diulang dengan backoff (baris notifikasi
+ * sudah tersimpan, jadi daftar di aplikasi tetap benar walau semua percobaan gagal).
+ * * 401: token OAuth yang di-cache ditolak, buang dan coba sekali lagi.
+ * * UNREGISTERED / NOT_FOUND: aplikasi di-uninstall atau datanya dihapus,
+ * token dikosongkan supaya tidak ada push lagi yang terbuang.
+ * * Selain itu (konfigurasi atau payload salah) dicatat dan tidak diulang.
  */
 async function push(userId: string, data: Record<string, string>) {
   const { data: profile } = await supabase
@@ -534,7 +534,7 @@ function isUnregistered(status: number, detail: string): boolean {
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const backoffMs = (attempt: number) => 300 * 2 ** (attempt - 1);
 
-/** Service-account JWT exchanged for an OAuth token, cached for its lifetime. */
+/** JWT service account ditukar dengan token OAuth, di-cache selama masa berlakunya. */
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
 async function googleAccessToken(): Promise<string | null> {

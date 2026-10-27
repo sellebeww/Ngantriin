@@ -35,9 +35,9 @@ sealed interface ActiveQueueEvent {
 }
 
 /**
- * The state here is a straight projection of the
- * repository's realtime flow — there is no polling and no manual refresh,
- * because the queue moving is an event the backend already tells us about.
+ * State di sini adalah proyeksi langsung dari flow realtime
+ * repository. Tidak ada polling dan tidak ada refresh manual,
+ * karena antrean bergerak adalah event yang sudah diberitahukan backend.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ActiveQueueViewModel(
@@ -60,8 +60,8 @@ class ActiveQueueViewModel(
     }
 
     init {
-        // One emission is enough to know whether "no queue" is the answer or
-        // just the cache warming up.
+        // Satu emisi cukup untuk tahu apakah "tidak ada antrean" jawabannya
+        // atau cache baru memanas.
         viewModelScope.launch {
             authRepository.currentUserOrNull()?.let { queueRepository.refreshHistory(it.id) }
             settled.value = true
@@ -83,16 +83,16 @@ class ActiveQueueViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ActiveQueueUiState())
 
     /**
-     * The countdown on screen reached zero. Ask the backend to
-     * settle it now rather than waiting for its scheduled sweep; the ticket
-     * then flips to EXPIRED through the normal realtime path.
+     * Hitung mundur di layar sampai nol. Minta backend menyelesaikannya
+     * sekarang daripada menunggu sapuan terjadwal, lalu tiket
+     * berubah ke EXPIRED lewat jalur realtime biasa.
      */
     fun onCheckInWindowClosed() {
         val restaurantId = uiState.value.queue?.restaurant?.id ?: return
         viewModelScope.launch { queueRepository.expireOverdue(restaurantId) }
     }
 
-    /** Only reached after the confirmation dialog. */
+    /** Hanya sampai di sini setelah dialog konfirmasi. */
     fun leaveQueue() {
         val queueId = uiState.value.queue?.entry?.id ?: return
         if (leaving.value) return

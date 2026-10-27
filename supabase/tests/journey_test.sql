@@ -1,24 +1,24 @@
 -- =============================================================================
--- NGANTRIIN — customer journey tests for 0011 / 0012.
+-- NGANTRIIN: tes perjalanan pelanggan untuk 0011 / 0012.
 --
---   WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
---                                 +-- 10 min, no check-in --> EXPIRED
+-- WAITING -> ALMOST_THERE -> CALLED -> CHECKED_IN -> TABLE_READY -> COMPLETED
+-- +-- 10 menit, tidak check-in  EXPIRED
 --
--- HOW TO RUN: `psql "$DATABASE_URL" -f supabase/tests/journey_test.sql`, or
--- paste into the Supabase SQL editor, after applying all migrations through
--- 0012. One transaction, ends in `rollback`: leaves nothing behind.
+-- CARA MENJALANKAN: `psql "$DATABASE_URL" -f supabase/tests/journey_test.sql`, atau
+-- tempel ke SQL editor Supabase, setelah semua migrasi sampai
+-- 0012 diterapkan. Satu transaksi, berakhir dengan `rollback`: tidak meninggalkan apa pun.
 --
--- Same technique as rls_test.sql: a session is simulated with
--- `set local role authenticated` + `request.jwt.claims`, and `reset role`
--- returns to the superuser to arrange fixtures.
+-- Tekniknya sama dengan rls_test.sql: sesi disimulasikan dengan
+-- `set local role authenticated` + `request.jwt.claims`, dan `reset role`
+-- kembali ke superuser untuk menyiapkan fixture.
 --
--- Run automatically by scripts/sql-tests.sh against a throwaway Postgres.
+-- Dijalankan otomatis oleh scripts/sql-tests.sh pada Postgres sementara.
 -- =============================================================================
 
 begin;
 
 -- -----------------------------------------------------------------------------
--- Fixtures: customers A and B, staff S, one restaurant open all day.
+-- Fixture: pelanggan A dan B, staf S, satu restoran buka sepanjang hari.
 -- -----------------------------------------------------------------------------
 insert into auth.users (id, email) values
     ('a1000000-0000-4000-8000-0000000000a1', 'journey-a@example.com'),
@@ -50,7 +50,7 @@ create temporary table journey (k text primary key, v uuid) on commit drop;
 grant all on journey to authenticated;
 
 -- -----------------------------------------------------------------------------
--- Case 1: A and B join through the RPC.
+-- Kasus 1: A dan B join lewat RPC.
 -- -----------------------------------------------------------------------------
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "a1000000-0000-4000-8000-0000000000a1"}';
@@ -62,8 +62,8 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 2: A checks in early — first with a photo path that was never
--- uploaded (must fail), then with a real object (must pass).
+-- Kasus 2: A check-in lebih awal, pertama dengan path foto yang tidak pernah
+-- diunggah (harus gagal), lalu dengan objek asli (harus berhasil).
 -- -----------------------------------------------------------------------------
 do $$
 declare
@@ -99,8 +99,8 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 3: call_next takes the early arrival straight to TABLE_READY, then
--- calls B with a 10-minute check-in window.
+-- Kasus 3: call_next membawa yang datang lebih awal langsung ke TABLE_READY,
+-- lalu memanggil B dengan jendela check-in 10 menit.
 -- -----------------------------------------------------------------------------
 do $$
 declare
@@ -128,8 +128,8 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 4: B misses the window. Check-in is refused, the sweep expires it, and
--- B may join again straight away (expiry is not a cancel; no cooldown).
+-- Kasus 4: B melewatkan jendela. Check-in ditolak, sapuan mengedaluwarsakannya,
+-- dan B boleh join lagi langsung (kedaluwarsa bukan pembatalan, tanpa cooldown).
 -- -----------------------------------------------------------------------------
 update public.queues
 set check_in_deadline = now() - interval '1 second'
@@ -163,7 +163,7 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 5: the journey cannot skip steps.
+-- Kasus 5: perjalanan tidak bisa melompati langkah.
 -- -----------------------------------------------------------------------------
 do $$
 declare
@@ -180,7 +180,7 @@ begin
         if sqlerrm not like '%ILLEGAL_TRANSITION%' then raise; end if;
     end;
 
-    -- The legal path: arrived -> table ready -> completed.
+    -- Jalur yang sah: tiba -> meja siap -> selesai.
     perform public.staff_update_queue_status(v_called.id, 'CHECKED_IN');
     perform public.staff_update_queue_status(v_called.id, 'TABLE_READY');
     perform public.staff_update_queue_status(v_called.id, 'COMPLETED');
@@ -190,8 +190,8 @@ reset role;
 reset request.jwt.claims;
 
 -- -----------------------------------------------------------------------------
--- Case 6: hardening — no self-promotion to staff, no moving a review, no
--- peeking at someone else's position.
+-- Kasus 6: pengerasan, tidak ada kenaikan sendiri ke staf, tidak ada pemindahan
+-- ulasan, tidak ada mengintip posisi orang lain.
 -- -----------------------------------------------------------------------------
 do $$
 declare

@@ -45,6 +45,7 @@ fun LoginScreen(
     ) {
         if (viewModel.isDemoMode) {
             DemoModeNotice()
+            DemoStaffAccounts(onPick = viewModel::onEmailChange)
             Spacer(Modifier.height(Spacing.xl))
         }
 
@@ -77,8 +78,8 @@ fun LoginScreen(
             TextButton(
                 onClick = viewModel::sendPasswordReset,
                 enabled = !state.isSubmitting,
-                // Drop the button's own right inset so the label ends exactly
-                // where the field above it does.
+                // Buang inset kanan bawaan tombol supaya label berakhir tepat
+                // di tempat field di atasnya berakhir.
                 contentPadding = PaddingValues(start = 12.dp, end = 0.dp)
             ) {
                 Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelMedium)

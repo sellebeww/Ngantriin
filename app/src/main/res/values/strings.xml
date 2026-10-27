@@ -2,14 +2,14 @@
     <string name="app_name">Ngantriin</string>
     <string name="app_tagline">Good Food • Less Wait • Happier You</string>
 
-    <!-- Bottom navigation -->
+    <!-- Navigasi bawah -->
     <string name="nav_home">Home</string>
     <string name="nav_search">Search</string>
     <string name="nav_queue">Queue</string>
     <string name="nav_history">History</string>
     <string name="nav_profile">Profile</string>
 
-    <!-- Queue status labels -->
+    <!-- Label status antrean -->
     <string name="status_waiting">Waiting</string>
     <string name="status_almost_there">Almost there</string>
     <string name="status_called">It\'s your turn</string>
@@ -17,13 +17,13 @@
     <string name="status_completed">Completed</string>
     <string name="status_cancelled">Cancelled</string>
 
-    <!-- Notification channels -->
+    <!-- Channel notifikasi -->
     <string name="channel_queue_updates_name">Queue updates</string>
     <string name="channel_queue_updates_description">Position changes while you wait.</string>
     <string name="channel_queue_called_name">Your turn</string>
     <string name="channel_queue_called_description">Sent the moment a restaurant calls your number.</string>
 
-    <!-- Push notification copy -->
+    <!-- Teks notifikasi push -->
     <string name="push_almost_there_title">Your turn is coming</string>
     <plurals name="push_almost_there_body">
         <item quantity="one">Only %1$d group ahead of you. Estimated wait: %2$s.</item>
@@ -46,7 +46,7 @@
         <item quantity="other">Your number is %1$s. %2$d groups ahead of you. Estimated wait: %3$s.</item>
     </plurals>
 
-    <!-- Errors -->
+    <!-- Pesan error -->
     <string name="error_network">No internet connection. Check your network and try again.</string>
     <string name="error_server">Something went wrong on our side. Please try again.</string>
     <string name="error_session_expired">Your session expired. Please sign in again.</string>
@@ -55,7 +55,7 @@
     <string name="error_queue_full">This queue is full. Try again a little later.</string>
     <string name="error_seats_available">This restaurant has open seats right now — no need to queue, just walk in.</string>
 
-    <!-- "kursi kosong" walk-in availability -->
+    <!-- Ketersediaan walk-in "kursi kosong" -->
     <plurals name="seats_available_title">
         <item quantity="one">%1$d seat open right now</item>
         <item quantity="other">%1$d seats open right now</item>
@@ -64,10 +64,12 @@
     <string name="seats_available_badge">Seats open</string>
     <string name="seats_available_count">%1$d open</string>
 
-    <!-- Localized equivalents of core/Formatters.kt: Formatters
-         itself stays English-only and untouched, FormattersTest.kt asserts
-         its exact output and is a plain JVM test with no Android resources
-         available. These resource-backed versions are what the UI shows. -->
+    <!--
+         Padanan lokal dari core/Formatters.kt: Formatters sendiri tetap
+         hanya berbahasa Inggris dan tidak disentuh, FormattersTest.kt memeriksa
+         keluarannya persis dan merupakan tes JVM biasa tanpa resource Android.
+         Versi berbasis resource inilah yang ditampilkan UI.
+    -->
     <string name="distance_unknown">—</string>
     <string name="distance_meters">%1$d m</string>
     <string name="distance_km">%1$.1f km</string>
@@ -99,7 +101,7 @@
     <string name="greeting_evening">Good evening</string>
     <string name="greeting_night">Good night</string>
 
-    <!-- Home screen -->
+    <!-- Layar beranda -->
     <string name="home_offline">You\'re offline. Queue information may be outdated.</string>
     <string name="home_empty_title">No restaurants nearby</string>
     <string name="home_empty_offline">We can\'t reach the server right now. Connect and try again.</string>
@@ -117,19 +119,19 @@
     <string name="home_search_placeholder">Search restaurants…</string>
     <string name="badge_overflow">9+</string>
 
-    <!-- Active queue banner (Home / bottom tabs) -->
+    <!-- Banner antrean aktif (Beranda / tab bawah) -->
     <string name="queue_banner_ready_to_check_in">Your turn — tap to check in</string>
     <string name="queue_banner_checked_in">Checked in — waiting for your table</string>
     <string name="queue_banner_youre_next">You\'re next</string>
     <string name="queue_banner_ahead_and_wait">%1$s ahead • %2$s</string>
 
-    <!-- Restaurant card -->
+    <!-- Kartu restoran -->
     <string name="restaurant_card_waiting">waiting</string>
     <string name="restaurant_card_est_wait">est. wait</string>
     <string name="restaurant_open">OPEN</string>
     <string name="restaurant_closed">CLOSED</string>
 
-    <!-- Restaurant detail screen -->
+    <!-- Layar detail restoran -->
     <string name="restaurant_about">About</string>
     <string name="restaurant_description_fallback">%1$s restaurant in %2$s.</string>
     <string name="restaurant_cuisine">Cuisine</string>
@@ -159,13 +161,13 @@
     <string name="action_go_back">Go back</string>
     <string name="action_view_my_queue">View my queue</string>
 
-    <!-- Password field visibility toggle -->
+    <!-- Tombol tampil/sembunyi password -->
     <string name="cd_show_password">Show password</string>
     <string name="cd_hide_password">Hide password</string>
 
-    <!-- Generic error / empty states -->
+    <!-- Error umum / state kosong -->
 
-    <!-- Location permission rationale dialog -->
+    <!-- Dialog alasan izin lokasi -->
     <string name="location_rationale_title">Allow Ngantriin to use your location</string>
     <string name="location_rationale_message">Your location helps us find nearby restaurants and sort them by distance.</string>
     <string name="location_rationale_confirm">Allow location</string>
@@ -184,7 +186,7 @@
     <string name="onboarding_illustration_your_turn">It\'s your turn!</string>
     <string name="onboarding_illustration_being_called">%1$s is being called</string>
 
-    <!-- Form validation (core/Validators.kt) -->
+    <!-- Validasi form (core/Validators.kt) -->
     <string name="validation_email_required">Email is required</string>
     <string name="validation_email_invalid">Enter a valid email address</string>
     <string name="validation_password_required">Password is required</string>
@@ -194,14 +196,17 @@
     <string name="validation_confirm_password_required">Confirm your password</string>
     <string name="validation_passwords_dont_match">Passwords don\'t match</string>
 
-    <!-- Auth: shared -->
+    <!-- Auth: bersama -->
     <string name="auth_email_label">Email</string>
     <string name="auth_email_placeholder">you@example.com</string>
     <string name="auth_password_label">Password</string>
     <string name="auth_demo_mode_title">Sample mode</string>
-    <string name="auth_demo_mode_body">Explore with sample data. Any email works; passwords are not verified in sample mode.</string>
+    <string name="auth_demo_staff_title">Sample staff accounts (%1$d restaurants)</string>
+    <string name="auth_demo_admin_name">Admin (reviews restaurant applications)</string>
+    <string name="auth_demo_staff_hint">Tap to fill in the email. Each account manages only its own restaurant.</string>
+    <string name="auth_demo_mode_body">In sample mode you can sign in as anyone: any email is accepted and passwords are not verified. A regular email signs in as a customer; use a staff account below to manage one restaurant\'s queue.</string>
 
-    <!-- Login screen -->
+    <!-- Layar login -->
     <string name="login_title">Welcome back</string>
     <string name="login_subtitle">Sign in to take your place in line without standing in it.</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -210,7 +215,7 @@
     <string name="login_create_account">Create account</string>
     <string name="login_reset_email_sent">Password reset link sent to %1$s</string>
 
-    <!-- Register screen -->
+    <!-- Layar daftar -->
     <string name="reset_password_title">Choose a new password</string>
     <string name="reset_password_subtitle">Pick a password you have not used here before.</string>
     <string name="reset_password_new_label">New password</string>
@@ -226,13 +231,13 @@
     <string name="register_already_have_account">Already have an account?</string>
     <string name="register_log_in">Log in</string>
 
-    <!-- Sort options (Search screen) -->
+    <!-- Pilihan urutan (layar Cari) -->
     <string name="sort_nearest">Nearest</string>
     <string name="sort_shortest_wait">Shortest wait</string>
     <string name="sort_highest_rated">Highest rated</string>
     <string name="sort_most_popular">Most popular</string>
 
-    <!-- Search screen -->
+    <!-- Layar cari -->
     <string name="search_offline">You\'re offline. Showing the last data we saved.</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="cd_filters">Filters</string>
@@ -247,7 +252,7 @@
     <string name="search_empty_no_filters">Try a different name, category or area.</string>
     <string name="search_clear_filters">Clear filters</string>
 
-    <!-- Filter sheet -->
+    <!-- Sheet filter -->
     <string name="filter_title">Filters</string>
     <string name="filter_clear_all">Clear all</string>
     <string name="filter_category">Category</string>
@@ -271,7 +276,7 @@
     <string name="filter_wait_under_30">Under 30 min</string>
     <string name="filter_wait_under_60">Under 60 min</string>
 
-    <!-- Active queue screen -->
+    <!-- Layar antrean aktif -->
     <string name="active_queue_leave_title">Leave this queue?</string>
     <string name="active_queue_leave_message">Are you sure you want to leave your current queue? You\'ll lose your place and can\'t get this number back.</string>
     <string name="active_queue_leave_confirm">Leave queue</string>
@@ -297,7 +302,7 @@
     <string name="guidance_almost_there">You\'re near the front. Start heading back to the restaurant now.</string>
     <string name="guidance_default">You don\'t have to wait here. We\'ll notify you when your turn is near.</string>
 
-    <!-- Check-in screen -->
+    <!-- Layar check-in -->
     <string name="checkin_title">Check in</string>
     <string name="checkin_not_called">This ticket can\'t be checked in right now</string>
     <string name="cd_checkin_photo">Your check-in photo</string>
@@ -312,24 +317,24 @@
     <string name="checkin_success_body">%1$s at %2$s. Take a seat in the waiting area — we\'ll notify you when your table is ready.</string>
     <string name="action_done">Done</string>
 
-    <!-- Join queue confirmation screen -->
+    <!-- Layar konfirmasi gabung antrean -->
     <string name="confirm_joined_title">You joined the queue!</string>
     <string name="confirm_queue_number_label">QUEUE NUMBER</string>
     <string name="confirm_body">You can leave the area and carry on with your day. We\'ll notify you when your turn is near.</string>
     <string name="action_back_to_home">Back to home</string>
 
-    <!-- Queue completed screen -->
+    <!-- Layar antrean selesai -->
     <string name="completed_title">Thanks for using Ngantriin</string>
     <string name="completed_body">Your visit is complete. Tell us how it went so other people know what to expect.</string>
     <string name="completed_view_history">View queue history</string>
 
-    <!-- Queue progress track -->
+    <!-- Jalur progres antrean -->
     <string name="progress_now_serving">NOW SERVING</string>
     <string name="progress_you">YOU</string>
     <string name="progress_youre_next">You\'re next in line</string>
     <string name="progress_to_go">%1$d to go</string>
 
-    <!-- Profile screen -->
+    <!-- Layar profil -->
     <string name="profile_title">Profile</string>
     <string name="profile_guest">Guest</string>
     <string name="cd_edit_profile">Edit profile</string>
@@ -347,7 +352,7 @@
     <string name="profile_footer_demo">Ngantriin • sample mode (no backend configured)</string>
     <string name="profile_footer">Ngantriin</string>
 
-    <!-- History screen -->
+    <!-- Layar riwayat -->
     <string name="history_offline">You\'re offline. Showing your saved history.</string>
     <string name="history_title">Queue History</string>
     <string name="history_empty_title">No queue history yet</string>
@@ -358,13 +363,13 @@
     <string name="history_rate_visit">Rate visit</string>
     <string name="history_reviewed">Reviewed</string>
 
-    <!-- Notifications screen -->
+    <!-- Layar notifikasi -->
     <string name="notifications_title">Notifications</string>
     <string name="notifications_mark_all_read">Mark all read</string>
     <string name="notifications_empty_title">Nothing here yet</string>
     <string name="notifications_empty_message">We\'ll let you know when your turn is getting close.</string>
 
-    <!-- Review screen -->
+    <!-- Layar ulasan -->
     <string name="review_title">Rate your visit</string>
     <string name="review_your_visit_fallback">Your visit</string>
     <string name="review_how_was_it">How was your experience?</string>
@@ -378,7 +383,7 @@
     <string name="rating_caption_5">Loved it</string>
     <string name="rating_caption_none">Tap a star to rate</string>
 
-    <!-- Staff dashboard screen -->
+    <!-- Layar dashboard staf -->
     <string name="staff_sign_out_title">Sign out?</string>
     <string name="staff_sign_out_message">You\'ll need to sign in again to manage this queue.</string>
     <string name="staff_dashboard_title">Restaurant dashboard</string>
@@ -394,7 +399,7 @@
     <string name="staff_now_serving">NOW SERVING</string>
     <string name="staff_next_up">NEXT UP</string>
 
-    <!-- Staff queue screen -->
+    <!-- Layar antrean staf -->
     <string name="staff_queue_title_fallback">Queue</string>
     <string name="staff_call_next_action">Call next</string>
     <string name="staff_empty_title">Nobody in the queue</string>
@@ -410,7 +415,7 @@
     <string name="staff_action_complete">Seated</string>
     <string name="staff_action_no_show">No-show</string>
 
-    <!-- Staff customer detail screen -->
+    <!-- Layar detail pelanggan untuk staf -->
     <string name="staff_customer_detail_title">Queue detail</string>
     <string name="staff_ticket_gone">This ticket is no longer in the live queue.</string>
     <string name="action_back">Back</string>
@@ -441,7 +446,7 @@
     <string name="error_offline_action_queued">You\'re offline. We\'ll finish this as soon as you\'re back online.</string>
     <string name="error_unknown">Something unexpected happened. Please try again.</string>
 
-    <!-- Content descriptions -->
+    <!-- Deskripsi konten -->
     <string name="cd_notifications">Notifications</string>
     <string name="cd_back">Back</string>
     <string name="cd_restaurant_photo">Photo of %1$s</string>
@@ -460,7 +465,7 @@
         <item quantity="other">Estimated wait %1$d minutes</item>
     </plurals>
 
-    <!-- Settings screen -->
+    <!-- Layar pengaturan -->
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
     <string name="settings_queue_notifications">Queue notifications</string>
@@ -482,14 +487,14 @@
     <string name="about_terms_body">Ngantriin helps you hold a place in line; the restaurant decides when a table is available. Estimated waiting times are estimates, not promises.\n\nPlease do not join queues you do not plan to attend, and do not use another person\'s account. Tickets that are not checked in on time, or that repeatedly go unattended, may be removed by the restaurant.\n\nReviews should be honest and respectful; you can edit the rating and text of your own review.</string>
     <string name="settings_version">Ngantriin • version 1.0</string>
 
-    <!-- Discovery -->
+    <!-- Penemuan -->
     <string name="home_hero_eyebrow">A LITTLE LESS WAITING</string>
     <string name="home_hero_title">Good food.\nMore good times.</string>
     <string name="home_hero_action">Find your table</string>
     <string name="search_title">Find your next favorite</string>
     <string name="search_subtitle">Good food is closer than you think.</string>
 
-    <!-- Check-in window, table ready, history detail (0012) -->
+    <!-- Jendela check-in, meja siap, detail riwayat (0012) -->
     <string name="status_table_ready">Table ready</string>
     <string name="status_expired">Expired</string>
     <string name="channel_live_name">Live queue</string>
@@ -563,7 +568,7 @@
     <string name="staff_deadline_label">Check-in deadline</string>
     <string name="history_wait_not_recorded_short">Not recorded</string>
 
-    <!-- Favorites -->
+    <!-- Favorit -->
     <string name="home_favorites">Your favorites</string>
     <string name="home_favorites_subtitle">Restaurants you starred, with the live wait</string>
     <string name="filter_favorites_only">Favorites</string>
@@ -571,7 +576,7 @@
     <string name="cd_favorite_add">Add to favorites</string>
     <string name="cd_favorite_remove">Remove from favorites</string>
 
-    <!-- Staff: safer queue handling -->
+    <!-- Staf: penanganan antrean lebih aman -->
     <string name="staff_cancel_title">Remove %1$s from the queue?</string>
     <string name="staff_cancel_message">This ends their ticket and can\'t be undone. The customer is notified.</string>
     <string name="staff_cancel_confirm">Remove ticket</string>
@@ -584,7 +589,7 @@
     <string name="active_queue_share">Share my queue</string>
     <string name="active_queue_share_text">I\'m in line at %2$s with ticket %1$s — %3$d groups ahead of me. Queued with Ngantriin.</string>
 
-    <!-- Restaurant registration -->
+    <!-- Pendaftaran restoran -->
     <string name="register_restaurant_title">Register your restaurant</string>
     <string name="register_restaurant_subtitle">Add the details of your restaurant and the documents we need to verify it. Once approved, it is listed in search and you manage its queue from the restaurant dashboard.</string>
     <string name="register_restaurant_photo_add">Add a photo</string>
@@ -619,7 +624,7 @@
     <string name="staff_listing_on">Customers can find this restaurant and take a ticket.</string>
     <string name="staff_listing_off">Paused: hidden from search, no new tickets. Existing tickets keep working.</string>
 
-    <!-- Account type and restaurant verification -->
+    <!-- Jenis akun dan verifikasi restoran -->
     <string name="register_account_type_label">I am signing up as</string>
     <string name="register_account_user">Customer</string>
     <string name="register_account_staff">Restaurant staff</string>
@@ -658,7 +663,7 @@
     <string name="verification_resubmit">Fix and resubmit</string>
     <string name="verification_refresh">Check status</string>
 
-    <!-- Admin review of restaurant applications -->
+    <!-- Review admin untuk pengajuan restoran -->
     <string name="admin_review_title">Review applications</string>
     <string name="admin_filter_pending">Pending</string>
     <string name="admin_filter_rejected">Rejected</string>

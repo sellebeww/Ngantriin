@@ -7,9 +7,9 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-// Credentials live in local.properties (git-ignored) or the
-// environment, never in source. A blank URL is legal — the app then starts in
-// demo mode against the bundled in-memory backend.
+// Kredensial ada di local.properties (tidak masuk git) atau environment,
+// jangan ditaruh di source. URL boleh kosong, nanti aplikasi jalan di mode
+// demo dengan backend in-memory bawaan.
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -20,9 +20,9 @@ fun secret(key: String): String =
 
 android {
     namespace = "org.umn.ngantriin"
-    // Compose 1.12 and core-ktx 1.19 both require compiling against API 37.
-    // Pinned to the .0 minor release: AGP 9.1.1 predates 37.1 and warns about
-    // compiling against a minor level it does not know.
+    // Compose 1.12 dan core-ktx 1.19 sama-sama butuh compile ke API 37.
+    // Dikunci di rilis minor .0 karena AGP 9.1.1 belum kenal 37.1 dan
+    // memberi peringatan kalau compile ke level minor yang tidak dikenalnya.
     compileSdk {
         version = release(37)
     }
@@ -31,8 +31,8 @@ android {
         applicationId = "org.umn.ngantriin"
         minSdk = 27
         targetSdk = 36
-        // CI can bump these without editing the file:
-        //   ./gradlew assembleRelease -PversionCode=7 -PversionName=1.1.0
+        // CI bisa mengubah nilai ini tanpa edit file:
+        // ./gradlew assembleRelease -PversionCode=7 -PversionName=1.1.0
         versionCode = (project.findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
         versionName = (project.findProperty("versionName") as String?) ?: "1.0"
 
@@ -42,9 +42,9 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secret("SUPABASE_ANON_KEY")}\"")
     }
 
-    // Release signing comes from local.properties or the environment, never
-    // from the repository. Without all four values the release build is simply
-    // left unsigned (assembleRelease still works; sign it yourself afterwards).
+    // Signing rilis diambil dari local.properties atau environment, bukan
+    // dari repo. Kalau keempat nilainya tidak lengkap, build rilis dibiarkan
+    // unsigned (assembleRelease tetap jalan, tinggal di-sign manual).
     val releaseKeystore = secret("RELEASE_KEYSTORE_FILE")
     val hasReleaseSigning = releaseKeystore.isNotEmpty() &&
         secret("RELEASE_KEYSTORE_PASSWORD").isNotEmpty() &&
@@ -83,8 +83,8 @@ android {
     }
     testOptions {
         unitTests {
-            // ErrorMapper logs before it maps; without this the android.util.Log
-            // stubs throw and every mapping test fails for the wrong reason.
+            // ErrorMapper melakukan log sebelum memetakan error. Tanpa ini stub
+            // android.util.Log melempar exception dan semua tes mapping gagal karena alasan yang salah.
             isReturnDefaultValues = true
         }
     }
@@ -95,7 +95,7 @@ android {
     }
 }
 
-// Room schema export keeps migrations reviewable in version control.
+// Ekspor skema Room supaya migrasi mudah ditinjau di version control.
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.generateKotlin", "true")
@@ -105,9 +105,9 @@ dependencies {
     // --- AndroidX core -------------------------------------------------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    // Per-app language switching: AppCompatDelegate works without
-    // MainActivity extending AppCompatActivity, it just needs the library and
-    // the manifest wiring below to persist the choice across restarts.
+    // Ganti bahasa per aplikasi: AppCompatDelegate bisa dipakai tanpa
+    // MainActivity mewarisi AppCompatActivity, cukup library dan wiring di
+    // manifest di bawah supaya pilihan bahasa tersimpan setelah restart.
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -167,9 +167,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
-// Firebase is optional at build time: drop your google-services.json into
-// app/ and the plugin picks it up. Without it the app still builds and runs,
-// and NotificationHelper falls back to local notifications only.
+// Firebase opsional saat build: taruh google-services.json di app/
+// dan plugin akan memakainya. Tanpa file itu aplikasi tetap bisa
+// dibuild dan jalan, NotificationHelper hanya memakai notifikasi lokal.
 if (rootProject.file("app/google-services.json").exists()) {
     apply(plugin = libs.plugins.google.services.get().pluginId)
 }

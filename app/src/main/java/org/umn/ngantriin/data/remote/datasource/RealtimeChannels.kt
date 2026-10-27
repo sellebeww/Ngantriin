@@ -17,15 +17,15 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 /**
- * Subscribes to Postgres changes and emits a bare tick per change.
+ * Berlangganan perubahan Postgres dan mengirim satu tick kosong per perubahan.
  *
- * Deltas are deliberately discarded: the repository re-reads the rows it cares
- * about on every tick. That costs one small query but means a dropped,
- * duplicated or out-of-order event can never leave the screen showing a queue
- * position the database does not actually have.
+ * Isi perubahan sengaja dibuang: repository membaca ulang baris yang
+ * dibutuhkan di setiap tick. Biayanya satu query kecil, tapi event yang
+ * hilang, dobel, atau tidak berurutan tidak akan membuat layar menampilkan
+ * posisi antrean yang tidak ada di database.
  *
- * The flow is conflated because a burst of row changes still only warrants one
- * refetch.
+ * Flow-nya di-conflate karena satu rentetan perubahan baris cukup
+ * memicu satu kali baca ulang.
  */
 internal fun SupabaseClient.postgresChanges(
     channelId: String,
@@ -35,15 +35,14 @@ internal fun SupabaseClient.postgresChanges(
     filterOperator: FilterOperator = FilterOperator.EQ,
     filterValue: String? = null
 ): Flow<Unit> = channelFlow {
-    // `channel(id)` returns a cached channel if one with this id is already
-    // registered (io.github.jan.supabase.realtime.RealtimeImpl.channel()).
-    // A previous collection of this same flow removes its channel in a
-    // `finally` block, but that cleanup runs asynchronously — if a new
-    // collection starts (e.g. a screen restarting its lifecycle-scoped flow)
-    // before that cleanup finishes, reusing `channelId` here would hand back
-    // an already-joined channel, and postgresChangeFlow() throws
-    // IllegalStateException on an already-joined channel. A unique suffix
-    // guarantees every collection gets its own fresh channel.
+    // `channel(id)` mengembalikan channel yang di-cache kalau id yang sama sudah
+    // terdaftar (io.github.jan.supabase.realtime.RealtimeImpl.channel()).
+    // Collect sebelumnya dari flow ini menghapus channel-nya di blok `finally`,
+    // tapi pembersihan itu jalan asinkron. Kalau collect baru mulai (misalnya
+    // layar memulai ulang flow sesuai lifecycle) sebelum pembersihan selesai,
+    // memakai `channelId` yang sama akan mengembalikan channel yang sudah join,
+    // dan postgresChangeFlow() melempar IllegalStateException untuk channel
+    // yang sudah join. Suffix unik menjamin tiap collect dapat channel baru.
     val realtimeChannel = channel("$channelId:${UUID.randomUUID()}")
 
     val changes = realtimeChannel.postgresChangeFlow<PostgresAction>(schema = schema) {
@@ -53,8 +52,8 @@ internal fun SupabaseClient.postgresChanges(
         }
     }
 
-    // Collection has to be running before subscribe(), otherwise events that
-    // arrive immediately after joining the channel can slip past unobserved.
+    // Collect harus sudah jalan sebelum subscribe(), kalau tidak event yang
+    // datang tepat setelah join channel bisa terlewat.
     val collector = launch { changes.collect { trySend(Unit) } }
 
     try {

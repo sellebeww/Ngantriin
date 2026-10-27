@@ -70,7 +70,7 @@ fun RestaurantDto.toDomain() = Restaurant(
     verificationNote = verificationNote
 )
 
-/** Demo mode persists its own venues as the same wire shape the server returns. */
+/** Mode demo menyimpan restorannya dengan bentuk yang sama dengan yang dikirim server. */
 fun Restaurant.toDto() = RestaurantDto(
     id = id,
     name = name,
@@ -115,7 +115,7 @@ fun RestaurantApplicationDto.toDomain() = RestaurantApplication(
 
 fun ApplicationDocumentDto.toDomain() = ApplicationDocument(
     id = id,
-    // Only used to label the file; an unknown type is shown as supporting proof.
+    // Hanya untuk label berkas. Tipe yang tidak dikenal ditampilkan sebagai bukti pendukung.
     type = ProofType.entries.firstOrNull { it.name == docType } ?: ProofType.OWNERSHIP_PROOF,
     path = storagePath,
     round = submissionRound,

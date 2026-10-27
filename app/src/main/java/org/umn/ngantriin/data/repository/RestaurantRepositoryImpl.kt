@@ -32,10 +32,9 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Cache-first. Room is what the UI renders; the network only ever
- * writes into Room. A failed request leaves the previous rows exactly where
- * they were, so going offline degrades to stale data rather than an empty
- * screen.
+ * Cache dulu. Room yang ditampilkan UI, network hanya menulis ke Room.
+ * Request yang gagal membiarkan baris sebelumnya apa adanya, jadi saat
+ * offline yang tampil data lama, bukan layar kosong.
  */
 class RestaurantRepositoryImpl(
     private val remote: RestaurantRemoteDataSource,
@@ -53,8 +52,8 @@ class RestaurantRepositoryImpl(
         launch {
             combine(dao.observeAll(), dao.observeAllStats()) { restaurants, stats ->
                 val statsById = stats.associateBy { it.restaurantId }
-                // A paused venue can be cached for its ticket holders and
-                // staff; it is just never listed.
+                // Restoran yang dijeda boleh di-cache untuk pemegang tiket dan staf,
+                // hanya tidak pernah ditampilkan di daftar.
                 restaurants.filter { it.isActive }.map { entity ->
                     val restaurant = entity.toDomain()
                     RestaurantListing(
@@ -71,7 +70,7 @@ class RestaurantRepositoryImpl(
 
         launch {
             refreshCatalogueIfStale()
-            // Counters stay live without the user pulling to refresh.
+            // Counter tetap live tanpa pengguna perlu tarik untuk refresh.
             remote.observeAllQueueStatsChanges()
                 .onStart { emit(Unit) }
                 .collect { refreshStatsOnly() }
@@ -116,8 +115,8 @@ class RestaurantRepositoryImpl(
         registration: RestaurantRegistration
     ): Outcome<Restaurant> = runCatchingOutcome {
         remote.registerRestaurant(registration).also {
-            // Only a reviewed venue belongs in the catalogue; a new application
-            // is pending and must not show up in search on this device.
+            // Hanya restoran yang sudah ditinjau yang masuk katalog. Pengajuan baru
+            // masih pending dan tidak boleh muncul di pencarian perangkat ini.
             if (it.isApproved && it.isActive) dao.upsertRestaurants(listOf(it.toEntity()))
         }
     }
@@ -167,10 +166,10 @@ class RestaurantRepositoryImpl(
             val stats = remote.fetchAllQueueStats()
             dao.upsertStats(stats.map { it.toEntity() })
 
-            // A counter for a venue we have never cached means it registered
-            // after the last catalogue fetch. Each unknown id is probed once,
-            // so a paused venue (stats stay public, row stays hidden) cannot
-            // turn every counter tick into a catalogue fetch.
+            // Counter untuk restoran yang belum pernah di-cache berarti restoran itu
+            // mendaftar setelah fetch katalog terakhir. Tiap id yang belum dikenal dicoba
+            // sekali saja, supaya restoran yang dijeda (statistik tetap publik, barisnya
+            // tersembunyi) tidak membuat setiap tick counter memicu fetch katalog.
             val known = dao.observeAll().first().map { it.id }.toSet()
             val unseen = stats.map { it.restaurantId }.filter { it !in known && it !in probedIds }
             if (unseen.isNotEmpty()) {
@@ -186,7 +185,7 @@ class RestaurantRepositoryImpl(
         }.onFailure { Log.i(TAG, "Stats refresh failed for $restaurantId", it) }
     }
 
-    /** Filters are AND-combined; an unset filter is simply skipped. */
+    /** Filter digabung dengan AND, filter yang tidak diisi dilewati. */
     private fun List<RestaurantListing>.filtered(
         filters: RestaurantFilters
     ): List<RestaurantListing> {
@@ -202,8 +201,8 @@ class RestaurantRepositoryImpl(
             val matchesCategory = filters.category == null ||
                 r.category.equals(filters.category, ignoreCase = true)
 
-            // A restaurant with no distance yet is kept: hiding venues because
-            // the GPS fix has not landed would look like a broken list.
+            // Restoran yang belum punya jarak tetap dipertahankan: menyembunyikannya
+            // karena GPS belum dapat akan terlihat seperti daftar yang rusak.
             val matchesDistance = filters.maxDistanceMeters == null ||
                 listing.distanceMeters == null ||
                 listing.distanceMeters <= filters.maxDistanceMeters
@@ -224,7 +223,7 @@ class RestaurantRepositoryImpl(
 
     private fun List<RestaurantListing>.sorted(sort: RestaurantSort): List<RestaurantListing> =
         when (sort) {
-            // Unknown distances sort last rather than first.
+            // Jarak yang tidak diketahui diurutkan paling akhir, bukan paling awal.
             RestaurantSort.NEAREST -> sortedBy { it.distanceMeters ?: Double.MAX_VALUE }
             RestaurantSort.SHORTEST_WAIT -> sortedWith(
                 compareBy<RestaurantListing> { it.estimatedWaitMinutes }

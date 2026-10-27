@@ -7,10 +7,10 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 /**
- * Postgres hands back `timestamptz` as `2026-09-21T10:30:00.123456+00:00`,
- * `...Z`, or occasionally without an offset at all. Rather than trusting one
- * parser, try the three shapes in order and fall back to [fallback] so a
- * single odd row can never crash a list screen.
+ * Postgres mengirim `timestamptz` sebagai `2026-09-21T10:30:00.123456+00:00`,
+ * `...Z`, atau kadang tanpa offset sama sekali. Daripada percaya satu parser,
+ * ketiga bentuk dicoba berurutan lalu jatuh ke [fallback], supaya satu baris
+ * aneh tidak bisa membuat layar daftar crash.
  */
 internal fun parseTimestamp(value: String?, fallback: Instant = Instant.EPOCH): Instant {
     if (value.isNullOrBlank()) return fallback

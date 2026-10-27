@@ -48,8 +48,8 @@ import org.umn.ngantriin.ui.staff.StaffDashboardScreen
 import org.umn.ngantriin.ui.staff.StaffQueueScreen
 
 /**
- * One graph for the whole app; which area you land in is decided
- * by the session (see NgantriinApp), not by each screen navigating manually.
+ * Satu graf untuk seluruh aplikasi. Area tujuan ditentukan oleh sesi
+ * (lihat NgantriinApp), bukan oleh tiap layar yang berpindah sendiri.
  */
 @Composable
 fun NgantriinNavHost(
@@ -59,9 +59,9 @@ fun NgantriinNavHost(
     onOnboardingFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Failures surface as a snackbar. The copy is resolved with
-    // stringResource in composition rather than from a Context, so it follows
-    // a configuration change instead of going stale.
+    // Kegagalan tampil sebagai snackbar. Teksnya diambil dengan
+    // stringResource saat composition, bukan dari Context, jadi ikut berubah
+    // saat konfigurasi berganti dan tidak basi.
     var pendingError by remember { mutableStateOf<AppError?>(null) }
     val errorMessage = pendingError?.let {
         stringResource(it.messageRes, *it.formatArgs.toTypedArray())
@@ -78,9 +78,8 @@ fun NgantriinNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-        // Short, quiet transitions: a fade with a small drift in the direction
-        // of travel, so moving between screens reads as movement without
-        // making anyone wait for it.
+        // Transisi singkat dan tenang: fade dengan sedikit geser searah gerakan,
+        // jadi pindah layar terasa bergerak tanpa membuat siapa pun menunggu.
         enterTransition = { fadeIn(tween(240)) + slideInHorizontally(tween(240)) { it / 12 } },
         exitTransition = { fadeOut(tween(140)) },
         popEnterTransition = { fadeIn(tween(240)) },
@@ -172,9 +171,8 @@ fun NgantriinNavHost(
                 onBack = { navController.popBackStack() },
                 onJoined = { queueId ->
                     navController.navigate(Routes.queueConfirmation(queueId)) {
-                        // The detail screen has served its purpose; coming back
-                        // to it from the confirmation would offer "Join Queue"
-                        // again for a queue the customer is already in.
+                        // Layar detail sudah selesai tugasnya. Kembali ke sana dari konfirmasi
+                        // akan menawarkan "Gabung Antrean" lagi untuk antrean yang sudah diikuti.
                         popUpTo(Routes.RESTAURANT_DETAIL) { inclusive = true }
                     }
                 },
@@ -189,9 +187,9 @@ fun NgantriinNavHost(
         ) { entry ->
             JoinQueueConfirmationScreen(
                 queueId = entry.arguments?.getString(Routes.ARG_QUEUE_ID).orEmpty(),
-                // Close the confirmation first. Left on the stack it would be saved
-                // with the tab it sits on and come back the next time that tab
-                // is selected, as if the customer had just joined again.
+                // Tutup konfirmasi dulu. Kalau dibiarkan di stack, ia ikut tersimpan
+                // bersama tab-nya dan muncul lagi saat tab itu dipilih berikutnya,
+                // seolah pelanggan baru bergabung lagi.
                 onViewMyQueue = {
                     navController.popBackStack()
                     navController.navigateToTab(Routes.ACTIVE_QUEUE)
@@ -305,9 +303,9 @@ fun NgantriinNavHost(
             RegisterRestaurantScreen(
                 resubmitId = entry.arguments?.getString("resubmitId"),
                 onBack = { navController.popBackStack() },
-                // A customer who registers becomes staff, and the app then swaps
-                // areas on its own, leaving nothing to pop. Popping anyway would
-                // close the app.
+                // Pelanggan yang mendaftar menjadi staf, lalu aplikasi berpindah area
+                // sendiri sehingga tidak ada yang bisa di-pop. Kalau tetap di-pop,
+                // aplikasi tertutup.
                 onRegistered = {
                     if (navController.previousBackStackEntry != null) navController.popBackStack()
                 }
@@ -349,15 +347,15 @@ fun NgantriinNavHost(
 }
 
 /**
- * Tab navigation semantics: one instance per tab, state preserved, and the
- * back button always returns to Home rather than walking the tab history.
+ * Semantik navigasi tab: satu instance per tab, state dipertahankan, dan
+ * tombol back selalu kembali ke Beranda, bukan menelusuri riwayat tab.
  */
 fun NavHostController.navigateToTab(route: String) {
-    // The tab is already on the back stack with something on top of it — the
-    // check-in screen over My Queue, a review over History. Pop back down to
-    // it. Navigating with saveState/restoreState instead would save the whole
-    // popped stack under this tab and restore it right back, so "Done" would
-    // land on the very screen it was pressed on.
+    // Tab sudah ada di back stack dengan sesuatu di atasnya, misalnya layar
+    // check-in di atas Antrean Saya, atau ulasan di atas Riwayat. Pop kembali
+    // ke tab itu. Kalau memakai saveState/restoreState, seluruh stack yang
+    // di-pop akan tersimpan di tab ini lalu dipulihkan lagi, sehingga "Selesai"
+    // mendarat di layar yang sama dengan tempat tombolnya ditekan.
     if (popBackStack(route, inclusive = false)) return
 
     navigate(route) {

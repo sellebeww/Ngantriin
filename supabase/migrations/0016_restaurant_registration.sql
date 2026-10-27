@@ -1,17 +1,17 @@
 -- =============================================================================
--- NGANTRIIN — restaurant registration by staff
+-- NGANTRIIN: pendaftaran restoran oleh staf
 -- =============================================================================
--- Until now venues only existed because someone ran SQL. This adds the
--- self-service path:
+-- Sebelumnya restoran hanya ada kalau seseorang menjalankan SQL. Ini
+-- menambah jalur mandiri:
 --
---   register_restaurant()  -> restaurant row (listed) + queue_stats row
---                             + restaurant_staff link + users.role = STAFF
---   restaurants.is_active  -> only active venues are listed to customers
+-- register_restaurant()  -> baris restoran (tampil) + baris queue_stats
+-- + tautan restaurant_staff + users.role = STAFF
+-- restaurants.is_active  -> hanya restoran aktif yang tampil ke pelanggan
 --
--- Customers see a venue when it is active, when they staff it, or when they
--- hold a ticket there (so history keeps working after a venue is paused).
--- Joining a paused venue is refused by a trigger on queues, so join_queue
--- itself is untouched.
+-- Pelanggan melihat restoran kalau aktif, kalau mereka stafnya, atau kalau
+-- mereka punya tiket di sana (supaya riwayat tetap jalan setelah restoran dijeda).
+-- Join ke restoran yang dijeda ditolak oleh trigger di queues, jadi join_queue
+-- sendiri tidak disentuh.
 -- =============================================================================
 
 alter table public.restaurants
@@ -33,10 +33,10 @@ create policy restaurants_select_listed on public.restaurants
 
 grant execute on function public.is_restaurant_staff(uuid) to anon;
 
--- Staff may pause / resume their own venue (RLS limits the rows).
+-- Staf boleh menjeda / melanjutkan restorannya sendiri (RLS membatasi barisnya).
 grant update (is_active) on public.restaurants to authenticated;
 
--- --- a paused venue takes no new tickets -------------------------------------
+-- --- restoran yang dijeda tidak menerima tiket baru ---------------------------
 create or replace function public.queues_require_active_restaurant()
 returns trigger
 language plpgsql
@@ -59,7 +59,7 @@ create trigger queues_active_restaurant_guard
 
 revoke execute on function public.queues_require_active_restaurant() from public, anon, authenticated;
 
--- --- registration ------------------------------------------------------------
+-- --- pendaftaran -------------------------------------------------------------
 create or replace function public.register_restaurant(
     p_name                    text,
     p_address                 text,
@@ -100,8 +100,8 @@ begin
         raise exception 'INVALID_RESTAURANT';
     end if;
 
-    -- Self-service, so cap it: a stray loop or a bored user cannot fill the
-    -- public catalogue.
+    -- Mandiri, jadi dibatasi: loop nyasar atau pengguna iseng tidak bisa
+    -- memenuhi katalog publik.
     if (select count(*) from public.restaurants where created_by = v_uid) >= 5 then
         raise exception 'TOO_MANY_RESTAURANTS';
     end if;
@@ -140,9 +140,9 @@ grant execute on function public.register_restaurant(
     text, text, text, text, text, double precision, double precision, time, time, integer, integer
 ) to authenticated;
 
--- --- photos ------------------------------------------------------------------
--- Public bucket: the photo is shown to every customer. Uploads are confined to
--- the uploader's own folder ({user_id}/...).
+-- --- foto --------------------------------------------------------------------
+-- Bucket publik: foto ditampilkan ke semua pelanggan. Unggahan dibatasi di
+-- folder pengunggah sendiri ({user_id}/...).
 insert into storage.buckets (id, name, public)
 values ('restaurant-photos', 'restaurant-photos', true)
 on conflict (id) do nothing;

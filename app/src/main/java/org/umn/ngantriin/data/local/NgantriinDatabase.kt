@@ -26,12 +26,12 @@ import org.umn.ngantriin.data.local.entity.ReviewEntity
         NotificationEntity::class,
         PendingActionEntity::class
     ],
-    // v2: added QueueEntryEntity.checkInPhotoUrl (photo check-in replaces GPS).
-    // v3: added RestaurantEntity.availableSeats ("kursi kosong" walk-ins).
-    // v4: TABLE_READY / EXPIRED journey — check-in deadline, table-ready and
-    //     expiry timestamps, per-restaurant check-in window.
-    // v5: RestaurantEntity.isActive — paused venues stay cached for the
-    //     tickets and staff that need them, but drop out of the catalogue.
+    // v2: tambah QueueEntryEntity.checkInPhotoUrl (foto check-in menggantikan GPS).
+    // v3: tambah RestaurantEntity.availableSeats (walk-in "kursi kosong").
+    // v4: alur TABLE_READY / EXPIRED, yaitu batas check-in, waktu meja siap dan
+    // kedaluwarsa, serta jendela check-in per restoran.
+    // v5: RestaurantEntity.isActive. Restoran yang dijeda tetap di-cache untuk
+    // tiket dan staf yang butuh, tapi hilang dari katalog.
     version = 5,
     exportSchema = true
 )
@@ -47,13 +47,13 @@ abstract class NgantriinDatabase : RoomDatabase() {
     companion object {
         private const val NAME = "ngantriin.db"
 
-        /** Sample mode's own file: demo data never shares a cache with a real project. */
+        /** File sendiri untuk mode demo, supaya data demo tidak bercampur dengan cache proyek asli. */
         private const val DEMO_NAME = "ngantriin-demo.db"
 
         @Volatile
         private var instance: NgantriinDatabase? = null
 
-        /** Which file holds the cache: sample mode never shares one with a real project. */
+        /** Menentukan file cache yang dipakai: mode demo tidak pernah berbagi dengan proyek asli. */
         fun fileName(demo: Boolean): String = if (demo) DEMO_NAME else NAME
 
         fun get(context: Context, demo: Boolean = false): NgantriinDatabase =
@@ -63,8 +63,8 @@ abstract class NgantriinDatabase : RoomDatabase() {
                     NgantriinDatabase::class.java,
                     fileName(demo)
                 )
-                    // The cache is disposable; a schema change can rebuild it
-                    // rather than shipping a migration for every release.
+                    // Cache ini boleh dibuang, jadi perubahan skema cukup membangunnya ulang
+                    // tanpa menulis migrasi untuk tiap rilis.
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { instance = it }

@@ -36,8 +36,8 @@ import org.umn.ngantriin.ui.theme.Spacing
 import org.umn.ngantriin.ui.theme.balanced
 
 /**
- * Three pages that each answer one worry about leaving a queue:
- * do I have to stand here, will I know where I am, and will I miss my turn.
+ * Tiga halaman yang masing-masing menjawab satu kekhawatiran soal meninggalkan antrean:
+ * apakah harus berdiri di sini, apakah aku tahu posisiku, dan apakah giliranku terlewat.
  */
 @Composable
 fun OnboardingScreen(
@@ -62,8 +62,8 @@ fun OnboardingScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.sm),
                 horizontalArrangement = Arrangement.End
             ) {
-                // On the last page there is nothing left to skip, so the
-                // button goes away rather than sitting there greyed out.
+                // Di halaman terakhir tidak ada lagi yang bisa dilewati, jadi
+                // tombolnya dihilangkan, bukan dibiarkan abu-abu.
                 if (!isLastPage) {
                     TextButton(onClick = onFinished) {
                         Text(stringResource(R.string.onboarding_skip), style = MaterialTheme.typography.labelLarge)

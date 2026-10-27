@@ -46,7 +46,7 @@ import org.umn.ngantriin.ui.components.dateTimeText
 import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.Spacing
 
-/** The reviewer's home: applications by state. Nothing else is reachable from an admin account. */
+/** Beranda reviewer: pengajuan per status. Tidak ada hal lain yang bisa dibuka dari akun admin. */
 @Composable
 fun AdminReviewScreen(
     onOpenApplication: (restaurantId: String, status: VerificationStatus) -> Unit,
@@ -59,7 +59,7 @@ fun AdminReviewScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmSignOut by remember { mutableStateOf(false) }
 
-    // Back from a decision: the list has changed under us.
+    // Kembali dari keputusan: daftarnya sudah berubah.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
 
     LaunchedEffect(state.error) { state.error?.let(onMessage) }

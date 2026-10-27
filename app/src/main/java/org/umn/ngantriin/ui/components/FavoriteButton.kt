@@ -26,19 +26,19 @@ import androidx.compose.ui.unit.dp
 import org.umn.ngantriin.R
 
 /**
- * Heart toggle that sits on top of a photo, so it gets its own scrim to stay
- * legible on any image.
+ * Tombol hati di atas foto, jadi punya scrim sendiri supaya tetap
+ * terbaca di gambar apa pun.
  */
 @Composable
 fun FavoriteButton(
     isFavorite: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
-    /** Over a photo the heart needs a scrim; on a plain surface it does not. */
+    /** Di atas foto hati butuh scrim, di permukaan polos tidak. */
     overPhoto: Boolean = true
 ) {
-    // The heart pops when it changes state, but not on first composition, so a
-    // list of already-starred cards does not all bounce as it scrolls in.
+    // Hati membesar saat berubah status, tapi tidak di composition pertama,
+    // supaya daftar kartu yang sudah difavoritkan tidak memantul semua saat di-scroll.
     val scale = remember { Animatable(1f) }
     var settled by remember { mutableStateOf(false) }
     LaunchedEffect(isFavorite) {

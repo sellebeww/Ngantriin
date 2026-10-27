@@ -8,9 +8,9 @@ import java.time.Instant
 import java.time.LocalTime
 
 /**
- * Room mirrors of the Supabase tables. These are cache rows, not
- * a second source of truth: a failed network call never deletes them, it just
- * leaves them stale.
+ * Cermin Room dari tabel Supabase. Ini baris cache, bukan sumber data
+ * kedua: panggilan network yang gagal tidak pernah menghapusnya, hanya
+ * membiarkannya basi.
  */
 
 @Entity(tableName = "restaurants")
@@ -97,12 +97,12 @@ data class NotificationEntity(
 )
 
 /**
- * A write that could not reach the backend is parked here and
- * replayed by [org.umn.ngantriin.work.SyncWorker] once connectivity returns.
+ * Aksi tulis yang tidak sampai ke backend disimpan di sini dan
+ * diputar ulang oleh [org.umn.ngantriin.work.SyncWorker] saat koneksi kembali.
  *
- * Joining a queue is deliberately *not* replayable: a ticket issued ten
- * minutes late is worse than no ticket. See
- * [org.umn.ngantriin.work.PendingAction] for what does queue up and why.
+ * Antre sengaja *tidak* bisa diputar ulang: tiket yang terbit sepuluh menit
+ * terlambat lebih buruk daripada tidak ada tiket. Lihat
+ * [org.umn.ngantriin.work.PendingAction] untuk aksi apa saja yang diantrekan dan alasannya.
  */
 @Entity(tableName = "pending_actions")
 data class PendingActionEntity(
@@ -113,7 +113,7 @@ data class PendingActionEntity(
     val attempts: Int = 0
 )
 
-/** Result row for the history screen: a ticket plus the venue it belongs to. */
+/** Baris hasil untuk layar riwayat: tiket beserta restorannya. */
 data class QueueHistoryRow(
     @Embedded val queue: QueueEntryEntity,
     val restaurantName: String?,
