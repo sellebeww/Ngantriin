@@ -12,8 +12,12 @@ import org.umn.ngantriin.core.AppError
 import org.umn.ngantriin.core.Outcome
 import org.umn.ngantriin.core.Validators
 import org.umn.ngantriin.domain.repository.AuthRepository
+import org.umn.ngantriin.domain.repository.UserPreferencesRepository
+
+enum class AccountType { USER, STAFF }
 
 data class RegisterUiState(
+    val accountType: AccountType = AccountType.USER,
     val name: String = "",
     val email: String = "",
     val password: String = "",
@@ -33,11 +37,15 @@ data class RegisterUiState(
 }
 
 class RegisterViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val preferences: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+
+    fun onAccountTypeChange(value: AccountType) =
+        _uiState.update { it.copy(accountType = value, error = null) }
 
     fun onNameChange(value: String) =
         _uiState.update { it.copy(name = value, nameError = null, error = null) }
@@ -85,14 +93,22 @@ class RegisterViewModel(
         _uiState.update { it.copy(isSubmitting = true, error = null) }
         viewModelScope.launch {
             when (val outcome = authRepository.signUp(state.name, state.email, state.password)) {
-                is Outcome.Success -> _uiState.update {
-                    // A blank id means Supabase created the account but has
-                    // not issued a session: the project requires the user to
-                    // confirm their email first.
-                    it.copy(
-                        isSubmitting = false,
-                        confirmationRequired = outcome.data.id.isBlank()
-                    )
+                is Outcome.Success -> {
+                    // The account itself is always a plain user (the server
+                    // makes sure of that). A staff sign-up only remembers that
+                    // the restaurant application comes next.
+                    if (state.accountType == AccountType.STAFF) {
+                        preferences.setStaffApplicantEmail(state.email)
+                    }
+                    _uiState.update {
+                        // A blank id means Supabase created the account but has
+                        // not issued a session: the project requires the user to
+                        // confirm their email first.
+                        it.copy(
+                            isSubmitting = false,
+                            confirmationRequired = outcome.data.id.isBlank()
+                        )
+                    }
                 }
                 is Outcome.Failure ->
                     _uiState.update { it.copy(isSubmitting = false, error = outcome.error) }

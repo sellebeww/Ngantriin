@@ -1,7 +1,6 @@
 # Ngantriin branding
 
-The supplied reference is `ngantriin-reference.jpeg`. The transparent master is
-`ngantriin-transparent.png`. The original wordmark, orange `ii`, and English brand tagline are
+The transparent master is `ngantriin-transparent.png`. The original wordmark, orange `ii`, and English brand tagline are
 preserved. Dark UI surfaces give the full logo a white backing for legibility.
 
 The complete logo is used on both the Android system splash and Compose loading
@@ -38,5 +37,4 @@ It scales without extra image files or a network request.
 Screenshots in `docs/screenshots/` were taken on an emulator against the local
 sample backend. For the current build, lint and test status run
 `./gradlew :app:testDebugUnitTest :app:lintDebug`; the numbers are not repeated
-here so they cannot go stale. The existing system splash reference is
-[splash-preview.png](splash-preview.png).
+here so they cannot go stale.

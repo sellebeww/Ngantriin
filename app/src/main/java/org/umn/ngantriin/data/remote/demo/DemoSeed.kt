@@ -98,8 +98,65 @@ object DemoSeed {
             openingTime = LocalTime.of(11, 0), closingTime = LocalTime.of(22, 0),
             isOpen = true, averageServiceMinutes = 3,
             queuePrefix = "T", queueCapacity = 35, checkInRadiusMeters = 150
+        ),
+        // 24-hour venues: opening == closing (00:00) means "always open".
+        Restaurant(
+            id = "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+            name = "Nasi Goreng Midnight",
+            description = "Nasi goreng kambing, kwetiau, dan mie tek-tek, buka non-stop 24 jam.",
+            category = "Indonesian",
+            address = "Jl. Boulevard Raya Gading Serpong No. 30, Tangerang",
+            latitude = -6.239900, longitude = 106.628300,
+            imageUrl = "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800",
+            rating = 4.5, ratingCount = 74,
+            openingTime = LocalTime.MIDNIGHT, closingTime = LocalTime.MIDNIGHT,
+            isOpen = true, averageServiceMinutes = 3,
+            queuePrefix = "N", queueCapacity = 40, checkInRadiusMeters = 150
+        ),
+        Restaurant(
+            id = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+            name = "Warkop 24 Jam Gading",
+            description = "Kopi hitam, indomie telur, roti bakar, dan teman begadang, buka 24 jam.",
+            category = "Coffee",
+            address = "Ruko Sentra Gading Serpong Blok B No. 2, Tangerang",
+            latitude = -6.238500, longitude = 106.626000,
+            imageUrl = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800",
+            rating = 4.3, ratingCount = 52,
+            openingTime = LocalTime.MIDNIGHT, closingTime = LocalTime.MIDNIGHT,
+            isOpen = true, averageServiceMinutes = 2,
+            queuePrefix = "W", queueCapacity = 30, checkInRadiusMeters = 120,
+            availableSeats = 3
         )
     )
+
+    /**
+     * Sample staff logins and the one venue each may manage. Any other
+     * "staff…" email starts with no venue and registers its own, which is the
+     * real flow; before this, every staff login ran every sample venue.
+     */
+    val STAFF_ACCOUNTS: Map<String, String> = mapOf(
+        "staff@ngantriin.id" to WAROENG_ID,
+        "staff.kopi@ngantriin.id" to "22222222-2222-4222-8222-222222222222",
+        "staff.sakura@ngantriin.id" to "33333333-3333-4333-8333-333333333333",
+        "staff.seoul@ngantriin.id" to "44444444-4444-4444-8444-444444444444",
+        "staff.bakmi@ngantriin.id" to "55555555-5555-4555-8555-555555555555",
+        "staff.taco@ngantriin.id" to "66666666-6666-4666-8666-666666666666"
+    )
+
+    /**
+     * Sample-mode reviewer logins. They exist only here: a build with Supabase
+     * credentials never reaches this file, and the real backend has no such
+     * accounts (an admin there is made with grant_admin() in SQL).
+     */
+    val ADMIN_EMAILS: Set<String> = setOf("admin@ngantriin.id")
+
+    fun isAdminEmail(email: String): Boolean = email.trim().lowercase() in ADMIN_EMAILS
+
+    fun isAdminId(userId: String): Boolean = ADMIN_EMAILS.any { demoUserId(it) == userId }
+
+    /** The id a demo sign-in gives this email (see DemoAuthRemoteDataSource). */
+    fun demoUserId(email: String): String =
+        java.util.UUID.nameUUIDFromBytes(email.trim().lowercase().toByteArray()).toString()
 
     /** Groups already in line when the demo starts, per restaurant. */
     private val WAITING_GROUPS = mapOf(

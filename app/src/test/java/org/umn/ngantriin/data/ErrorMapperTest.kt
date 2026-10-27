@@ -31,6 +31,26 @@ class ErrorMapperTest {
     }
 
     @Test
+    fun `restaurant registration rules from 0016 reach the user as copy`() {
+        assertEquals(AppError.InvalidRestaurant, ErrorMapper.map(Exception("INVALID_RESTAURANT")))
+        assertEquals(AppError.TooManyRestaurants, ErrorMapper.map(Exception("TOO_MANY_RESTAURANTS")))
+    }
+
+    @Test
+    fun `restaurant verification rules from 0019 reach the user as copy`() {
+        assertEquals(AppError.ProofRequired, ErrorMapper.map(Exception("PROOF_REQUIRED")))
+        assertEquals(AppError.ApplicationPending, ErrorMapper.map(Exception("APPLICATION_PENDING")))
+        assertEquals(AppError.NotResubmittable, ErrorMapper.map(Exception("NOT_RESUBMITTABLE")))
+    }
+
+    @Test
+    fun `admin review rules from 0021 reach the user as copy`() {
+        assertEquals(AppError.NotAdmin, ErrorMapper.map(Exception("NOT_ADMIN")))
+        assertEquals(AppError.NotPending, ErrorMapper.map(Exception("NOT_PENDING")))
+        assertEquals(AppError.RejectionNoteRequired, ErrorMapper.map(Exception("REJECTION_NOTE_REQUIRED")))
+    }
+
+    @Test
     fun `the unique index violation is read as an existing queue`() {
         val error = ErrorMapper.map(
             Exception("duplicate key value violates unique constraint " +

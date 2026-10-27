@@ -48,14 +48,14 @@ data class QueueEntry(
     val finishedAt: Instant? get() = completedAt ?: cancelledAt ?: expiredAt
 
     /** Seconds left in the check-in window, or null when no window is running. */
-    fun checkInSecondsLeft(now: Instant = Instant.now()): Long? {
+    fun checkInSecondsLeft(now: Instant = ServerClock.now()): Long? {
         if (status != QueueStatus.CALLED) return null
         val deadline = checkInDeadline ?: return null
         return Duration.between(now, deadline).seconds.coerceAtLeast(0)
     }
 
     /** True when a CALLED ticket has run out its window (expiry may lag). */
-    fun isCheckInOverdue(now: Instant = Instant.now()): Boolean =
+    fun isCheckInOverdue(now: Instant = ServerClock.now()): Boolean =
         checkInSecondsLeft(now) == 0L
 
     /**
@@ -79,7 +79,13 @@ data class ActiveQueue(
     val stats: QueueStats,
     /** Groups still in front of this ticket. */
     val peopleAhead: Int,
-    val estimatedWaitMinutes: Int
+    val estimatedWaitMinutes: Int,
+    /**
+     * False while [peopleAhead] is only a guess from cached counters (the
+     * server position has not arrived yet). Good enough to draw, not good
+     * enough to fire a "head back now" notification on.
+     */
+    val isPositionConfirmed: Boolean = true
 ) {
     /** 1-based place in line — "#7" when six groups are ahead. */
     val position: Int get() = peopleAhead + 1

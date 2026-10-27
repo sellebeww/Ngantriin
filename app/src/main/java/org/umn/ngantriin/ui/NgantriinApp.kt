@@ -118,6 +118,20 @@ fun NgantriinApp(
 
             val signedInUserId = (session as? SessionState.SignedIn)?.user?.id
 
+            // Signed up as restaurant staff: the application is the next step.
+            // Matched on email so another account on this phone is not pulled in.
+            val applicantEmail by container.userPreferencesRepository.staffApplicantEmail
+                .collectAsStateWithLifecycle(null)
+            val sessionEmail = (session as? SessionState.SignedIn)?.user?.email
+            LaunchedEffect(area, currentArea, applicantEmail, sessionEmail) {
+                if (area == Routes.HOME && currentArea == area && applicantEmail != null &&
+                    sessionEmail.equals(applicantEmail, ignoreCase = true)
+                ) {
+                    container.userPreferencesRepository.setStaffApplicantEmail(null)
+                    navController.navigate(Routes.REGISTER_RESTAURANT) { launchSingleTop = true }
+                }
+            }
+
             // The backend writes pushes in the language the app is showing.
             // Re-run on every (re)composition root — a language change
             // recreates the activity, so this follows it.
@@ -232,6 +246,9 @@ private fun resolveArea(
     // screen rather than dropping them into the app with the old password.
     recoveryPending && session is SessionState.SignedIn -> Routes.RESET_PASSWORD
     session is SessionState.SignedOut -> Routes.LOGIN
+    // Routing only; what an admin can actually do is decided by the database.
+    session is SessionState.SignedIn && session.user.role == UserRole.ADMIN ->
+        Routes.ADMIN_REVIEW
     session is SessionState.SignedIn && session.user.role == UserRole.STAFF ->
         Routes.STAFF_DASHBOARD
     else -> Routes.HOME

@@ -1,10 +1,13 @@
 package org.umn.ngantriin.data.repository
 
+import org.umn.ngantriin.domain.model.ProofDocument
+import org.umn.ngantriin.domain.model.ApplicantRole
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -22,6 +25,7 @@ import org.umn.ngantriin.domain.model.QueueStats
 import org.umn.ngantriin.domain.model.Restaurant
 import org.umn.ngantriin.domain.model.RestaurantFilters
 import org.umn.ngantriin.domain.model.RestaurantListing
+import org.umn.ngantriin.domain.model.RestaurantRegistration
 import org.umn.ngantriin.domain.model.RestaurantSort
 import org.umn.ngantriin.domain.repository.RestaurantRepository
 import java.time.Duration
@@ -40,6 +44,7 @@ class RestaurantRepositoryImpl(
 
     private val refreshLock = Mutex()
     @Volatile private var lastCatalogueRefresh: Instant? = null
+    private val probedIds = mutableSetOf<String>()
 
     override fun observeRestaurants(
         origin: GeoPoint?,
@@ -48,7 +53,9 @@ class RestaurantRepositoryImpl(
         launch {
             combine(dao.observeAll(), dao.observeAllStats()) { restaurants, stats ->
                 val statsById = stats.associateBy { it.restaurantId }
-                restaurants.map { entity ->
+                // A paused venue can be cached for its ticket holders and
+                // staff; it is just never listed.
+                restaurants.filter { it.isActive }.map { entity ->
                     val restaurant = entity.toDomain()
                     RestaurantListing(
                         restaurant = restaurant,
@@ -105,6 +112,34 @@ class RestaurantRepositoryImpl(
     override suspend fun managedRestaurants(userId: String): Outcome<List<Restaurant>> =
         runCatchingOutcome { remote.fetchManagedRestaurants(userId) }
 
+    override suspend fun registerRestaurant(
+        registration: RestaurantRegistration
+    ): Outcome<Restaurant> = runCatchingOutcome {
+        remote.registerRestaurant(registration).also {
+            // Only a reviewed venue belongs in the catalogue; a new application
+            // is pending and must not show up in search on this device.
+            if (it.isApproved && it.isActive) dao.upsertRestaurants(listOf(it.toEntity()))
+        }
+    }
+
+    override suspend fun resubmitRestaurant(
+        restaurantId: String,
+        contactPhone: String,
+        applicantRole: ApplicantRole,
+        documents: List<ProofDocument>
+    ): Outcome<Restaurant> = runCatchingOutcome {
+        remote.resubmitRestaurant(restaurantId, contactPhone, applicantRole, documents)
+    }
+
+    override suspend fun setRestaurantActive(
+        restaurantId: String,
+        active: Boolean
+    ): Outcome<Restaurant> = runCatchingOutcome {
+        remote.setRestaurantActive(restaurantId, active).also {
+            dao.upsertRestaurants(listOf(it.toEntity()))
+        }
+    }
+
     // -------------------------------------------------------------------------
 
     private suspend fun refreshCatalogue() = refreshLock.withLock {
@@ -128,8 +163,21 @@ class RestaurantRepositoryImpl(
     }
 
     private suspend fun refreshStatsOnly() {
-        runCatching { dao.upsertStats(remote.fetchAllQueueStats().map { it.toEntity() }) }
-            .onFailure { Log.i(TAG, "Stats refresh failed, serving cache", it) }
+        runCatching {
+            val stats = remote.fetchAllQueueStats()
+            dao.upsertStats(stats.map { it.toEntity() })
+
+            // A counter for a venue we have never cached means it registered
+            // after the last catalogue fetch. Each unknown id is probed once,
+            // so a paused venue (stats stay public, row stays hidden) cannot
+            // turn every counter tick into a catalogue fetch.
+            val known = dao.observeAll().first().map { it.id }.toSet()
+            val unseen = stats.map { it.restaurantId }.filter { it !in known && it !in probedIds }
+            if (unseen.isNotEmpty()) {
+                probedIds += unseen
+                refreshCatalogue()
+            }
+        }.onFailure { Log.i(TAG, "Stats refresh failed, serving cache", it) }
     }
 
     private suspend fun refreshStats(restaurantId: String) {

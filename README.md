@@ -29,6 +29,9 @@ Di sisi restoran, staf dapat mengelola antrean melalui dashboard, memanggil pela
 
 ### Staf Restoran
 
+- **Mendaftarkan restoran:** saat membuat akun pilih "Staf restoran", lalu isi nama, alamat, kategori, foto, lokasi, jam buka, pengaturan antrean, kontak, dan unggah dokumen usaha. Status pengajuan: *Pending Verification*, *Approved*, atau *Rejected* (dengan alasan dan opsi ajukan ulang). Akses staf dan tampil di pencarian baru aktif setelah *Approved*; pendaftar otomatis terhubung hanya dengan restoran yang ia daftarkan.
+- **Mengaktifkan / menjeda restoran:** restoran yang dijeda hilang dari pencarian dan tidak menerima tiket baru (tiket yang sudah ada tetap berjalan).
+- Staf hanya dapat mengelola antrean restoran miliknya sendiri.
 - Melihat ringkasan antrean melalui dashboard.
 - Memanggil antrean berikutnya dan mencari nomor tiket.
 - Memperbarui status antrean, termasuk saat pelanggan datang, meja siap, dan kunjungan selesai.
@@ -98,6 +101,8 @@ Jalankan perintah berikut dari direktori utama proyek:
 **Kebutuhan:** JDK 17+, Android SDK, serta emulator atau perangkat Android yang kompatibel.
 
 Jika konfigurasi backend belum tersedia, aplikasi dapat berjalan dalam **mode contoh** dengan data restoran dan antrean simulasi. Mode ini dapat digunakan untuk mencoba alur utama aplikasi.
+
+Di mode contoh tersedia 8 restoran (Waroeng Nusantara, Kopi Sempurna, Sakura Tei, Seoul Bunsik, Bakmi Pelita, Taco Libre, Nasi Goreng Midnight, Warkop 24 Jam Gading). Akun staf contoh, masing-masing hanya mengelola satu restoran: `staff@ngantriin.id` (Waroeng Nusantara), `staff.kopi@`, `staff.sakura@`, `staff.seoul@`, `staff.bakmi@`, `staff.taco@` (semuanya `@ngantriin.id`). Email lain bebas; untuk mencoba pendaftaran, masuk dengan email apa pun lalu buka **Profil → Daftarkan restoranmu**.
 
 ## Anggota Kelompok
 

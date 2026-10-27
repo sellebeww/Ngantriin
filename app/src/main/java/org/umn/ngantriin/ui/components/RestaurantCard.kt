@@ -303,8 +303,8 @@ fun RatingLabel(rating: Double, modifier: Modifier = Modifier) {
 @Composable
 fun OpenClosedBadge(open: Boolean, modifier: Modifier = Modifier) {
     val colors = LocalStatusColors.current
-    val container = if (open) colors.calledContainer else colors.cancelledContainer
-    val content = if (open) colors.called else colors.cancelled
+    val container = if (open) colors.positiveContainer else colors.cancelledContainer
+    val content = if (open) colors.positive else colors.cancelled
 
     Text(
         text = if (open) stringResource(R.string.restaurant_open) else stringResource(R.string.restaurant_closed),

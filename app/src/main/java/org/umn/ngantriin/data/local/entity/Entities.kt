@@ -34,7 +34,8 @@ data class RestaurantEntity(
     val checkInRadiusMeters: Int,
     val availableSeats: Int,
     val cachedAt: Instant,
-    val checkInWindowMinutes: Int = 10
+    val checkInWindowMinutes: Int = 10,
+    val isActive: Boolean = true
 )
 
 @Entity(tableName = "queue_stats")

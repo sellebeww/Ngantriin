@@ -20,7 +20,7 @@ interface RestaurantDao {
     @Query("SELECT * FROM restaurants WHERE id = :id")
     suspend fun findById(id: String): RestaurantEntity?
 
-    @Query("SELECT DISTINCT category FROM restaurants WHERE category != '' ORDER BY category")
+    @Query("SELECT DISTINCT category FROM restaurants WHERE category != '' AND isActive = 1 ORDER BY category")
     fun observeCategories(): Flow<List<String>>
 
     @Query("SELECT * FROM queue_stats")

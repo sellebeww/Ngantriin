@@ -20,6 +20,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import org.umn.ngantriin.core.AppError
+import org.umn.ngantriin.domain.model.VerificationStatus
+import org.umn.ngantriin.ui.admin.AdminApplicationScreen
+import org.umn.ngantriin.ui.admin.AdminReviewScreen
 import org.umn.ngantriin.ui.auth.LoginScreen
 import org.umn.ngantriin.ui.auth.RegisterScreen
 import org.umn.ngantriin.ui.auth.ResetPasswordScreen
@@ -39,6 +42,7 @@ import org.umn.ngantriin.ui.restaurant.RestaurantDetailScreen
 import org.umn.ngantriin.ui.review.ReviewScreen
 import org.umn.ngantriin.ui.search.SearchScreen
 import org.umn.ngantriin.ui.splash.SplashScreen
+import org.umn.ngantriin.ui.staff.RegisterRestaurantScreen
 import org.umn.ngantriin.ui.staff.StaffCustomerDetailScreen
 import org.umn.ngantriin.ui.staff.StaffDashboardScreen
 import org.umn.ngantriin.ui.staff.StaffQueueScreen
@@ -151,7 +155,8 @@ fun NgantriinNavHost(
             ProfileScreen(
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
-                onOpenStaffDashboard = { navController.navigate(Routes.STAFF_DASHBOARD) }
+                onOpenStaffDashboard = { navController.navigate(Routes.STAFF_DASHBOARD) },
+                onRegisterRestaurant = { navController.navigate(Routes.REGISTER_RESTAURANT) }
             )
         }
 
@@ -250,12 +255,62 @@ fun NgantriinNavHost(
             AboutScreen(onBack = { navController.popBackStack() })
         }
 
+        // --- Admin -----------------------------------------------------------
+
+        composable(Routes.ADMIN_REVIEW) {
+            AdminReviewScreen(
+                onOpenApplication = { id, status ->
+                    navController.navigate(Routes.adminApplication(id, status.name))
+                },
+                onMessage = showError
+            )
+        }
+
+        composable(
+            route = Routes.ADMIN_APPLICATION,
+            arguments = listOf(
+                navArgument(Routes.ARG_RESTAURANT_ID) { type = NavType.StringType },
+                navArgument(Routes.ARG_STATUS) { type = NavType.StringType }
+            )
+        ) { entry ->
+            AdminApplicationScreen(
+                restaurantId = entry.arguments?.getString(Routes.ARG_RESTAURANT_ID).orEmpty(),
+                status = VerificationStatus.fromWire(entry.arguments?.getString(Routes.ARG_STATUS)),
+                onBack = { navController.popBackStack() },
+                onMessage = showError
+            )
+        }
+
         // --- Staff -----------------------------------------------------------
 
         composable(Routes.STAFF_DASHBOARD) {
             StaffDashboardScreen(
                 onOpenQueue = { navController.navigate(Routes.staffQueue(it)) },
+                onRegisterRestaurant = { navController.navigate(Routes.REGISTER_RESTAURANT) },
+                onResubmit = { navController.navigate("${Routes.REGISTER_RESTAURANT}?resubmitId=$it") },
                 onMessage = showError
+            )
+        }
+
+        composable(
+            route = "${Routes.REGISTER_RESTAURANT}?resubmitId={resubmitId}",
+            arguments = listOf(
+                navArgument("resubmitId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { entry ->
+            RegisterRestaurantScreen(
+                resubmitId = entry.arguments?.getString("resubmitId"),
+                onBack = { navController.popBackStack() },
+                // A customer who registers becomes staff, and the app then swaps
+                // areas on its own, leaving nothing to pop. Popping anyway would
+                // close the app.
+                onRegistered = {
+                    if (navController.previousBackStackEntry != null) navController.popBackStack()
+                }
             )
         }
 

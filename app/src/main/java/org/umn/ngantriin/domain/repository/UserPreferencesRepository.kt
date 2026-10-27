@@ -23,4 +23,12 @@ interface UserPreferencesRepository {
     /** Restaurants the customer starred. Device-local, like the other settings. */
     val favoriteRestaurantIds: Flow<Set<String>>
     suspend fun toggleFavoriteRestaurant(restaurantId: String)
+
+    /**
+     * Email of an account that signed up as restaurant staff and has not yet
+     * filled in the restaurant application. Lets the app open the application
+     * after the first sign-in, even if email confirmation came in between.
+     */
+    val staffApplicantEmail: Flow<String?>
+    suspend fun setStaffApplicantEmail(email: String?)
 }

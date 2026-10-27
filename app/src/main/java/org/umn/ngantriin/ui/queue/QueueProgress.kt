@@ -86,7 +86,7 @@ fun QueueProgressTrack(
                 Modifier
                     .fillMaxWidth(animated)
                     .height(10.dp)
-                    .background(statusColors.called, RoundedCornerShape(50))
+                    .background(statusColors.positive, RoundedCornerShape(50))
             )
         }
 

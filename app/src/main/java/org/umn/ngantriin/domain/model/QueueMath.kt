@@ -22,6 +22,15 @@ object QueueMath {
         (peopleAhead.coerceAtLeast(0) * averageServiceMinutes.coerceAtLeast(1))
 
     /**
+     * The estimate for a group joining right now: everyone still holding a
+     * place in line, times the pace. Equals [estimatedWaitMinutes] for the
+     * ticket that would be issued next, so a venue card and the new ticket
+     * never disagree. Mirrors `refresh_queue_stats`.
+     */
+    fun estimatedWaitForNewGroup(entries: List<QueueEntry>, averageServiceMinutes: Int): Int =
+        estimatedWaitMinutes(entries.count { it.status.isInLine }, averageServiceMinutes)
+
+    /**
      * Groups the restaurant has not called yet — the "12 groups waiting" on a
      * restaurant card. Mirrors `refresh_queue_stats`.
      */

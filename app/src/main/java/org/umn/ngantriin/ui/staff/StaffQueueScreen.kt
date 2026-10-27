@@ -39,6 +39,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -150,6 +156,7 @@ fun StaffQueueScreen(
         fun List<QueueEntry>.matching() =
             if (needle.isEmpty()) this else filter { it.queueNumber.contains(needle, ignoreCase = true) }
 
+        val palette = LocalStatusColors.current
         val calledTitle = stringResource(R.string.staff_section_called)
         val calledSubtitle = stringResource(R.string.staff_section_called_subtitle)
         val arrivedTitle = stringResource(R.string.staff_section_arrived)
@@ -196,13 +203,14 @@ fun StaffQueueScreen(
                 }
             }
 
+            // Same hue as the status pill on each row below.
             val sections = listOf(
-                Triple(tableReadyTitle, tableReadySubtitle, state.tableReady.matching()),
-                Triple(arrivedTitle, arrivedSubtitle, state.arrived.matching()),
-                Triple(calledTitle, calledSubtitle, state.called.matching()),
-                Triple(waitingTitle, waitingSubtitle, state.waiting.matching())
+                QueueSectionData(tableReadyTitle, tableReadySubtitle, state.tableReady.matching(), palette.tableReady),
+                QueueSectionData(arrivedTitle, arrivedSubtitle, state.arrived.matching(), palette.checkedIn),
+                QueueSectionData(calledTitle, calledSubtitle, state.called.matching(), palette.called),
+                QueueSectionData(waitingTitle, waitingSubtitle, state.waiting.matching(), palette.waiting)
             )
-            if (needle.isNotEmpty() && sections.all { it.third.isEmpty() }) {
+            if (needle.isNotEmpty() && sections.all { it.entries.isEmpty() }) {
                 item(key = "no-match") {
                     Text(
                         text = stringResource(R.string.staff_search_no_match, needle),
@@ -214,10 +222,11 @@ fun StaffQueueScreen(
             }
 
             // Ordered by urgency: who is standing at the host right now first.
-            sections.forEach { (title, subtitle, entries) ->
+            sections.forEach { (title, subtitle, entries, accent) ->
                 queueSection(
                     title = title,
                     subtitle = subtitle,
+                    accent = accent,
                     sectionTitleCount = sectionTitleCount,
                     entries = entries,
                     isWorking = state.isWorking,
@@ -239,9 +248,17 @@ fun StaffQueueScreen(
 /** Below this many live tickets the whole line fits on screen; no search needed. */
 private const val SEARCH_THRESHOLD = 6
 
+private data class QueueSectionData(
+    val title: String,
+    val subtitle: String,
+    val entries: List<QueueEntry>,
+    val accent: Color
+)
+
 private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
     title: String,
     subtitle: String,
+    accent: Color,
     sectionTitleCount: String,
     entries: List<QueueEntry>,
     isWorking: Boolean,
@@ -253,10 +270,15 @@ private fun androidx.compose.foundation.lazy.LazyListScope.queueSection(
 
     item(key = "header-$title") {
         Spacer(Modifier.height(Spacing.lg))
-        SectionHeader(
-            title = sectionTitleCount.format(title, entries.size),
-            subtitle = subtitle
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(10.dp).background(accent, CircleShape))
+            Spacer(Modifier.width(Spacing.sm))
+            SectionHeader(
+                title = sectionTitleCount.format(title, entries.size),
+                subtitle = subtitle,
+                modifier = Modifier.weight(1f)
+            )
+        }
         Spacer(Modifier.height(Spacing.sm))
     }
 

@@ -12,6 +12,12 @@ import org.umn.ngantriin.data.remote.dto.QueueStatsDto
 import org.umn.ngantriin.data.remote.dto.RestaurantDto
 import org.umn.ngantriin.data.remote.dto.ReviewDto
 import org.umn.ngantriin.data.remote.dto.UserDto
+import org.umn.ngantriin.data.remote.dto.ApplicationDocumentDto
+import org.umn.ngantriin.data.remote.dto.RestaurantApplicationDto
+import org.umn.ngantriin.domain.model.ApplicantRole
+import org.umn.ngantriin.domain.model.ApplicationDocument
+import org.umn.ngantriin.domain.model.ProofType
+import org.umn.ngantriin.domain.model.RestaurantApplication
 import org.umn.ngantriin.domain.model.AppNotification
 import org.umn.ngantriin.domain.model.NotificationType
 import org.umn.ngantriin.domain.model.QueueEntry
@@ -19,6 +25,7 @@ import org.umn.ngantriin.domain.model.QueueHistoryItem
 import org.umn.ngantriin.domain.model.QueueStats
 import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.Restaurant
+import org.umn.ngantriin.domain.model.VerificationStatus
 import org.umn.ngantriin.domain.model.Review
 import org.umn.ngantriin.domain.model.User
 import org.umn.ngantriin.domain.model.UserRole
@@ -57,7 +64,62 @@ fun RestaurantDto.toDomain() = Restaurant(
     queueCapacity = queueCapacity,
     checkInRadiusMeters = checkInRadiusMeters,
     availableSeats = availableSeats,
-    checkInWindowMinutes = checkInWindowMinutes.coerceIn(1, 60)
+    checkInWindowMinutes = checkInWindowMinutes.coerceIn(1, 60),
+    isActive = isActive,
+    verificationStatus = VerificationStatus.fromWire(verificationStatus),
+    verificationNote = verificationNote
+)
+
+/** Demo mode persists its own venues as the same wire shape the server returns. */
+fun Restaurant.toDto() = RestaurantDto(
+    id = id,
+    name = name,
+    description = description,
+    category = category,
+    address = address,
+    latitude = latitude,
+    longitude = longitude,
+    imageUrl = imageUrl,
+    rating = rating,
+    ratingCount = ratingCount,
+    openingTime = openingTime.toString(),
+    closingTime = closingTime.toString(),
+    isOpen = isOpen,
+    averageServiceMinutes = averageServiceMinutes,
+    queuePrefix = queuePrefix,
+    queueCapacity = queueCapacity,
+    checkInRadiusMeters = checkInRadiusMeters,
+    availableSeats = availableSeats,
+    checkInWindowMinutes = checkInWindowMinutes,
+    isActive = isActive,
+    verificationStatus = verificationStatus.name,
+    verificationNote = verificationNote
+)
+
+fun RestaurantApplicationDto.toDomain() = RestaurantApplication(
+    restaurantId = restaurantId,
+    name = name,
+    address = address,
+    category = category,
+    description = description,
+    imageUrl = imageUrl,
+    status = VerificationStatus.fromWire(verificationStatus),
+    note = verificationNote,
+    applicantName = applicantName.orEmpty(),
+    applicantEmail = applicantEmail.orEmpty(),
+    contactPhone = contactPhone.orEmpty(),
+    applicantRole = ApplicantRole.entries.firstOrNull { it.name == applicantRole },
+    documentCount = documentCount,
+    submittedAt = parseTimestampOrNull(submittedAt)
+)
+
+fun ApplicationDocumentDto.toDomain() = ApplicationDocument(
+    id = id,
+    // Only used to label the file; an unknown type is shown as supporting proof.
+    type = ProofType.entries.firstOrNull { it.name == docType } ?: ProofType.OWNERSHIP_PROOF,
+    path = storagePath,
+    round = submissionRound,
+    uploadedAt = parseTimestampOrNull(createdAt)
 )
 
 fun QueueStatsDto.toDomain() = QueueStats(
@@ -135,7 +197,8 @@ fun Restaurant.toEntity(cachedAt: Instant = Instant.now()) = RestaurantEntity(
     checkInRadiusMeters = checkInRadiusMeters,
     availableSeats = availableSeats,
     cachedAt = cachedAt,
-    checkInWindowMinutes = checkInWindowMinutes
+    checkInWindowMinutes = checkInWindowMinutes,
+    isActive = isActive
 )
 
 fun QueueStats.toEntity() = QueueStatsEntity(
@@ -212,7 +275,8 @@ fun RestaurantEntity.toDomain() = Restaurant(
     queueCapacity = queueCapacity,
     checkInRadiusMeters = checkInRadiusMeters,
     availableSeats = availableSeats,
-    checkInWindowMinutes = checkInWindowMinutes
+    checkInWindowMinutes = checkInWindowMinutes,
+    isActive = isActive
 )
 
 fun QueueStatsEntity.toDomain() = QueueStats(

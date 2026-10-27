@@ -31,12 +31,17 @@ class UserPreferencesDataStore(context: Context) : UserPreferencesRepository {
         val lastLongitude = doublePreferencesKey("last_longitude")
 
         val favoriteRestaurants = stringSetPreferencesKey("favorite_restaurants")
+        val staffApplicantEmail = stringPreferencesKey("staff_applicant_email")
 
         // Demo-mode session, see DemoAuthRemoteDataSource.
         val demoUserId = stringPreferencesKey("demo_user_id")
         val demoUserName = stringPreferencesKey("demo_user_name")
         val demoUserEmail = stringPreferencesKey("demo_user_email")
         val demoUserRole = stringPreferencesKey("demo_user_role")
+
+        // Demo-mode registry: venues staff registered, and who staffs what.
+        val demoRestaurants = stringPreferencesKey("demo_registered_restaurants")
+        val demoStaff = stringSetPreferencesKey("demo_staff_memberships")
     }
 
     /** A corrupted or unreadable store must not stop the app from starting. */
@@ -89,6 +94,16 @@ class UserPreferencesDataStore(context: Context) : UserPreferencesRepository {
         }
     }
 
+    override val staffApplicantEmail: Flow<String?> =
+        preferences.map { it[Keys.staffApplicantEmail] }
+
+    override suspend fun setStaffApplicantEmail(email: String?) {
+        store.edit {
+            if (email == null) it.remove(Keys.staffApplicantEmail)
+            else it[Keys.staffApplicantEmail] = email.trim().lowercase()
+        }
+    }
+
     // --- Demo session -------------------------------------------------------
 
     data class DemoProfile(
@@ -115,6 +130,21 @@ class UserPreferencesDataStore(context: Context) : UserPreferencesRepository {
             it[Keys.demoUserEmail] = profile.email
             it[Keys.demoUserRole] = profile.role
         }
+    }
+
+    /** JSON list of venues registered in demo mode, or null before the first one. */
+    val demoRestaurantsJson: Flow<String?> = preferences.map { it[Keys.demoRestaurants] }
+
+    suspend fun setDemoRestaurantsJson(json: String) {
+        store.edit { it[Keys.demoRestaurants] = json }
+    }
+
+    /** `userId|restaurantId` pairs registered in demo mode. */
+    val demoStaffMemberships: Flow<Set<String>> =
+        preferences.map { it[Keys.demoStaff] ?: emptySet() }
+
+    suspend fun addDemoStaffMembership(userId: String, restaurantId: String) {
+        store.edit { it[Keys.demoStaff] = (it[Keys.demoStaff] ?: emptySet()) + "$userId|$restaurantId" }
     }
 
     suspend fun clearDemoProfile() {

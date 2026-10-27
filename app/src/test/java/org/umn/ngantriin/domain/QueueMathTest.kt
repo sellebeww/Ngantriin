@@ -98,6 +98,22 @@ class QueueMathTest {
     }
 
     @Test
+    fun `venue estimate equals what the next ticket would be told`() {
+        val queue = listOf(
+            entry(1, QueueStatus.CALLED),
+            entry(2, QueueStatus.CHECKED_IN, called = true),
+            entry(3, QueueStatus.TABLE_READY),
+            entry(4, QueueStatus.WAITING),
+            entry(5, QueueStatus.COMPLETED)
+        )
+        val forNewcomer = QueueMath.estimatedWaitMinutes(
+            QueueMath.peopleAhead(queue, ticketSequence = 6), averageServiceMinutes = 3
+        )
+        assertEquals(9, forNewcomer)
+        assertEquals(forNewcomer, QueueMath.estimatedWaitForNewGroup(queue, averageServiceMinutes = 3))
+    }
+
+    @Test
     fun `waiting count excludes everyone past the front of the line`() {
         assertEquals(8, QueueMath.waitingCount(sampleQueue))
     }

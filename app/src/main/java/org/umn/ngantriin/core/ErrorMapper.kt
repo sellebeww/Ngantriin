@@ -45,6 +45,14 @@ object ErrorMapper {
             message.contains("QUEUE_NOT_CANCELLABLE") -> AppError.QueueNotCancellable
             message.contains("QUEUE_EMPTY") -> AppError.QueueEmpty
             message.contains("NOT_RESTAURANT_STAFF") -> AppError.NotRestaurantStaff
+            message.contains("INVALID_RESTAURANT") -> AppError.InvalidRestaurant
+            message.contains("TOO_MANY_RESTAURANTS") -> AppError.TooManyRestaurants
+            message.contains("PROOF_REQUIRED") -> AppError.ProofRequired
+            message.contains("APPLICATION_PENDING") -> AppError.ApplicationPending
+            message.contains("NOT_RESUBMITTABLE") -> AppError.NotResubmittable
+            message.contains("NOT_ADMIN") -> AppError.NotAdmin
+            message.contains("NOT_PENDING") -> AppError.NotPending
+            message.contains("REJECTION_NOTE_REQUIRED") -> AppError.RejectionNoteRequired
             message.contains("RESTAURANT_NOT_FOUND") -> AppError.QueueNotFound
             message.contains("ILLEGAL_TRANSITION") -> AppError.Server("illegal transition")
 

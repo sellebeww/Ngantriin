@@ -133,7 +133,16 @@ object QueueNotificationCopy {
             NotificationType.EXPIRED -> context.getString(R.string.push_expired_title) to
                 context.getString(R.string.push_expired_body, facts.queueNumber, facts.checkInWindowMinutes)
 
-            NotificationType.QUEUE_JOINED, NotificationType.POSITION_UPDATE ->
+            NotificationType.QUEUE_JOINED -> context.getString(R.string.push_joined_title) to
+                context.resources.getQuantityString(
+                    R.plurals.push_joined_body,
+                    facts.peopleAhead,
+                    facts.queueNumber,
+                    facts.peopleAhead,
+                    waitTimeText(context, facts.estimatedWaitMinutes)
+                )
+
+            NotificationType.POSITION_UPDATE ->
                 context.getString(R.string.push_queue_update_title) to aheadBody(context, facts)
         }
 

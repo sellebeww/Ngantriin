@@ -1,13 +1,19 @@
 package org.umn.ngantriin.data.remote.datasource
 
+import org.umn.ngantriin.domain.model.ProofDocument
+import org.umn.ngantriin.domain.model.ApplicantRole
 import android.content.Intent
 import kotlinx.coroutines.flow.Flow
 import org.umn.ngantriin.domain.model.AppNotification
+import org.umn.ngantriin.domain.model.ApplicationDocument
+import org.umn.ngantriin.domain.model.RestaurantApplication
+import org.umn.ngantriin.domain.model.VerificationStatus
 import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.domain.model.QueuePosition
 import org.umn.ngantriin.domain.model.QueueStats
 import org.umn.ngantriin.domain.model.QueueStatus
 import org.umn.ngantriin.domain.model.Restaurant
+import org.umn.ngantriin.domain.model.RestaurantRegistration
 import org.umn.ngantriin.domain.model.Review
 import org.umn.ngantriin.domain.model.User
 
@@ -66,11 +72,35 @@ interface RestaurantRemoteDataSource {
     suspend fun fetchQueueStats(restaurantId: String): QueueStats?
     suspend fun fetchManagedRestaurants(userId: String): List<Restaurant>
 
+    /** Creates the venue and makes the signed-in account its staff. */
+    suspend fun registerRestaurant(registration: RestaurantRegistration): Restaurant
+
+    suspend fun setRestaurantActive(restaurantId: String, active: Boolean): Restaurant
+
+    /** Fixes a REJECTED application and puts it back in review. */
+    suspend fun resubmitRestaurant(
+        restaurantId: String,
+        contactPhone: String,
+        applicantRole: ApplicantRole,
+        documents: List<ProofDocument>
+    ): Restaurant
+
     /** Fires whenever this venue's counters change. */
     fun observeQueueStatsChanges(restaurantId: String): Flow<Unit>
 
     /** Fires whenever any venue's counters change, for the discovery list. */
     fun observeAllQueueStatsChanges(): Flow<Unit>
+}
+
+/** Restaurant review. The database authorises every call; the app only asks. */
+interface AdminRemoteDataSource {
+    suspend fun fetchApplications(status: VerificationStatus): List<RestaurantApplication>
+    suspend fun fetchDocuments(restaurantId: String): List<ApplicationDocument>
+
+    /** Proof files are private; this is a link that works for a few minutes. */
+    suspend fun documentUrl(document: ApplicationDocument): String
+
+    suspend fun review(restaurantId: String, approve: Boolean, note: String?)
 }
 
 interface QueueRemoteDataSource {

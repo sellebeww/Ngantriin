@@ -52,7 +52,44 @@ data class RestaurantDto(
     @SerialName("queue_capacity") val queueCapacity: Int = 50,
     @SerialName("checkin_radius_meters") val checkInRadiusMeters: Int = 150,
     @SerialName("available_seats") val availableSeats: Int = 0,
-    @SerialName("checkin_window_minutes") val checkInWindowMinutes: Int = 10
+    @SerialName("checkin_window_minutes") val checkInWindowMinutes: Int = 10,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("verification_status") val verificationStatus: String = "APPROVED",
+    @SerialName("verification_note") val verificationNote: String? = null
+)
+
+@Serializable
+data class RestaurantActiveUpdateDto(
+    @SerialName("is_active") val isActive: Boolean
+)
+
+/** One row of `admin_list_applications` (0021). */
+@Serializable
+data class RestaurantApplicationDto(
+    @SerialName("restaurant_id") val restaurantId: String,
+    val name: String,
+    val address: String = "",
+    val category: String = "",
+    val description: String = "",
+    @SerialName("image_url") val imageUrl: String? = null,
+    @SerialName("verification_status") val verificationStatus: String = "PENDING_VERIFICATION",
+    @SerialName("verification_note") val verificationNote: String? = null,
+    @SerialName("contact_phone") val contactPhone: String? = null,
+    @SerialName("applicant_role") val applicantRole: String? = null,
+    @SerialName("applicant_name") val applicantName: String? = null,
+    @SerialName("applicant_email") val applicantEmail: String? = null,
+    @SerialName("document_count") val documentCount: Int = 0,
+    @SerialName("submitted_at") val submittedAt: String? = null
+)
+
+/** One row of `admin_application_documents` (0021). */
+@Serializable
+data class ApplicationDocumentDto(
+    val id: String,
+    @SerialName("doc_type") val docType: String,
+    @SerialName("storage_path") val storagePath: String,
+    @SerialName("submission_round") val submissionRound: Int = 1,
+    @SerialName("created_at") val createdAt: String? = null
 )
 
 @Serializable
@@ -93,7 +130,8 @@ data class QueuePositionDto(
     val position: Int = 1,
     @SerialName("estimated_wait") val estimatedWait: Int = 0,
     @SerialName("current_serving") val currentServing: String? = null,
-    @SerialName("waiting_count") val waitingCount: Int = 0
+    @SerialName("waiting_count") val waitingCount: Int = 0,
+    @SerialName("server_now") val serverNow: String? = null
 )
 
 @Serializable

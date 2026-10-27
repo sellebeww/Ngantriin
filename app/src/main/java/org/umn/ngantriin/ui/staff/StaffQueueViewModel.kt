@@ -87,18 +87,7 @@ class StaffQueueViewModel(
 
     init {
         viewModelScope.launch {
-            val userId = authRepository.currentUserOrNull()?.id
-            if (userId == null) {
-                error.value = AppError.SessionExpired
-            } else {
-                when (val outcome = restaurantRepository.managedRestaurants(userId)) {
-                    is Outcome.Success -> {
-                        managed.value = outcome.data
-                        if (selectedId.value == null) selectedId.value = outcome.data.firstOrNull()?.id
-                    }
-                    is Outcome.Failure -> error.value = outcome.error
-                }
-            }
+            loadManaged()
             settled.value = true
         }
 
@@ -109,6 +98,51 @@ class StaffQueueViewModel(
                 delay(SWEEP_INTERVAL_MILLIS)
                 selectedId.value?.let { queueRepository.expireOverdue(it) }
             }
+        }
+    }
+
+    private suspend fun loadManaged() {
+        val userId = authRepository.currentUserOrNull()?.id
+        if (userId == null) {
+            error.value = AppError.SessionExpired
+            return
+        }
+        when (val outcome = restaurantRepository.managedRestaurants(userId)) {
+            is Outcome.Success -> {
+                val before = managed.value.map { it.id }.toSet()
+                managed.value = outcome.data
+                // A venue that just appeared was registered a moment ago, so
+                // that is the one to show; otherwise keep the current choice.
+                val added = outcome.data.firstOrNull { it.id !in before && before.isNotEmpty() }
+                when {
+                    added != null -> selectedId.value = added.id
+                    outcome.data.none { it.id == selectedId.value } ->
+                        selectedId.value = (outcome.data.firstOrNull { it.isApproved }
+                            ?: outcome.data.firstOrNull())?.id
+                }
+            }
+            is Outcome.Failure -> error.value = outcome.error
+        }
+    }
+
+    /** Re-reads which venues this account runs, e.g. after registering one. */
+    fun refreshManaged() {
+        viewModelScope.launch { loadManaged() }
+    }
+
+    /** Lists the selected venue to customers, or pauses it. */
+    fun setListed(active: Boolean) {
+        val restaurantId = selectedId.value ?: return
+        if (working.value) return
+        working.value = true
+
+        viewModelScope.launch {
+            when (val outcome = restaurantRepository.setRestaurantActive(restaurantId, active)) {
+                is Outcome.Success -> managed.value =
+                    managed.value.map { if (it.id == restaurantId) outcome.data else it }
+                is Outcome.Failure -> events.send(StaffEvent.Failed(outcome.error))
+            }
+            working.value = false
         }
     }
 

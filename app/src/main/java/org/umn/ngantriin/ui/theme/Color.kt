@@ -27,17 +27,22 @@ val OrangeAccentContainer = Color(0xFFFFEDD9)
 
 // Queue status ramp. Each of these is always paired with an icon
 // and a text label so colour is never the only signal.
-val StatusWaiting = Color(0xFFB2740B)
+val StatusWaiting = Color(0xFF8F5A00)
 val StatusWaitingContainer = Color(0xFFFFF0D2)
-val StatusAlmostThere = Color(0xFFC2410C)
-val StatusAlmostThereContainer = Color(0xFFFFE6D5)
-val StatusCalled = Color(0xFF0B7A3E)
-val StatusCalledContainer = Color(0xFFD4F4E0)
+// Called / "Now serving" is orange and Table ready is green, on every screen.
+// Almost-there took over the old Table-ready purple so no two live states share a hue.
+val StatusAlmostThere = Color(0xFF6D28D9)
+val StatusAlmostThereContainer = Color(0xFFEDE4FF)
+val StatusCalled = Color(0xFFB03A08)
+val StatusCalledContainer = Color(0xFFFFE6D5)
+// Plain "good / open / progress" green, deliberately not a queue status.
+val StatusPositive = Color(0xFF0B7A3E)
+val StatusPositiveContainer = Color(0xFFD4F4E0)
 val StatusCheckedIn = Color(0xFF1D4ED8)
 val StatusCheckedInContainer = Color(0xFFDCE7FF)
-val StatusTableReady = Color(0xFF6D28D9)
-val StatusTableReadyContainer = Color(0xFFEDE4FF)
-val StatusCompleted = Color(0xFF0E7C5A)
+val StatusTableReady = Color(0xFF2A7010)
+val StatusTableReadyContainer = Color(0xFFE3F4D3)
+val StatusCompleted = Color(0xFF0B7452)
 val StatusCompletedContainer = Color(0xFFD5F2E8)
 val StatusCancelled = Color(0xFF9F1F17)
 val StatusCancelledContainer = Color(0xFFFCE0DE)

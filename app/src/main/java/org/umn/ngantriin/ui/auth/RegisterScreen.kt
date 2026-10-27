@@ -26,6 +26,7 @@ import org.umn.ngantriin.ui.components.NgantriinPasswordField
 import org.umn.ngantriin.ui.components.NgantriinTextField
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.message
+import org.umn.ngantriin.ui.search.ChoiceChip
 import org.umn.ngantriin.ui.theme.Spacing
 
 @Composable
@@ -33,7 +34,7 @@ fun RegisterScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewModel = containerViewModel { container -> RegisterViewModel(container.authRepository) }
+    val viewModel = containerViewModel { container -> RegisterViewModel(container.authRepository, container.userPreferencesRepository) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     AuthScaffold(
@@ -42,6 +43,35 @@ fun RegisterScreen(
         onBack = onBack,
         modifier = modifier
     ) {
+        Text(
+            text = stringResource(R.string.register_account_type_label),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(Modifier.height(Spacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            ChoiceChip(
+                label = stringResource(R.string.register_account_user),
+                selected = state.accountType == AccountType.USER,
+                onClick = { if (!state.isSubmitting) viewModel.onAccountTypeChange(AccountType.USER) }
+            )
+            ChoiceChip(
+                label = stringResource(R.string.register_account_staff),
+                selected = state.accountType == AccountType.STAFF,
+                onClick = { if (!state.isSubmitting) viewModel.onAccountTypeChange(AccountType.STAFF) }
+            )
+        }
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            text = stringResource(
+                if (state.accountType == AccountType.STAFF) R.string.register_account_staff_hint
+                else R.string.register_account_user_hint
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(Spacing.lg))
+
         NgantriinTextField(
             value = state.name,
             onValueChange = viewModel::onNameChange,
@@ -104,7 +134,10 @@ fun RegisterScreen(
 
         if (state.confirmationRequired) {
             Text(
-                text = stringResource(R.string.register_confirmation_required),
+                text = stringResource(
+                    if (state.accountType == AccountType.STAFF) R.string.register_staff_confirmation_required
+                    else R.string.register_confirmation_required
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary
             )

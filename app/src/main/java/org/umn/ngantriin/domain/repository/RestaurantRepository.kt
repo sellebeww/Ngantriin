@@ -1,5 +1,7 @@
 package org.umn.ngantriin.domain.repository
 
+import org.umn.ngantriin.domain.model.ProofDocument
+import org.umn.ngantriin.domain.model.ApplicantRole
 import kotlinx.coroutines.flow.Flow
 import org.umn.ngantriin.core.Outcome
 import org.umn.ngantriin.domain.model.GeoPoint
@@ -7,6 +9,7 @@ import org.umn.ngantriin.domain.model.QueueStats
 import org.umn.ngantriin.domain.model.Restaurant
 import org.umn.ngantriin.domain.model.RestaurantFilters
 import org.umn.ngantriin.domain.model.RestaurantListing
+import org.umn.ngantriin.domain.model.RestaurantRegistration
 
 interface RestaurantRepository {
 
@@ -36,6 +39,22 @@ interface RestaurantRepository {
     /** The distinct categories present in the catalogue, for the filter sheet. */
     fun observeCategories(): Flow<List<String>>
 
-    /** The venues this staff account is allowed to manage. */
+    /** The venues this staff account is allowed to manage, paused ones included. */
     suspend fun managedRestaurants(userId: String): Outcome<List<Restaurant>>
+
+    /**
+     * Puts a new venue on the app. The caller becomes its staff and the venue
+     * is listed to customers immediately; it is returned as stored.
+     */
+    suspend fun registerRestaurant(registration: RestaurantRegistration): Outcome<Restaurant>
+
+    /** Lists ([active]) or pauses a venue the caller manages. */
+    suspend fun setRestaurantActive(restaurantId: String, active: Boolean): Outcome<Restaurant>
+
+    suspend fun resubmitRestaurant(
+        restaurantId: String,
+        contactPhone: String,
+        applicantRole: ApplicantRole,
+        documents: List<ProofDocument>
+    ): Outcome<Restaurant>
 }

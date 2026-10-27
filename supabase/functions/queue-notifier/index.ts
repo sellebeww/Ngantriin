@@ -39,6 +39,7 @@ type QueueStatus =
   | "EXPIRED";
 
 type NotificationType =
+  | "QUEUE_JOINED"
   | "ALMOST_THERE"
   | "RETURN_NOW"
   | "CALLED"
@@ -59,9 +60,11 @@ interface QueueRow {
   status: QueueStatus;
   called_at: string | null;
   check_in_deadline: string | null;
+  cancelled_by: string | null;
 }
 
 interface RequestBody {
+  type?: string; // "INSERT" | "UPDATE", from the queues_notify trigger
   queue_id?: string;
   restaurant_id?: string;
   // Shape sent by a Supabase "Database Webhook" configured in the dashboard.
@@ -93,7 +96,7 @@ const TERMINAL: ReadonlySet<QueueStatus> = new Set([
 ]);
 
 const QUEUE_COLUMNS =
-  "id, restaurant_id, user_id, queue_number, ticket_sequence, status, called_at, check_in_deadline";
+  "id, restaurant_id, user_id, queue_number, ticket_sequence, status, called_at, check_in_deadline, cancelled_by";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -132,6 +135,10 @@ Deno.serve(async (request) => {
 
   const restaurantId = changed.restaurant_id;
 
+  // Settle overdue check-ins first: an expired-but-unswept ticket would still
+  // be counted as "ahead" and make every estimate below too long.
+  await supabase.rpc("expire_overdue_queues", { p_restaurant_id: restaurantId });
+
   // Promote anyone who is now near the front, then look at every live ticket
   // at this venue: one group being seated moves everybody behind them.
   await supabase.rpc("promote_almost_there", { p_restaurant_id: restaurantId });
@@ -142,7 +149,12 @@ Deno.serve(async (request) => {
     .eq("id", restaurantId)
     .single();
 
-  const serviceMinutes = restaurant?.average_service_minutes ?? 3;
+  // Measured pace (falls back to the configured one inside the function), so
+  // a pushed estimate matches what the app shows.
+  const { data: pace } = await supabase.rpc("effective_service_minutes", {
+    p_restaurant_id: restaurantId,
+  });
+  const serviceMinutes: number = pace ?? restaurant?.average_service_minutes ?? 3;
   const checkInMinutes = restaurant?.checkin_window_minutes ?? 10;
 
   const { data: live } = await supabase
@@ -165,19 +177,35 @@ Deno.serve(async (request) => {
         IN_LINE.has(other.status),
     ).length;
 
-    const milestone = milestoneFor(ticket, peopleAhead);
-    if (!milestone) continue;
-
-    await deliver(ticket, milestone, locales.get(ticket.user_id) ?? "id", {
+    const context: MilestoneContext = {
       peopleAhead,
       estimatedWait: peopleAhead * serviceMinutes,
       queueNumber: ticket.queue_number,
       checkInMinutes,
-    });
+    };
+    const locale = locales.get(ticket.user_id) ?? "id";
+
+    // Confirmation that the ticket exists, with the first estimate. Only for
+    // the row that was just inserted, never for a later update.
+    const justJoined = body.type === "INSERT" && ticket.id === changed.id;
+    if (justJoined) {
+      await deliver(ticket, "QUEUE_JOINED", locale, context);
+    }
+
+    const milestone = milestoneFor(ticket, peopleAhead);
+    if (!milestone) continue;
+
+    // Joining a short line already told the customer how many are ahead.
+    // Record the milestone as read so it can't fire again later, but don't
+    // buzz them twice in the same second.
+    await deliver(ticket, milestone, locale, context, justJoined);
   }
 
-  // A ticket that just ended is no longer live, so handle it directly.
-  if (TERMINAL.has(changed.status)) {
+  // A ticket that just ended is no longer live, so handle it directly. A
+  // customer who cancelled on their own phone doesn't need to be told.
+  const cancelledByCustomer = changed.status === "CANCELLED" &&
+    changed.cancelled_by === changed.user_id;
+  if (TERMINAL.has(changed.status) && !cancelledByCustomer) {
     await deliver(
       changed,
       changed.status as NotificationType,
@@ -221,6 +249,7 @@ async function deliver(
   type: NotificationType,
   locale: Locale,
   context: MilestoneContext,
+  quiet = false,
 ) {
   const copy = copyFor(type, locale, context);
 
@@ -234,11 +263,12 @@ async function deliver(
       title: copy.title,
       body: copy.body,
       type,
+      is_read: quiet,
     })
     .select("id")
     .maybeSingle();
 
-  if (error || !inserted) return;
+  if (error || !inserted || quiet) return;
 
   // Raw values travel too, so the app can render the text in whatever
   // language it is set to right now.
@@ -286,6 +316,11 @@ function copyFor(
   const wait = waitText(c.estimatedWait, locale);
   if (locale === "en") {
     switch (type) {
+      case "QUEUE_JOINED":
+        return {
+          title: "You're in the queue",
+          body: `Your number is ${c.queueNumber}. ${c.peopleAhead} ${c.peopleAhead === 1 ? "group" : "groups"} ahead of you. Estimated wait: ${wait}.`,
+        };
       case "ALMOST_THERE":
         return {
           title: "Your turn is coming",
@@ -330,6 +365,11 @@ function copyFor(
   }
 
   switch (type) {
+    case "QUEUE_JOINED":
+      return {
+        title: "Kamu masuk antrean",
+        body: `Nomormu ${c.queueNumber}. Ada ${c.peopleAhead} rombongan di depanmu. Perkiraan tunggu: ${wait}.`,
+      };
     case "ALMOST_THERE":
       return {
         title: "Giliranmu sudah dekat",

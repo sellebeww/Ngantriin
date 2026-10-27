@@ -75,7 +75,7 @@ wait for.
 
 | Column | Drives |
 | --- | --- |
-| `average_service_minutes` | Every wait estimate (people ahead × this) |
+| `average_service_minutes` | Starting pace for every wait estimate (people ahead × pace). Once ≥ 3 recent calls show a real pace (0018, `effective_service_minutes`), the measured gap between calls is used instead, clamped to 0.5×–2× this value |
 | `queue_capacity` | `QUEUE_FULL` |
 | `checkin_window_minutes` | The check-in countdown (1–60, default 10) |
 | `opening_time`, `closing_time`, `timezone`, `is_open` | `RESTAURANT_CLOSED` — checked on the server since 0012 |
@@ -109,6 +109,14 @@ UPDATE or DELETE `queues` directly.
 | `staff_update_queue_status(queue, status)` | `ILLEGAL_TRANSITION` | generic server error |
 | `queue_position(queue)` | `QUEUE_NOT_FOUND` (not yours) | people ahead, position, estimate, now serving |
 | `expire_overdue_queues(restaurant?)` | — | number of tickets expired |
+| `register_restaurant(name, address, category, description, image_url, lat, lng, opening, closing, avg_minutes, capacity, contact_phone, applicant_role, documents)` | `INVALID_RESTAURANT` | "Some restaurant details were rejected…" |
+| | `PROOF_REQUIRED` | "The business document is missing or did not upload…" |
+| | `APPLICATION_PENDING` | "You already have an application under review." |
+| `resubmit_restaurant(restaurant, contact_phone, applicant_role, documents)` | `NOT_RESUBMITTABLE` | "This application cannot be resubmitted." |
+| | `TOO_MANY_RESTAURANTS` | "You've reached the limit of 5 registered restaurants." |
+| `admin_list_applications(status)` / `admin_application_documents(restaurant)` / `admin_review_restaurant(restaurant, approve, note)` | `NOT_ADMIN` | "This account cannot review applications." |
+| | `NOT_PENDING` | "This application was already decided. Refresh the list." |
+| | `REJECTION_NOTE_REQUIRED` | "Write a reason so the owner knows what to fix." |
 
 These tokens are part of the contract. `ErrorMapper` matches on them and
 `ErrorMapperTest` fails if either side is renamed alone.
@@ -164,12 +172,30 @@ every insert, update and delete on `queues`.
 | `users` | `name`, `phone`, `avatar_url`, `fcm_token`, `locale` — **not** `role` |
 | `reviews` | `rating`, `review` — not the restaurant, user or visit |
 | `notifications` | `is_read` |
-| `restaurants` (staff only) | `is_open`, `available_seats`, `description`, `image_url`, hours, `average_service_minutes`, `queue_capacity`, `checkin_window_minutes` |
+| `restaurants` (staff only) | `is_open`, `is_active`, `available_seats`, `description`, `image_url`, hours, `average_service_minutes`, `queue_capacity`, `checkin_window_minutes` |
 
-Staff access comes from `restaurant_staff`, which has no client write policy:
-staff are provisioned by hand (SQL editor or a service-role script). Since
-0012 sign-up always creates a `CUSTOMER`; the role in sign-up metadata is
+Staff access comes from `restaurant_staff`, which has no client write policy.
+There are two ways in, and both stay scoped to a venue:
+
+- **Register a restaurant** (0016): `register_restaurant(...)` creates the venue,
+  its `queue_stats` row and the `restaurant_staff` link for the caller, and sets
+  `users.role = STAFF`. The caller can manage only what they created (max 5 per
+  account). This is the self-service path used by the app.
+- **By hand**: `grant_staff` / `revoke_staff` (0014) from the SQL editor, to put
+  a second person on an existing venue.
+
+Since 0012 sign-up always creates a `CUSTOMER`; the role in sign-up metadata is
 ignored.
+
+### Listing
+
+`restaurants.is_active` decides whether customers can find a venue. A venue is
+visible to anyone while active; when paused it stays visible to its staff and to
+customers who already hold a ticket there (so history keeps working), and
+`queues_active_restaurant_guard` refuses new tickets (`RESTAURANT_CLOSED`).
+Staff pause/resume with a plain `UPDATE` of `is_active` (column grant, RLS-limited
+to their venues). Photos go to the public `restaurant-photos` bucket, uploads
+confined to `{user_id}/`.
 
 `supabase/tests/rls_test.sql` and `supabase/tests/journey_test.sql` assert
 these rules.
@@ -243,3 +269,97 @@ alter database postgres reset app.settings.service_role_key;
 
 Enable it under Database → Extensions → `pg_cron` before applying 0012, or
 re-run the scheduling block at the bottom of 0012 afterwards.
+
+---
+
+## Notifications and expiry: what has to be configured
+
+- `QUEUE_JOINED` is pushed once, when the ticket is inserted. If joining a short
+  line already crosses `ALMOST_THERE` / `RETURN_NOW`, those are stored as read
+  and not pushed, so the customer is not buzzed twice at once.
+- A customer who cancels in the app gets no "cancelled" push (`queues.cancelled_by`
+  equals `user_id`); staff removals do.
+- `queue_position` returns `server_now`; the app uses it (`ServerClock`) so the
+  check-in countdown follows the server even if the phone clock is wrong.
+- **Expiry while nobody has the app open depends on pg_cron.** Check with
+  `select jobname, schedule from cron.job;` — `ngantriin-expire-overdue-queues`
+  must be listed. Without it, a missed window is only settled by the next
+  queue event at that venue (the notifier now sweeps first) or an app opening.
+
+---
+
+## Accounts and restaurant verification (0019)
+
+- **Customer sign-up** is name + email + password. The trigger always creates a
+  `CUSTOMER`; nobody can choose a role at sign-up.
+- **Staff sign-up** is the same account plus a restaurant application
+  (`register_restaurant`): contact phone, the applicant's role (`OWNER`,
+  `MANAGER`, `AUTHORIZED_STAFF`) and at least one `BUSINESS_LICENSE` file
+  uploaded to the private `restaurant-proofs` bucket (JPEG/PDF, 5 MB, own folder
+  only). The RPC verifies each path exists in that folder.
+- The venue starts `PENDING_VERIFICATION` and unlisted. `is_restaurant_staff()`
+  only counts `APPROVED` venues, and every staff RPC and RLS policy goes through
+  it, so a pending or rejected applicant cannot call tickets, read queues, list
+  or unpause the venue. A check constraint also refuses `is_active` unless
+  `APPROVED`.
+- A rejected applicant sees the note on the staff dashboard and calls
+  `resubmit_restaurant`, which returns the venue to `PENDING_VERIFICATION`. Each
+  submission is a numbered round (`restaurant_documents.submission_round`), so the
+  reviewer can tell new files from old ones.
+- Venues that existed before 0019 are grandfathered as `APPROVED`.
+
+### Reviewing applications (0020, 0021)
+
+An account with `users.role = 'ADMIN'` reviews in the app: the admin sees a list of
+applications by state (pending, rejected, approved), the applicant's details and
+proof files, and approves or rejects (a reason is required to reject). Nothing
+about this is enforced in the app; every call is checked in the database.
+
+- **Making an admin** is done by hand, never from the app. Sign-up always creates a
+  `CUSTOMER`, and clients cannot write `users.role`:
+
+  ```sql
+  select grant_admin('reviewer@example.com');   -- the person must have signed up
+  select revoke_admin('reviewer@example.com');  -- back to CUSTOMER
+  ```
+
+  `grant_admin` refuses an account that runs a restaurant (`USER_IS_STAFF`), and
+  `grant_staff` refuses an admin (`USER_IS_ADMIN`). `revoke_staff` only demotes a
+  `STAFF` account, and a trigger on `restaurants` stops an admin from registering
+  one (`ADMIN_CANNOT_REGISTER`), so the role cannot be overwritten by accident.
+- **What an admin can call** (each starts with `is_admin()` and raises `NOT_ADMIN`
+  otherwise):
+
+  | Function | Does |
+  |---|---|
+  | `admin_list_applications(status)` | Applications in `PENDING_VERIFICATION`, `REJECTED` or `APPROVED`, with applicant name, email, phone and role. Pending ones oldest first. |
+  | `admin_application_documents(restaurant)` | The proof files, newest submission first. |
+  | `admin_review_restaurant(restaurant, approve, note)` | Approves or rejects a `PENDING_VERIFICATION` application (`NOT_PENDING` otherwise; `REJECTION_NOTE_REQUIRED` to reject without a reason; `PROOF_REQUIRED` to approve without a business document). Records `restaurants.verified_by`. |
+
+  `review_restaurant()` stays closed to every app role; `admin_review_restaurant`
+  is its only door. It still works from the SQL editor:
+
+  ```sql
+  select review_restaurant('<restaurant id>', true,  null);
+  select review_restaurant('<restaurant id>', false, 'Dokumen tidak terbaca');
+  ```
+- **Proof files** live in the private `restaurant-proofs` bucket. An applicant can
+  read only their own folder; an admin can read all of it (the app asks for a
+  5-minute signed URL); nobody else can. Uploads must be `.jpg`, `.jpeg` or `.pdf`,
+  at most 5 MB, inside the uploader's own folder. The app also checks the file's
+  first bytes (`%PDF-` or a JPEG header) before uploading. The server cannot do
+  that last check, so it relies on the extension and the bucket's MIME list.
+- The public `restaurant-photos` bucket is limited to JPEG, 5 MB, own folder.
+- **Sample (demo) mode** follows the same rules: an application is pending until
+  `admin@ngantriin.id` approves it, rejection and resubmission work, and a
+  non-admin gets `NOT_ADMIN`. That account, and all sample data, exist only in a
+  build without Supabase credentials, and sample mode caches in its own database
+  file (`ngantriin-demo.db`) so it never mixes with a real project.
+
+### Known gaps
+
+- `queue_stats` is readable by everyone and gets a row when an application is
+  submitted, so the *id* of a pending restaurant is visible (no name or address).
+- After approval, staff can still edit `description` and `image_url` without a
+  new review.
+- Owners and admins are not notified (push) of a decision or a new application.

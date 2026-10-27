@@ -30,7 +30,9 @@ import org.umn.ngantriin.data.local.entity.ReviewEntity
     // v3: added RestaurantEntity.availableSeats ("kursi kosong" walk-ins).
     // v4: TABLE_READY / EXPIRED journey — check-in deadline, table-ready and
     //     expiry timestamps, per-restaurant check-in window.
-    version = 4,
+    // v5: RestaurantEntity.isActive — paused venues stay cached for the
+    //     tickets and staff that need them, but drop out of the catalogue.
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -45,15 +47,21 @@ abstract class NgantriinDatabase : RoomDatabase() {
     companion object {
         private const val NAME = "ngantriin.db"
 
+        /** Sample mode's own file: demo data never shares a cache with a real project. */
+        private const val DEMO_NAME = "ngantriin-demo.db"
+
         @Volatile
         private var instance: NgantriinDatabase? = null
 
-        fun get(context: Context): NgantriinDatabase =
+        /** Which file holds the cache: sample mode never shares one with a real project. */
+        fun fileName(demo: Boolean): String = if (demo) DEMO_NAME else NAME
+
+        fun get(context: Context, demo: Boolean = false): NgantriinDatabase =
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext,
                     NgantriinDatabase::class.java,
-                    NAME
+                    fileName(demo)
                 )
                     // The cache is disposable; a schema change can rebuild it
                     // rather than shipping a migration for every release.

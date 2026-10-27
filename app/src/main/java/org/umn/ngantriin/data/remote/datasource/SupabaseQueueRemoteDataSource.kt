@@ -16,6 +16,7 @@ import org.umn.ngantriin.data.remote.dto.QueuePositionDto
 import org.umn.ngantriin.domain.model.QueueEntry
 import org.umn.ngantriin.domain.model.QueuePosition
 import org.umn.ngantriin.domain.model.QueueStatus
+import org.umn.ngantriin.domain.model.ServerClock
 
 /**
  * Every state change goes through an RPC rather than a table write. The
@@ -101,6 +102,9 @@ class SupabaseQueueRemoteDataSource(
         ).decodeList<QueuePositionDto>()
             .firstOrNull()
             ?.let {
+                // Tied to the response we just received, so keep it here.
+                it.serverNow?.let { raw -> runCatching { java.time.Instant.parse(raw) }.getOrNull() }
+                    ?.let(ServerClock::sync)
                 QueuePosition(
                     peopleAhead = it.peopleAhead,
                     position = it.position,

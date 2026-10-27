@@ -371,8 +371,8 @@ private fun QueueStatusCard(state: RestaurantDetailUiState) {
                 modifier = Modifier.fillMaxWidth().height(8.dp),
                 color = when {
                     fill > 0.85f -> statusColors.cancelled
-                    fill > 0.5f -> statusColors.almostThere
-                    else -> statusColors.called
+                    fill > 0.5f -> statusColors.waiting
+                    else -> statusColors.positive
                 },
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 gapSize = 0.dp,

@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.umn.ngantriin.core.Outcome
@@ -28,7 +30,7 @@ class AuthRepositoryImpl(
     private val _recoveryPending = MutableStateFlow(false)
     override val recoveryPending: StateFlow<Boolean> = _recoveryPending.asStateFlow()
 
-    override val sessionState: Flow<SessionState> = remote.session
+    private val restoredSession: Flow<SessionState> = remote.session
         .map { session ->
             when (session) {
                 RemoteSession.Initializing -> SessionState.Loading
@@ -51,6 +53,18 @@ class AuthRepositoryImpl(
                 }
             }
         }
+
+    // A refreshed profile has to reach navigation too: registering a restaurant
+    // changes the role without touching the auth session, and the role decides
+    // which half of the app you are in.
+    override val sessionState: Flow<SessionState> = combine(restoredSession, cachedUser) { state, user ->
+        if (state is SessionState.SignedIn && user != null && user.id == state.user.id) {
+            SessionState.SignedIn(user)
+        } else {
+            state
+        }
+    }
+        .distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, SessionState.Loading)
 
     override fun currentUserOrNull(): User? = cachedUser.value

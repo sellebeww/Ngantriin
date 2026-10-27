@@ -40,6 +40,11 @@
     <string name="push_cancelled_title">Queue cancelled</string>
     <string name="push_cancelled_body">Your ticket is no longer active.</string>
     <string name="push_queue_update_title">Queue update</string>
+    <string name="push_joined_title">You\'re in the queue</string>
+    <plurals name="push_joined_body">
+        <item quantity="one">Your number is %1$s. %2$d group ahead of you. Estimated wait: %3$s.</item>
+        <item quantity="other">Your number is %1$s. %2$d groups ahead of you. Estimated wait: %3$s.</item>
+    </plurals>
 
     <!-- Errors -->
     <string name="error_network">No internet connection. Check your network and try again.</string>
@@ -378,7 +383,7 @@
     <string name="staff_sign_out_message">You\'ll need to sign in again to manage this queue.</string>
     <string name="staff_dashboard_title">Restaurant dashboard</string>
     <string name="staff_no_restaurants_title">No restaurants assigned</string>
-    <string name="staff_no_restaurants_message">This account isn\'t listed as staff for any venue yet. Add a row to restaurant_staff to manage one.</string>
+    <string name="staff_no_restaurants_message">This account doesn\'t manage any restaurant yet. Register one to put it in customer search and manage its queue.</string>
     <string name="staff_waiting">waiting</string>
     <string name="staff_called">called</string>
     <string name="staff_seated">here</string>
@@ -578,4 +583,115 @@
     <string name="staff_upcoming_more">+%1$d more waiting</string>
     <string name="active_queue_share">Share my queue</string>
     <string name="active_queue_share_text">I\'m in line at %2$s with ticket %1$s — %3$d groups ahead of me. Queued with Ngantriin.</string>
+
+    <!-- Restaurant registration -->
+    <string name="register_restaurant_title">Register your restaurant</string>
+    <string name="register_restaurant_subtitle">Add the details of your restaurant and the documents we need to verify it. Once approved, it is listed in search and you manage its queue from the restaurant dashboard.</string>
+    <string name="register_restaurant_photo_add">Add a photo</string>
+    <string name="register_restaurant_name_label">Restaurant name</string>
+    <string name="register_restaurant_address_label">Address</string>
+    <string name="register_restaurant_category_label">Category</string>
+    <string name="register_restaurant_description_label">Description (optional)</string>
+    <string name="register_restaurant_location_title">Location</string>
+    <string name="register_restaurant_latitude_label">Latitude</string>
+    <string name="register_restaurant_longitude_label">Longitude</string>
+    <string name="register_restaurant_use_my_location">Use my current location</string>
+    <string name="register_restaurant_hours_title">Opening hours</string>
+    <string name="register_restaurant_open_24h">Open 24 hours</string>
+    <string name="register_restaurant_opens_label">Opens (HH:mm)</string>
+    <string name="register_restaurant_closes_label">Closes (HH:mm)</string>
+    <string name="register_restaurant_queue_title">Queue</string>
+    <string name="register_restaurant_service_label">Minutes per group</string>
+    <string name="register_restaurant_capacity_label">Max groups</string>
+    <string name="register_restaurant_submit">Submit for verification</string>
+    <string name="validation_restaurant_name">Enter the restaurant name (at least 2 characters).</string>
+    <string name="validation_restaurant_address">Enter the full address.</string>
+    <string name="validation_restaurant_category">Pick a category.</string>
+    <string name="validation_restaurant_location">Enter valid coordinates, or use your current location.</string>
+    <string name="validation_restaurant_hours">Use the HH:mm format, for example 10:00.</string>
+    <string name="validation_restaurant_service">Between 1 and 60 minutes.</string>
+    <string name="validation_restaurant_capacity">Between 1 and 500 groups.</string>
+    <string name="error_invalid_restaurant">Some restaurant details were rejected. Please check the form.</string>
+    <string name="error_too_many_restaurants">You\'ve reached the limit of 5 registered restaurants.</string>
+    <string name="profile_register_restaurant">Register your restaurant</string>
+    <string name="staff_register_restaurant">Register a restaurant</string>
+    <string name="staff_listing_title">Listed in customer search</string>
+    <string name="staff_listing_on">Customers can find this restaurant and take a ticket.</string>
+    <string name="staff_listing_off">Paused: hidden from search, no new tickets. Existing tickets keep working.</string>
+
+    <!-- Account type and restaurant verification -->
+    <string name="register_account_type_label">I am signing up as</string>
+    <string name="register_account_user">Customer</string>
+    <string name="register_account_staff">Restaurant staff</string>
+    <string name="register_account_user_hint">Find restaurants, join queues and get notified. Just a name, email and password.</string>
+    <string name="register_account_staff_hint">You\'ll register your restaurant next and upload a business document. Staff tools unlock once it is verified.</string>
+    <string name="register_staff_confirmation_required">Account created. Confirm your email, sign in, and we\'ll take you straight to your restaurant application.</string>
+    <string name="resubmit_restaurant_title">Fix your application</string>
+    <string name="resubmit_restaurant_subtitle">Update your contact details and documents, then send the application for review again.</string>
+    <string name="resubmit_restaurant_submit">Resubmit for review</string>
+    <string name="register_restaurant_verification_title">Verification</string>
+    <string name="register_restaurant_verification_hint">We check that the restaurant exists and that you may manage it. Documents are private and only used for this review.</string>
+    <string name="register_restaurant_phone_label">Contact phone</string>
+    <string name="register_restaurant_role_label">Your role at this restaurant</string>
+    <string name="applicant_role_owner">Owner</string>
+    <string name="applicant_role_manager">Manager</string>
+    <string name="applicant_role_authorized">Authorized staff</string>
+    <string name="register_restaurant_license_title">Business document (required)</string>
+    <string name="register_restaurant_license_hint">NIB, business licence or similar. PDF or photo, up to 5 MB.</string>
+    <string name="register_restaurant_ownership_title">Proof you may manage it (optional)</string>
+    <string name="register_restaurant_ownership_hint">Authorization letter, lease or a photo of the storefront with its name.</string>
+    <string name="register_restaurant_no_file">No file chosen</string>
+    <string name="register_restaurant_choose_file">Choose</string>
+    <string name="register_restaurant_change_file">Change</string>
+    <string name="register_restaurant_remove_file">Remove</string>
+    <string name="register_restaurant_proof_unreadable">That file could not be read or is over 5 MB. Choose a PDF or photo up to 5 MB.</string>
+    <string name="validation_contact_phone">Enter a phone number with 8 to 15 digits.</string>
+    <string name="validation_proof_required">Upload your business document.</string>
+    <string name="error_proof_required">The business document is missing or did not upload. Please attach it again.</string>
+    <string name="error_application_pending">You already have an application under review.</string>
+    <string name="error_not_resubmittable">This application cannot be resubmitted.</string>
+    <string name="verification_pending_title">Waiting for verification</string>
+    <string name="verification_pending_body">We are checking your documents. You can manage the queue as soon as this restaurant is approved. Until then it stays hidden from customers.</string>
+    <string name="verification_rejected_title">Application not approved</string>
+    <string name="verification_rejected_body">Reason: %1$s\n\nFix the details and send it again.</string>
+    <string name="verification_no_reason">no reason was given</string>
+    <string name="verification_resubmit">Fix and resubmit</string>
+    <string name="verification_refresh">Check status</string>
+
+    <!-- Admin review of restaurant applications -->
+    <string name="admin_review_title">Review applications</string>
+    <string name="admin_filter_pending">Pending</string>
+    <string name="admin_filter_rejected">Rejected</string>
+    <string name="admin_filter_approved">Approved</string>
+    <string name="admin_empty_title">Nothing here</string>
+    <string name="admin_empty_message">There are no applications in this list.</string>
+    <string name="admin_submitted">Submitted %1$s</string>
+    <string name="admin_documents_count">%1$d documents</string>
+    <string name="admin_application_title">Application</string>
+    <string name="admin_section_applicant">Applicant</string>
+    <string name="admin_section_restaurant">Restaurant</string>
+    <string name="admin_section_documents">Proof documents</string>
+    <string name="admin_label_name">Name</string>
+    <string name="admin_label_email">Email</string>
+    <string name="admin_label_phone">Phone</string>
+    <string name="admin_label_role">Role</string>
+    <string name="admin_label_address">Address</string>
+    <string name="admin_label_category">Category</string>
+    <string name="admin_doc_license">Business document</string>
+    <string name="admin_doc_ownership">Ownership proof</string>
+    <string name="admin_doc_round">Submission %1$d</string>
+    <string name="admin_doc_open_pdf">Open PDF</string>
+    <string name="admin_doc_unavailable">This file cannot be opened here.</string>
+    <string name="admin_no_documents">No documents on file.</string>
+    <string name="admin_approve">Approve</string>
+    <string name="admin_reject">Reject</string>
+    <string name="admin_approve_title">Approve this restaurant?</string>
+    <string name="admin_approve_message">It goes live for customers right away, and the owner can start managing the queue.</string>
+    <string name="admin_reject_title">Reject this application</string>
+    <string name="admin_reject_message">The owner will read your reason and can fix it and apply again.</string>
+    <string name="admin_reject_reason">Reason</string>
+    <string name="admin_reject_confirm">Reject</string>
+    <string name="error_not_admin">This account cannot review applications.</string>
+    <string name="error_not_pending">This application was already decided. Refresh the list.</string>
+    <string name="error_rejection_note_required">Write a reason so the owner knows what to fix.</string>
 </resources>

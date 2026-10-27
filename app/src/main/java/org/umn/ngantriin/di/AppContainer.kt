@@ -5,10 +5,16 @@ import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import java.io.File
 import org.umn.ngantriin.core.ConnectivityObserver
 import org.umn.ngantriin.data.local.NgantriinDatabase
 import org.umn.ngantriin.data.local.prefs.UserPreferencesDataStore
 import org.umn.ngantriin.data.remote.SupabaseClientFactory
+import org.umn.ngantriin.data.remote.datasource.AdminRemoteDataSource
+import org.umn.ngantriin.data.remote.datasource.SupabaseAdminRemoteDataSource
+import org.umn.ngantriin.data.remote.demo.DemoAdminRemoteDataSource
+import org.umn.ngantriin.data.repository.AdminRepositoryImpl
+import org.umn.ngantriin.domain.repository.AdminRepository
 import org.umn.ngantriin.data.remote.datasource.AuthRemoteDataSource
 import org.umn.ngantriin.data.remote.datasource.NotificationRemoteDataSource
 import org.umn.ngantriin.data.remote.datasource.QueueRemoteDataSource
@@ -66,7 +72,9 @@ class AppContainer(private val context: Context) {
 
     private val supabase: SupabaseClient? by lazy { SupabaseClientFactory.createOrNull() }
 
-    val database: NgantriinDatabase by lazy { NgantriinDatabase.get(context) }
+    // Sample mode gets its own database file, so demo venues and tickets can never
+    // sit in the cache of a build that talks to a real project.
+    val database: NgantriinDatabase by lazy { NgantriinDatabase.get(context, demo = isDemoMode) }
 
     val preferences: UserPreferencesDataStore by lazy { UserPreferencesDataStore(context) }
 
@@ -82,7 +90,7 @@ class AppContainer(private val context: Context) {
         LocationTracker(locationProvider, userPreferencesRepository, applicationScope)
     }
 
-    private val demoBackend: DemoBackend by lazy { DemoBackend(database) }
+    private val demoBackend: DemoBackend by lazy { DemoBackend(database, preferences) }
 
     // --- Remote data sources -------------------------------------------------
 
@@ -92,7 +100,17 @@ class AppContainer(private val context: Context) {
 
     private val restaurantRemote: RestaurantRemoteDataSource by lazy {
         supabase?.let { SupabaseRestaurantRemoteDataSource(it) }
-            ?: DemoRestaurantRemoteDataSource(demoBackend)
+            ?: DemoRestaurantRemoteDataSource(
+                demoBackend,
+                authRemote,
+                preferences,
+                File(context.filesDir, "restaurant-photos")
+            )
+    }
+
+    private val adminRemote: AdminRemoteDataSource by lazy {
+        supabase?.let { SupabaseAdminRemoteDataSource(it) }
+            ?: DemoAdminRemoteDataSource(demoBackend, authRemote)
     }
 
     private val queueRemote: QueueRemoteDataSource by lazy {
@@ -139,6 +157,8 @@ class AppContainer(private val context: Context) {
             offlineWriteQueue = offlineWriteQueue
         )
     }
+
+    val adminRepository: AdminRepository by lazy { AdminRepositoryImpl(adminRemote) }
 
     val reviewRepository: ReviewRepository by lazy {
         ReviewRepositoryImpl(

@@ -24,12 +24,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,9 +41,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.umn.ngantriin.R
 import org.umn.ngantriin.core.AppError
@@ -53,6 +58,10 @@ import org.umn.ngantriin.ui.components.FullScreenLoader
 import org.umn.ngantriin.ui.components.PrimaryButton
 import org.umn.ngantriin.ui.components.SecondaryButton
 import org.umn.ngantriin.domain.model.QueueEntry
+import org.umn.ngantriin.domain.model.VerificationStatus
+import org.umn.ngantriin.domain.model.Restaurant
+import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.Cancel
 import org.umn.ngantriin.ui.components.fullBleed
 import org.umn.ngantriin.ui.components.relativeText
 import org.umn.ngantriin.ui.components.waitTimeText
@@ -66,6 +75,8 @@ import org.umn.ngantriin.ui.theme.balanced
 @Composable
 fun StaffDashboardScreen(
     onOpenQueue: (String) -> Unit,
+    onRegisterRestaurant: () -> Unit,
+    onResubmit: (String) -> Unit,
     onMessage: (AppError) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -80,6 +91,9 @@ fun StaffDashboardScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     var confirmSignOut by remember { mutableStateOf(false) }
+
+    // Coming back from the registration form: pick up the new venue.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshManaged() }
 
     LaunchedEffect(viewModel) {
         viewModel.eventFlow.collect { event ->
@@ -128,6 +142,9 @@ fun StaffDashboardScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            IconButton(onClick = onRegisterRestaurant) {
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.staff_register_restaurant))
+            }
             IconButton(onClick = { confirmSignOut = true }) {
                 Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(R.string.profile_sign_out))
             }
@@ -140,6 +157,11 @@ fun StaffDashboardScreen(
                 icon = Icons.Outlined.Inbox,
                 title = stringResource(R.string.staff_no_restaurants_title),
                 message = stringResource(R.string.staff_no_restaurants_message)
+            )
+            Spacer(Modifier.height(Spacing.lg))
+            PrimaryButton(
+                text = stringResource(R.string.staff_register_restaurant),
+                onClick = onRegisterRestaurant
             )
             return@Column
         }
@@ -164,11 +186,34 @@ fun StaffDashboardScreen(
         }
 
         val restaurant = state.selectedRestaurant
+        // Nothing here is manageable until the application is approved; the
+        // server enforces it too (is_restaurant_staff), this just says why.
+        if (restaurant != null && !restaurant.isApproved) {
+            Text(
+                text = restaurant.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(Spacing.md))
+            VerificationCard(
+                restaurant = restaurant,
+                onRefresh = viewModel::refreshManaged,
+                onResubmit = { onResubmit(restaurant.id) }
+            )
+            return@Column
+        }
+
         if (restaurant != null) {
             Text(
                 text = restaurant.name,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(Spacing.md))
+            ListingToggle(
+                listed = restaurant.isActive,
+                enabled = !state.isWorking,
+                onChange = viewModel::setListed
             )
             Spacer(Modifier.height(Spacing.lg))
         }
@@ -181,16 +226,19 @@ fun StaffDashboardScreen(
             StaffStat(
                 value = "${state.waiting.size}",
                 label = stringResource(R.string.staff_waiting),
+                accent = LocalStatusColors.current.waiting,
                 modifier = Modifier.weight(1f)
             )
             StaffStat(
                 value = "${state.called.size}",
                 label = stringResource(R.string.staff_called),
+                accent = LocalStatusColors.current.called,
                 modifier = Modifier.weight(1f)
             )
             StaffStat(
                 value = "${state.atRestaurant}",
                 label = stringResource(R.string.staff_seated),
+                accent = LocalStatusColors.current.checkedIn,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -251,6 +299,37 @@ fun StaffDashboardScreen(
 }
 
 private const val UPCOMING_PREVIEW = 3
+
+/** Whether customers can find this venue and take tickets there. */
+@Composable
+private fun ListingToggle(listed: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.staff_listing_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        if (listed) R.string.staff_listing_on else R.string.staff_listing_off
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(checked = listed, onCheckedChange = onChange, enabled = enabled)
+        }
+    }
+}
 
 /** One line of the "up next" preview: who is next and how long they've waited. */
 @Composable
@@ -368,7 +447,12 @@ private fun NowServingCard(state: StaffQueueUiState) {
 }
 
 @Composable
-private fun StaffStat(value: String, label: String, modifier: Modifier = Modifier) {
+private fun StaffStat(
+    value: String,
+    label: String,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
@@ -389,7 +473,7 @@ private fun StaffStat(value: String, label: String, modifier: Modifier = Modifie
                 Text(
                     text = shown,
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = accent
                 )
             }
             Text(
@@ -398,6 +482,64 @@ private fun StaffStat(value: String, label: String, modifier: Modifier = Modifie
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+
+/** Pending: wait. Rejected: here is why, and a way to fix it. */
+@Composable
+private fun VerificationCard(
+    restaurant: Restaurant,
+    onRefresh: () -> Unit,
+    onResubmit: () -> Unit
+) {
+    val colors = LocalStatusColors.current
+    val rejected = restaurant.verificationStatus == VerificationStatus.REJECTED
+    val container = if (rejected) colors.cancelledContainer else colors.waitingContainer
+    val content = if (rejected) colors.cancelled else colors.waiting
+
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = container,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(Modifier.padding(Spacing.xl)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (rejected) Icons.Filled.Cancel else Icons.Filled.HourglassTop,
+                    contentDescription = null,
+                    tint = content
+                )
+                Spacer(Modifier.width(Spacing.sm))
+                Text(
+                    text = stringResource(
+                        if (rejected) R.string.verification_rejected_title else R.string.verification_pending_title
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = content
+                )
+            }
+            Spacer(Modifier.height(Spacing.sm))
+            Text(
+                text = if (rejected) {
+                    stringResource(
+                        R.string.verification_rejected_body,
+                        restaurant.verificationNote?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.verification_no_reason)
+                    )
+                } else {
+                    stringResource(R.string.verification_pending_body)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.height(Spacing.lg))
+            if (rejected) {
+                PrimaryButton(text = stringResource(R.string.verification_resubmit), onClick = onResubmit)
+                Spacer(Modifier.height(Spacing.sm))
+            }
+            SecondaryButton(text = stringResource(R.string.verification_refresh), onClick = onRefresh)
         }
     }
 }

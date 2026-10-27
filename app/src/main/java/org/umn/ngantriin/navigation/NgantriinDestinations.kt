@@ -57,7 +57,17 @@ object Routes {
     const val REVIEW = "review/{$ARG_QUEUE_ID}"
     fun review(queueId: String) = "review/$queueId"
 
+    /** The reviewer's only area; routed to by role (see NgantriinApp.resolveArea). */
+    const val ADMIN_REVIEW = "admin_review"
+
+    const val ARG_STATUS = "status"
+    const val ADMIN_APPLICATION = "admin_application/{$ARG_RESTAURANT_ID}/{$ARG_STATUS}"
+    fun adminApplication(restaurantId: String, status: String) = "admin_application/$restaurantId/$status"
+
     const val STAFF_DASHBOARD = "staff_dashboard"
+
+    /** Reachable from the profile (customers) and the dashboard (staff). */
+    const val REGISTER_RESTAURANT = "register_restaurant"
 
     const val STAFF_QUEUE = "staff_queue/{$ARG_RESTAURANT_ID}"
     fun staffQueue(restaurantId: String) = "staff_queue/$restaurantId"

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +61,7 @@ fun ProfileScreen(
     onOpenSettings: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenStaffDashboard: () -> Unit,
+    onRegisterRestaurant: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val container = LocalAppContainer.current
@@ -241,12 +243,19 @@ fun ProfileScreen(
                     onClick = onOpenSettings
                 )
 
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 if (state.user?.role == UserRole.STAFF) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     ProfileRow(
                         icon = Icons.Filled.Settings,
                         label = stringResource(R.string.profile_restaurant_dashboard),
                         onClick = onOpenStaffDashboard
+                    )
+                } else if (state.user?.role != UserRole.ADMIN) {
+                    // An admin reviews applications and never registers a venue.
+                    ProfileRow(
+                        icon = Icons.Filled.Storefront,
+                        label = stringResource(R.string.profile_register_restaurant),
+                        onClick = onRegisterRestaurant
                     )
                 }
             }

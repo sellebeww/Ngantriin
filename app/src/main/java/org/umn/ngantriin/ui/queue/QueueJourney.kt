@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.umn.ngantriin.R
 import org.umn.ngantriin.domain.model.QueueStatus
+import org.umn.ngantriin.domain.model.ServerClock
 import org.umn.ngantriin.ui.theme.Spacing
 import java.time.Duration
 import java.time.Instant
@@ -168,7 +169,7 @@ fun rememberSecondsLeft(
 }
 
 private fun secondsUntil(deadline: Instant): Long =
-    Duration.between(Instant.now(), deadline).seconds.coerceAtLeast(0)
+    Duration.between(ServerClock.now(), deadline).seconds.coerceAtLeast(0)
 
 /** 9:05 */
 fun formatCountdown(seconds: Long): String =

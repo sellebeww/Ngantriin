@@ -270,7 +270,8 @@ class QueueRepositoryImpl(
                 )
             } ?: stats,
             peopleAhead = peopleAhead,
-            estimatedWaitMinutes = estimate
+            estimatedWaitMinutes = estimate,
+            isPositionConfirmed = serverPosition != null
         )
     }
 

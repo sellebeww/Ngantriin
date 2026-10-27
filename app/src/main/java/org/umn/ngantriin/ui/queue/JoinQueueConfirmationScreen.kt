@@ -94,13 +94,13 @@ fun JoinQueueConfirmationScreen(
             modifier = Modifier
                 .size(72.dp)
                 .scale(scale)
-                .background(statusColors.calledContainer, RoundedCornerShape(50)),
+                .background(statusColors.positiveContainer, RoundedCornerShape(50)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = statusColors.called,
+                tint = statusColors.positive,
                 modifier = Modifier.size(38.dp)
             )
         }

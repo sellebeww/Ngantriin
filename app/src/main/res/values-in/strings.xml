@@ -39,6 +39,10 @@
     <string name="push_cancelled_title">Antrean dibatalkan</string>
     <string name="push_cancelled_body">Tiketmu sudah tidak aktif.</string>
     <string name="push_queue_update_title">Update antrean</string>
+    <string name="push_joined_title">Kamu masuk antrean</string>
+    <plurals name="push_joined_body">
+        <item quantity="other">Nomormu %1$s. Ada %2$d grup di depanmu. Estimasi tunggu: %3$s.</item>
+    </plurals>
 
     <!-- Errors -->
     <string name="error_network">Tidak ada koneksi internet. Periksa jaringanmu dan coba lagi.</string>
@@ -367,7 +371,7 @@
     <string name="staff_sign_out_message">Kamu perlu masuk lagi untuk mengelola antrean ini.</string>
     <string name="staff_dashboard_title">Dashboard restoran</string>
     <string name="staff_no_restaurants_title">Belum ada restoran yang ditugaskan</string>
-    <string name="staff_no_restaurants_message">Akun ini belum terdaftar sebagai staf untuk restoran mana pun. Tambahkan baris ke restaurant_staff untuk mengelolanya.</string>
+    <string name="staff_no_restaurants_message">Akun ini belum mengelola restoran mana pun. Daftarkan restoran agar muncul di pencarian pelanggan dan antreannya bisa kamu kelola.</string>
     <string name="staff_waiting">menunggu</string>
     <string name="staff_called">dipanggil</string>
     <string name="staff_seated">di lokasi</string>
@@ -564,4 +568,115 @@
     <string name="staff_upcoming_more">+%1$d lagi menunggu</string>
     <string name="active_queue_share">Bagikan antreanku</string>
     <string name="active_queue_share_text">Aku lagi antre di %2$s dengan nomor %1$s — masih ada %3$d grup di depanku. Antre lewat Ngantriin.</string>
+
+    <!-- Restaurant registration -->
+    <string name="register_restaurant_title">Daftarkan restoranmu</string>
+    <string name="register_restaurant_subtitle">Isi data restoranmu dan dokumen yang kami perlukan untuk verifikasi. Setelah disetujui, restoran tampil di pencarian dan kamu mengelola antreannya dari dasbor restoran.</string>
+    <string name="register_restaurant_photo_add">Tambah foto</string>
+    <string name="register_restaurant_name_label">Nama restoran</string>
+    <string name="register_restaurant_address_label">Alamat</string>
+    <string name="register_restaurant_category_label">Kategori</string>
+    <string name="register_restaurant_description_label">Deskripsi (opsional)</string>
+    <string name="register_restaurant_location_title">Lokasi</string>
+    <string name="register_restaurant_latitude_label">Lintang</string>
+    <string name="register_restaurant_longitude_label">Bujur</string>
+    <string name="register_restaurant_use_my_location">Gunakan lokasiku sekarang</string>
+    <string name="register_restaurant_hours_title">Jam buka</string>
+    <string name="register_restaurant_open_24h">Buka 24 jam</string>
+    <string name="register_restaurant_opens_label">Buka (JJ:mm)</string>
+    <string name="register_restaurant_closes_label">Tutup (JJ:mm)</string>
+    <string name="register_restaurant_queue_title">Antrean</string>
+    <string name="register_restaurant_service_label">Menit per grup</string>
+    <string name="register_restaurant_capacity_label">Maks. grup</string>
+    <string name="register_restaurant_submit">Kirim untuk verifikasi</string>
+    <string name="validation_restaurant_name">Isi nama restoran (minimal 2 karakter).</string>
+    <string name="validation_restaurant_address">Isi alamat lengkap.</string>
+    <string name="validation_restaurant_category">Pilih kategori.</string>
+    <string name="validation_restaurant_location">Isi koordinat yang valid, atau gunakan lokasimu sekarang.</string>
+    <string name="validation_restaurant_hours">Gunakan format JJ:mm, misalnya 10:00.</string>
+    <string name="validation_restaurant_service">Antara 1 sampai 60 menit.</string>
+    <string name="validation_restaurant_capacity">Antara 1 sampai 500 grup.</string>
+    <string name="error_invalid_restaurant">Sebagian data restoran ditolak. Periksa kembali formulirnya.</string>
+    <string name="error_too_many_restaurants">Kamu sudah mencapai batas 5 restoran terdaftar.</string>
+    <string name="profile_register_restaurant">Daftarkan restoranmu</string>
+    <string name="staff_register_restaurant">Daftarkan restoran</string>
+    <string name="staff_listing_title">Tampil di pencarian pelanggan</string>
+    <string name="staff_listing_on">Pelanggan bisa menemukan restoran ini dan mengambil tiket.</string>
+    <string name="staff_listing_off">Dijeda: tidak muncul di pencarian dan tidak menerima tiket baru. Tiket yang ada tetap berjalan.</string>
+
+    <!-- Jenis akun dan verifikasi restoran -->
+    <string name="register_account_type_label">Saya mendaftar sebagai</string>
+    <string name="register_account_user">Pelanggan</string>
+    <string name="register_account_staff">Staf restoran</string>
+    <string name="register_account_user_hint">Cari restoran, ambil antrean, dan dapat notifikasi. Cukup nama, email, dan kata sandi.</string>
+    <string name="register_account_staff_hint">Selanjutnya kamu mendaftarkan restoran dan mengunggah dokumen usaha. Fitur staf aktif setelah diverifikasi.</string>
+    <string name="register_staff_confirmation_required">Akun berhasil dibuat. Konfirmasi emailmu lalu masuk, dan kamu langsung diarahkan ke pendaftaran restoran.</string>
+    <string name="resubmit_restaurant_title">Perbaiki pengajuan</string>
+    <string name="resubmit_restaurant_subtitle">Perbarui kontak dan dokumenmu, lalu kirim ulang untuk ditinjau.</string>
+    <string name="resubmit_restaurant_submit">Ajukan ulang</string>
+    <string name="register_restaurant_verification_title">Verifikasi</string>
+    <string name="register_restaurant_verification_hint">Kami memeriksa bahwa restoran ini ada dan kamu berhak mengelolanya. Dokumen bersifat pribadi dan hanya dipakai untuk peninjauan ini.</string>
+    <string name="register_restaurant_phone_label">Nomor telepon kontak</string>
+    <string name="register_restaurant_role_label">Peranmu di restoran ini</string>
+    <string name="applicant_role_owner">Pemilik</string>
+    <string name="applicant_role_manager">Manajer</string>
+    <string name="applicant_role_authorized">Staf yang diberi kuasa</string>
+    <string name="register_restaurant_license_title">Dokumen usaha (wajib)</string>
+    <string name="register_restaurant_license_hint">NIB, izin usaha, atau sejenisnya. PDF atau foto, maksimal 5 MB.</string>
+    <string name="register_restaurant_ownership_title">Bukti kewenangan (opsional)</string>
+    <string name="register_restaurant_ownership_hint">Surat kuasa, bukti sewa, atau foto tampak depan beserta namanya.</string>
+    <string name="register_restaurant_no_file">Belum ada file</string>
+    <string name="register_restaurant_choose_file">Pilih</string>
+    <string name="register_restaurant_change_file">Ganti</string>
+    <string name="register_restaurant_remove_file">Hapus</string>
+    <string name="register_restaurant_proof_unreadable">File tidak bisa dibaca atau lebih dari 5 MB. Pilih PDF atau foto maksimal 5 MB.</string>
+    <string name="validation_contact_phone">Masukkan nomor telepon 8 sampai 15 digit.</string>
+    <string name="validation_proof_required">Unggah dokumen usahamu.</string>
+    <string name="error_proof_required">Dokumen usaha belum ada atau gagal terunggah. Lampirkan lagi.</string>
+    <string name="error_application_pending">Kamu masih punya pengajuan yang sedang ditinjau.</string>
+    <string name="error_not_resubmittable">Pengajuan ini tidak bisa diajukan ulang.</string>
+    <string name="verification_pending_title">Menunggu verifikasi</string>
+    <string name="verification_pending_body">Kami sedang memeriksa dokumenmu. Kamu bisa mengelola antrean begitu restoran ini disetujui. Sampai saat itu restoran tidak tampil di pelanggan.</string>
+    <string name="verification_rejected_title">Pengajuan belum disetujui</string>
+    <string name="verification_rejected_body">Alasan: %1$s\n\nPerbaiki datanya lalu kirim lagi.</string>
+    <string name="verification_no_reason">tidak ada alasan yang diberikan</string>
+    <string name="verification_resubmit">Perbaiki dan ajukan ulang</string>
+    <string name="verification_refresh">Cek status</string>
+
+    <!-- Admin review of restaurant applications -->
+    <string name="admin_review_title">Tinjau pengajuan</string>
+    <string name="admin_filter_pending">Menunggu</string>
+    <string name="admin_filter_rejected">Ditolak</string>
+    <string name="admin_filter_approved">Disetujui</string>
+    <string name="admin_empty_title">Belum ada</string>
+    <string name="admin_empty_message">Tidak ada pengajuan di daftar ini.</string>
+    <string name="admin_submitted">Diajukan %1$s</string>
+    <string name="admin_documents_count">%1$d dokumen</string>
+    <string name="admin_application_title">Pengajuan</string>
+    <string name="admin_section_applicant">Pemohon</string>
+    <string name="admin_section_restaurant">Restoran</string>
+    <string name="admin_section_documents">Dokumen bukti</string>
+    <string name="admin_label_name">Nama</string>
+    <string name="admin_label_email">Email</string>
+    <string name="admin_label_phone">Telepon</string>
+    <string name="admin_label_role">Peran</string>
+    <string name="admin_label_address">Alamat</string>
+    <string name="admin_label_category">Kategori</string>
+    <string name="admin_doc_license">Dokumen usaha</string>
+    <string name="admin_doc_ownership">Bukti kepemilikan</string>
+    <string name="admin_doc_round">Pengajuan ke-%1$d</string>
+    <string name="admin_doc_open_pdf">Buka PDF</string>
+    <string name="admin_doc_unavailable">File ini tidak bisa dibuka di sini.</string>
+    <string name="admin_no_documents">Belum ada dokumen.</string>
+    <string name="admin_approve">Setujui</string>
+    <string name="admin_reject">Tolak</string>
+    <string name="admin_approve_title">Setujui restoran ini?</string>
+    <string name="admin_approve_message">Restoran langsung tampil untuk pelanggan, dan pemilik bisa mulai mengelola antrean.</string>
+    <string name="admin_reject_title">Tolak pengajuan ini</string>
+    <string name="admin_reject_message">Pemilik akan membaca alasanmu dan bisa memperbaiki lalu mengajukan lagi.</string>
+    <string name="admin_reject_reason">Alasan</string>
+    <string name="admin_reject_confirm">Tolak</string>
+    <string name="error_not_admin">Akun ini tidak bisa meninjau pengajuan.</string>
+    <string name="error_not_pending">Pengajuan ini sudah diputuskan. Muat ulang daftar.</string>
+    <string name="error_rejection_note_required">Tulis alasan agar pemilik tahu apa yang perlu diperbaiki.</string>
 </resources>

@@ -82,8 +82,20 @@ class QueueNotificationScheduler(
 
     private suspend fun notifyMilestone(queue: ActiveQueue) {
         val userId = authRepository.currentUserOrNull()?.id ?: return
+        // A guessed position must not burn a once-only milestone: with no
+        // counters yet it reads "0 ahead" and would fire "head back now" the
+        // moment the ticket is created.
+        if (!queue.isPositionConfirmed && queue.entry.isWaitingToBeCalled) return
+
+        // Join confirmation. Recent tickets only, so restoring an old ticket
+        // on a fresh install does not announce a join from hours ago.
+        val justJoined = Duration.between(queue.entry.joinedAt, Instant.now()) <= JOIN_RECENT &&
+            emit(QueueNotificationCopy.build(context, userId, queue, NotificationType.QUEUE_JOINED))
+
         val milestone = QueueMath.notificationMilestone(queue.status, queue.peopleAhead) ?: return
-        emit(QueueNotificationCopy.build(context, userId, queue, milestone))
+        // Joining a short line already said how many are ahead; record the
+        // milestone so it can't fire later, but don't buzz twice at once.
+        emit(QueueNotificationCopy.build(context, userId, queue, milestone), silent = justJoined)
 
         // Reaching CALLED implies the earlier milestones happened, even if the
         // app was closed when they did. Backfilling keeps the in-app list
@@ -118,18 +130,20 @@ class QueueNotificationScheduler(
     private suspend fun emit(
         notification: org.umn.ngantriin.domain.model.AppNotification,
         silent: Boolean = false
-    ) {
-        if (notificationDao.countById(notification.id) > 0) return
+    ): Boolean {
+        if (notificationDao.countById(notification.id) > 0) return false
         notificationRepository.record(notification)
         // Settings -> Queue notifications: the in-app list still records it,
         // only the system tray stays quiet.
         if (!silent && preferences.notificationsEnabled.first()) {
             notificationHelper.show(notification)
         }
+        return true
     }
 
     private companion object {
         const val TAG = "Ngantriin"
         val RECENT: Duration = Duration.ofMinutes(30)
+        val JOIN_RECENT: Duration = Duration.ofMinutes(5)
     }
 }

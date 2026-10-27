@@ -68,6 +68,27 @@ sealed class AppError(
 
     data object NotRestaurantStaff : AppError(R.string.error_not_staff)
 
+    /** The restaurant form was rejected by the server's own validation. */
+    data object InvalidRestaurant : AppError(R.string.error_invalid_restaurant)
+
+    data object TooManyRestaurants : AppError(R.string.error_too_many_restaurants)
+
+    /** Registration needs an uploaded business document. */
+    data object ProofRequired : AppError(R.string.error_proof_required)
+
+    /** One application at a time. */
+    data object ApplicationPending : AppError(R.string.error_application_pending)
+
+    data object NotResubmittable : AppError(R.string.error_not_resubmittable)
+
+    /** The database refused an admin call: the account is not an administrator. */
+    data object NotAdmin : AppError(R.string.error_not_admin)
+
+    /** Someone else already decided this application. */
+    data object NotPending : AppError(R.string.error_not_pending)
+
+    data object RejectionNoteRequired : AppError(R.string.error_rejection_note_required)
+
     /** 20: reviews are gated on a completed ticket. */
     data object ReviewNotAllowed : AppError(R.string.error_review_not_allowed)
 
