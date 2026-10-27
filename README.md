@@ -12,8 +12,6 @@ Di sisi restoran, staf dapat mengelola antrean melalui dashboard, memanggil pela
 
 ▶ **[Tonton Video Demo Ngantriin di Google Drive](https://drive.google.com/file/d/1sxTP8jGzjPeeZGZPBCGBieA_eKFkm0ue/view?usp=drivesdk)**
 
-> Jika video tidak dapat dibuka, pastikan izin berbagi Google Drive telah diatur agar orang yang memiliki tautan dapat melihatnya.
-
 ## Fitur Utama
 
 ### Pelanggan
