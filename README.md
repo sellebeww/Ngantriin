@@ -1,6 +1,14 @@
-# Ngantriin
+<div align="center">
 
-**Good Food • Less Wait • Happier You**
+<img src="app/src/main/res/drawable-nodpi/ngantriin_logo.png" alt="Ngantriin" width="200">
+
+### Good Food • Less Wait • Happier You
+
+<p>Aplikasi Android antrean restoran digital: cari restoran, ambil nomor antrean, pantau giliran, dan check-in dengan foto.</p>
+
+<p><img src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin&logoColor=white&labelColor=3a3f47" alt="Kotlin 2.3"> <img src="https://img.shields.io/badge/Jetpack%20Compose-2026.09-4285F4?logo=jetpackcompose&logoColor=white&labelColor=3a3f47" alt="Jetpack Compose 2026.09"> <img src="https://img.shields.io/badge/Supabase-backend-3FCF8E?logo=supabase&logoColor=white&labelColor=3a3f47" alt="Supabase backend"> <img src="https://img.shields.io/badge/Firebase-FCM-FFCA28?logo=firebase&logoColor=white&labelColor=3a3f47" alt="Firebase FCM"> <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white&labelColor=3a3f47" alt="platform Android"></p>
+
+</div>
 
 ## Deskripsi Aplikasi
 
